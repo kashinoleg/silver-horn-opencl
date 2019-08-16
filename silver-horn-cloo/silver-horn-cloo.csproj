@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>silver_horn_cloo</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Cloo.dll.config" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Cloo.dll.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+</Project>
