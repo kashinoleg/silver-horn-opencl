@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29209.62
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "silver-horn-opencl", "silver-horn-opencl\silver-horn-opencl.csproj", "{74A22104-3C81-42A4-A1A3-4899CC058642}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "silver-horn-cloo", "silver-horn-cloo\silver-horn-cloo.csproj", "{BB6E01CC-F7F1-47A1-AA37-08FECACEEA74}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "silver-horn-cloo", "silver-horn-cloo\silver-horn-cloo.csproj", "{BB6E01CC-F7F1-47A1-AA37-08FECACEEA74}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "silver-horn-clootils", "silver-horn-clootils\silver-horn-clootils.csproj", "{AB2F2A84-D921-4454-A99D-EE665FB61A43}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "silver-horn-opencltemplate", "silver-horn-opencltemplate\silver-horn-opencltemplate.csproj", "{6E6C44FB-A7B7-4DFD-82BC-09F652AA2C10}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,10 +15,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{74A22104-3C81-42A4-A1A3-4899CC058642}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{74A22104-3C81-42A4-A1A3-4899CC058642}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{74A22104-3C81-42A4-A1A3-4899CC058642}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{74A22104-3C81-42A4-A1A3-4899CC058642}.Release|Any CPU.Build.0 = Release|Any CPU
 		{BB6E01CC-F7F1-47A1-AA37-08FECACEEA74}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{BB6E01CC-F7F1-47A1-AA37-08FECACEEA74}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BB6E01CC-F7F1-47A1-AA37-08FECACEEA74}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -27,6 +23,10 @@ Global
 		{AB2F2A84-D921-4454-A99D-EE665FB61A43}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AB2F2A84-D921-4454-A99D-EE665FB61A43}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AB2F2A84-D921-4454-A99D-EE665FB61A43}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6E6C44FB-A7B7-4DFD-82BC-09F652AA2C10}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6E6C44FB-A7B7-4DFD-82BC-09F652AA2C10}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6E6C44FB-A7B7-4DFD-82BC-09F652AA2C10}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6E6C44FB-A7B7-4DFD-82BC-09F652AA2C10}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
