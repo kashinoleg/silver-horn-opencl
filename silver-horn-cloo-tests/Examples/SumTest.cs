@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace silver_horn_cloo_tests.Examples
+namespace SilverHorn.Cloo.Tests.Examples
 {
     [TestClass]
     public class SumTest
@@ -31,15 +31,15 @@ namespace silver_horn_cloo_tests.Examples
         public void FloatSumTest()
         {
             string text = File.ReadAllText("Examples/SumTest.cl");
-            int count = 200;
+            int count = 2000;
             var a = new float[count];
             var b = new float[count];
+            var ab = new float[count];
             for (int i = 0; i < count; i++)
             {
-                a[i] = i;
-                b[i] = i * 2 + 1;
+                a[i] = (float)i / 10;
+                b[i] = -(float)i / 9;
             }
-            var ab = new float[count];
             var Properties = new ComputeContextPropertyList(Device.Platform);
             using (var Context = new ComputeContext(ComputeDeviceTypes.All, Properties, null, IntPtr.Zero))
             {
@@ -49,22 +49,22 @@ namespace silver_horn_cloo_tests.Examples
                     Program.Build(Devs, "", null, IntPtr.Zero);
                     ComputeKernel kernel = Program.CreateKernel("floatVectorSum");
                     using (ComputeBuffer<float>
-                        bufA = new ComputeBuffer<float>(Context, ComputeMemoryFlags.ReadWrite | ComputeMemoryFlags.UseHostPointer, a),
-                        bufB = new ComputeBuffer<float>(Context, ComputeMemoryFlags.ReadOnly | ComputeMemoryFlags.UseHostPointer, b))
+                        varA = new ComputeBuffer<float>(Context, ComputeMemoryFlags.ReadWrite | ComputeMemoryFlags.UseHostPointer, a),
+                        varB = new ComputeBuffer<float>(Context, ComputeMemoryFlags.ReadOnly | ComputeMemoryFlags.UseHostPointer, b))
                     {
-                        kernel.SetMemoryArgument(0, bufA);
-                        kernel.SetMemoryArgument(1, bufB);
+                        kernel.SetMemoryArgument(0, varA);
+                        kernel.SetMemoryArgument(1, varB);
                         using (var Queue = new ComputeCommandQueue(Context, Device, ComputeCommandQueueFlags.None))
                         {
                             Queue.Execute(kernel, null, new long[] { count }, null, null);
-                            ab = Queue.Read(bufA, true, 0, count, null);
+                            ab = Queue.Read(varA, true, 0, count, null);
                         }
                     }
                 }
             }
             for (int i = 0; i < count; i++)
             {
-                Assert.AreEqual(i + i * 2 + 1, ab[i], 1E-6);
+                Assert.AreEqual(-i / 90.0, ab[i], 1E-4);
             }
         }
 
@@ -72,15 +72,15 @@ namespace silver_horn_cloo_tests.Examples
         public void DoubleSumTest()
         {
             string text = File.ReadAllText("Examples/SumTest.cl");
-            int count = 200;
+            int count = 2000;
             var a = new double[count];
             var b = new double[count];
+            var ab = new double[count];
             for (int i = 0; i < count; i++)
             {
-                a[i] = i;
-                b[i] = i * 2 + 1;
+                a[i] = i / 10.0;
+                b[i] = -i / 9.0;
             }
-            var ab = new double[count];
             var Properties = new ComputeContextPropertyList(Device.Platform);
             using (var Context = new ComputeContext(ComputeDeviceTypes.All, Properties, null, IntPtr.Zero))
             {
@@ -90,22 +90,22 @@ namespace silver_horn_cloo_tests.Examples
                     Program.Build(Devs, "", null, IntPtr.Zero);
                     ComputeKernel kernel = Program.CreateKernel("doubleVectorSum");
                     using (ComputeBuffer<double>
-                        bufA = new ComputeBuffer<double>(Context, ComputeMemoryFlags.ReadWrite | ComputeMemoryFlags.UseHostPointer, a),
-                        bufB = new ComputeBuffer<double>(Context, ComputeMemoryFlags.ReadOnly | ComputeMemoryFlags.UseHostPointer, b))
+                        varA = new ComputeBuffer<double>(Context, ComputeMemoryFlags.ReadWrite | ComputeMemoryFlags.UseHostPointer, a),
+                        varB = new ComputeBuffer<double>(Context, ComputeMemoryFlags.ReadOnly | ComputeMemoryFlags.UseHostPointer, b))
                     {
-                        kernel.SetMemoryArgument(0, bufA);
-                        kernel.SetMemoryArgument(1, bufB);
+                        kernel.SetMemoryArgument(0, varA);
+                        kernel.SetMemoryArgument(1, varB);
                         using (var Queue = new ComputeCommandQueue(Context, Device, ComputeCommandQueueFlags.None))
                         {
                             Queue.Execute(kernel, null, new long[] { count }, null, null);
-                            ab = Queue.Read(bufA, true, 0, count, null);
+                            ab = Queue.Read(varA, true, 0, count, null);
                         }
                     }
                 }
             }
             for (int i = 0; i < count; i++)
             {
-                Assert.AreEqual(i + i * 2 + 1, ab[i], 1E-6);
+                Assert.AreEqual(-i / 90.0, ab[i], 1E-13);
             }
         }
     }

@@ -9,7 +9,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "silver-horn-clootils", "sil
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "silver-horn-opencltemplate", "silver-horn-opencltemplate\silver-horn-opencltemplate.csproj", "{6E6C44FB-A7B7-4DFD-82BC-09F652AA2C10}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "silver-horn-cloo-tests", "silver-horn-cloo-tests\silver-horn-cloo-tests.csproj", "{16E39C98-A9C6-4FF4-9DF0-A456D55CF348}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "silver-horn-cloo-tests", "silver-horn-cloo-tests\silver-horn-cloo-tests.csproj", "{16E39C98-A9C6-4FF4-9DF0-A456D55CF348}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "silver-horn-opencltemplate-tests", "silver-horn-opencltemplate-tests\silver-horn-opencltemplate-tests.csproj", "{D2C7D500-6F04-4C02-AC1E-6FEEDC197060}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{16E39C98-A9C6-4FF4-9DF0-A456D55CF348}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{16E39C98-A9C6-4FF4-9DF0-A456D55CF348}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{16E39C98-A9C6-4FF4-9DF0-A456D55CF348}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D2C7D500-6F04-4C02-AC1E-6FEEDC197060}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D2C7D500-6F04-4C02-AC1E-6FEEDC197060}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D2C7D500-6F04-4C02-AC1E-6FEEDC197060}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D2C7D500-6F04-4C02-AC1E-6FEEDC197060}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

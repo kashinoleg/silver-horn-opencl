@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
-    <RootNamespace>SilverHorn.Cloo.Tests</RootNamespace>
+    <RootNamespace>SilverHorn.OpenCLTemplate.Tests</RootNamespace>
 
     <IsPackable>false</IsPackable>
   </PropertyGroup>
@@ -13,10 +13,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="NLog.config">
+    <Content Include="Examples\SumTest.cl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Examples\SumTest.cl">
+    <Content Include="NLog.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
@@ -30,5 +30,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\silver-horn-cloo\silver-horn-cloo.csproj" />
+    <ProjectReference Include="..\silver-horn-opencltemplate\silver-horn-opencltemplate.csproj" />
   </ItemGroup>
+
 </Project>
