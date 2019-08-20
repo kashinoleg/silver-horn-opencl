@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NLog;
+using System;
 using System.Diagnostics;
 
 namespace Cloo
@@ -10,8 +11,12 @@ namespace Cloo
     /// <seealso cref="ComputeObject"/>
     public abstract class ComputeResource : ComputeObject, IDisposable
     {
-        #region Public methods
+        /// <summary>
+        /// Логгирование
+        /// </summary>
+        protected static readonly Logger logger = LogManager.GetCurrentClassLogger();
 
+        #region Public methods
         /// <summary>
         /// Deletes the <see cref="ComputeResource"/> and frees its accompanying OpenCL resources.
         /// </summary>
@@ -21,7 +26,6 @@ namespace Cloo
             GC.SuppressFinalize(this);
             GC.KeepAlive(this);
         }
-
         #endregion
 
         #region Protected methods
@@ -36,16 +40,14 @@ namespace Cloo
         #endregion
 
         #region Private methods
-
         /// <summary>
         /// Releases the associated OpenCL object.
         /// </summary>
         ~ComputeResource()
         {
-            Trace.WriteLine(ToString() + " leaked!", "Warning");
+            logger.Warn(ToString() + " leaked!", "Warning");
             Dispose(false);
         }
-
         #endregion
     }
 }

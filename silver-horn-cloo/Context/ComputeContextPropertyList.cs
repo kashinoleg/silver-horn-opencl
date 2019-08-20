@@ -21,7 +21,6 @@ namespace Cloo
         #endregion
 
         #region Constructors
-
         /// <summary>
         /// Creates a new <see cref="ComputeContextPropertyList"/> which contains a single item specifying a <see cref="ComputePlatform"/>.
         /// </summary>
@@ -119,18 +118,12 @@ namespace Cloo
         /// <summary>
         /// 
         /// </summary>
-        public int Count
-        {
-            get { return properties.Count; }
-        }
+        public int Count => properties.Count;
 
         /// <summary>
         /// 
         /// </summary>
-        public bool IsReadOnly
-        {
-            get { return false; }
-        }
+        public bool IsReadOnly => false;
 
         /// <summary>
         /// 

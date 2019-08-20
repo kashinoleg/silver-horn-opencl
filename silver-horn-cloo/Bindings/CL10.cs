@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NLog;
+using System;
 using System.Runtime.InteropServices;
 using System.Security;
 
@@ -12,6 +13,11 @@ namespace Cloo.Bindings
     [SuppressUnmanagedCodeSecurity]
     public class CL10
     {
+        /// <summary>
+        /// Логгирование
+        /// </summary>
+        protected static readonly Logger logger = LogManager.GetCurrentClassLogger();
+
         /// <summary>
         /// The name of the library that contains the available OpenCL function points.
         /// </summary>

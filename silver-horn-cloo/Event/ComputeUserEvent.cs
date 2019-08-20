@@ -19,8 +19,7 @@ namespace Cloo
         /// <remarks> Requires OpenCL 1.1. </remarks>
         public ComputeUserEvent(ComputeContext context)
         {
-            ComputeErrorCode error;
-            Handle = CL11.CreateUserEvent(context.Handle, out error);
+            Handle = CL11.CreateUserEvent(context.Handle, out ComputeErrorCode error);
             ComputeException.ThrowOnError(error);
 
             SetID(Handle.Value);
@@ -29,7 +28,7 @@ namespace Cloo
             Context = context;
             HookNotifier();
 
-            Trace.WriteLine("Create " + this + " in Thread(" + Thread.CurrentThread.ManagedThreadId + ").", "Information");
+            logger.Info("Create " + this + " in Thread(" + Thread.CurrentThread.ManagedThreadId + ").", "Information");
         }
 
         #endregion

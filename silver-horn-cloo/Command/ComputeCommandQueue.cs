@@ -95,7 +95,7 @@ namespace Cloo
 
             Events = new List<ComputeEventBase>();
 
-            Trace.WriteLine("Create " + this + " in Thread(" + Thread.CurrentThread.ManagedThreadId + ").", "Information");
+            logger.Info("Create " + this + " in Thread(" + Thread.CurrentThread.ManagedThreadId + ").", "Information");
         }
 
         #endregion
@@ -408,23 +408,62 @@ namespace Cloo
         /// <param name="blocking"> The mode of operation of this command. If <c>true</c> this call will not return until the command has finished execution. </param>
         /// <param name="offset"> The <paramref name="source"/> element position where reading starts. </param>
         /// <param name="region"> The region of elements to read. </param>
+        /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> or read-only a new <see cref="ComputeEvent"/> identifying this command is created and attached to the end of the collection. </param>
+        /// <remarks> If <paramref name="blocking"/> is <c>true</c> this method will not return until the command completes. If <paramref name="blocking"/> is <c>false</c> this method will return immediately after the command is enqueued. </remarks>
+        public T[] Read<T>(
+            ComputeBufferBase<T> source,
+            bool blocking,
+            long offset,
+            long region,
+            ICollection<ComputeEventBase> events) where T : struct
+        {
+            var value = new T[region - offset];
+            GCHandle gch = GCHandle.Alloc(value, GCHandleType.Pinned);
+            Read(source, blocking, offset, region, gch.AddrOfPinnedObject(), events);
+            gch.Free();
+            return value;
+        }
+
+        /// <summary>
+        /// Enqueues a command to read data from a buffer.
+        /// </summary>
+        /// <param name="source"> The buffer to read from. </param>
+        /// <param name="blocking"> The mode of operation of this command. If <c>true</c> this call will not return until the command has finished execution. </param>
+        /// <param name="offset"> The <paramref name="source"/> element position where reading starts. </param>
+        /// <param name="region"> The region of elements to read. </param>
         /// <param name="destination"> A pointer to a preallocated memory area to read the data into. </param>
         /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> or read-only a new <see cref="ComputeEvent"/> identifying this command is created and attached to the end of the collection. </param>
         /// <remarks> If <paramref name="blocking"/> is <c>true</c> this method will not return until the command completes. If <paramref name="blocking"/> is <c>false</c> this method will return immediately after the command is enqueued. </remarks>
-        public void Read<T>(ComputeBufferBase<T> source, bool blocking, long offset, long region, IntPtr destination, ICollection<ComputeEventBase> events) where T : struct
+        public void Read<T>(
+            ComputeBufferBase<T> source,
+            bool blocking,
+            long offset,
+            long region,
+            IntPtr destination,
+            ICollection<ComputeEventBase> events) where T : struct
         {
             int sizeofT = Marshal.SizeOf(typeof(T));
 
-            int eventWaitListSize;
-            CLEventHandle[] eventHandles = ComputeTools.ExtractHandles(events, out eventWaitListSize);
+            CLEventHandle[] eventHandles = ComputeTools.ExtractHandles(events, out int eventWaitListSize);
             bool eventsWritable = (events != null && !events.IsReadOnly);
             CLEventHandle[] newEventHandle = (eventsWritable) ? new CLEventHandle[1] : null;
 
-            ComputeErrorCode error = CL10.EnqueueReadBuffer(Handle, source.Handle, blocking, new IntPtr(offset * sizeofT), new IntPtr(region * sizeofT), destination, eventWaitListSize, eventHandles, newEventHandle);
+            ComputeErrorCode error = CL10.EnqueueReadBuffer(
+                Handle,
+                source.Handle,
+                blocking,
+                new IntPtr(offset * sizeofT),
+                new IntPtr(region * sizeofT),
+                destination,
+                eventWaitListSize,
+                eventHandles,
+                newEventHandle);
             ComputeException.ThrowOnError(error);
 
             if (eventsWritable)
+            {
                 events.Add(new ComputeEvent(newEventHandle[0], this));
+            }
         }
 
         /// <summary>
@@ -653,7 +692,7 @@ namespace Cloo
             // free native resources
             if (Handle.IsValid)
             {
-                Trace.WriteLine("Dispose " + this + " in Thread(" + Thread.CurrentThread.ManagedThreadId + ").", "Information");
+                logger.Info("Dispose " + this + " in Thread(" + Thread.CurrentThread.ManagedThreadId + ").", "Information");
                 CL10.ReleaseCommandQueue(Handle);
                 Handle.Invalidate();
             }
