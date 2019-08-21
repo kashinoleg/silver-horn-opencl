@@ -75,11 +75,7 @@ namespace Cloo
         /// <summary>
         /// The handle of the <see cref="ComputeContext"/>.
         /// </summary>
-        public CLContextHandle Handle
-        {
-            get;
-            protected set;
-        }
+        public CLContextHandle Handle { get; protected set; }
 
         /// <summary>
         /// Gets a read-only collection of the <see cref="ComputeDevice"/>s of the <see cref="ComputeContext"/>.
