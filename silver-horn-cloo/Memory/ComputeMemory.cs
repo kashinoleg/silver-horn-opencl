@@ -1,6 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-using System.Threading;
+﻿using System.Threading;
 using Cloo.Bindings;
 
 namespace Cloo
@@ -13,45 +11,29 @@ namespace Cloo
     /// <seealso cref="ComputeImage"/>
     public abstract class ComputeMemory : ComputeResource
     {
-        #region Fields
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private readonly ComputeContext context;
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private readonly ComputeMemoryFlags flags;
-
-        #endregion
-
         #region Properties
-
         /// <summary>
         /// The handle of the <see cref="ComputeMemory"/>.
         /// </summary>
-        public CLMemoryHandle Handle
-        {
-            get;
-            protected set;
-        }
+        public CLMemoryHandle Handle { get; protected set; }
 
         /// <summary>
         /// Gets the <see cref="ComputeContext"/> of the <see cref="ComputeMemory"/>.
         /// </summary>
         /// <value> The <see cref="ComputeContext"/> of the <see cref="ComputeMemory"/>. </value>
-        public ComputeContext Context { get { return context; } }
+        public ComputeContext Context { get; private set; }
 
         /// <summary>
         /// Gets the <see cref="ComputeMemoryFlags"/> of the <see cref="ComputeMemory"/>.
         /// </summary>
         /// <value> The <see cref="ComputeMemoryFlags"/> of the <see cref="ComputeMemory"/>. </value>
-        public ComputeMemoryFlags Flags { get { return flags; } }
+        public ComputeMemoryFlags Flags { get; private set; }
 
         /// <summary>
         /// Gets or sets (protected) the size in bytes of the <see cref="ComputeMemory"/>.
         /// </summary>
         /// <value> The size in bytes of the <see cref="ComputeMemory"/>. </value>
         public long Size { get; protected set; }
-
         #endregion
 
         #region Constructors
@@ -63,8 +45,8 @@ namespace Cloo
         /// <param name="flags"></param>
         protected ComputeMemory(ComputeContext context, ComputeMemoryFlags flags)
         {
-            this.context = context;
-            this.flags = flags;
+            Context = context;
+            Flags = flags;
         }
 
         #endregion
@@ -85,7 +67,6 @@ namespace Cloo
                 Handle.Invalidate();
             }
         }
-
         #endregion
     }
 }

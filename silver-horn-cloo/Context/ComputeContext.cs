@@ -112,19 +112,18 @@ namespace Cloo
         /// <param name="notifyDataPtr"> Optional user data that will be passed to <paramref name="notify"/>. </param>
         public ComputeContext(ICollection<ComputeDevice> devices, ComputeContextPropertyList properties, ComputeContextNotifier notify, IntPtr notifyDataPtr)
         {
-            int handleCount;
-            CLDeviceHandle[] deviceHandles = ComputeTools.ExtractHandles(devices, out handleCount);
-            IntPtr[] propertyArray = (properties != null) ? properties.ToIntPtrArray() : null;
+            var deviceHandles = ComputeTools.ExtractHandles(devices, out int handleCount);
+            IntPtr[] propertyArray = properties?.ToIntPtrArray();
             callback = notify;
 
-            ComputeErrorCode error = ComputeErrorCode.Success;
+            var error = ComputeErrorCode.Success;
             Handle = CL10.CreateContext(propertyArray, handleCount, deviceHandles, notify, notifyDataPtr, out error);
             ComputeException.ThrowOnError(error);
 
             SetID(Handle.Value);
 
             this.properties = properties;
-            ComputeContextProperty platformProperty = properties.GetByName(ComputeContextPropertyName.Platform);
+            var platformProperty = properties.GetByName(ComputeContextPropertyName.Platform);
             this.platform = ComputePlatform.GetByHandle(platformProperty.Value);
             this.devices = GetDevices();
 
@@ -150,7 +149,7 @@ namespace Cloo
             SetID(Handle.Value);
 
             this.properties = properties;
-            ComputeContextProperty platformProperty = properties.GetByName(ComputeContextPropertyName.Platform);
+            var platformProperty = properties.GetByName(ComputeContextPropertyName.Platform);
             this.platform = ComputePlatform.GetByHandle(platformProperty.Value);
             this.devices = GetDevices();
 
@@ -198,7 +197,6 @@ namespace Cloo
             }
             return new ReadOnlyCollection<ComputeDevice>(devices);
         }
-
         #endregion
     }
 }

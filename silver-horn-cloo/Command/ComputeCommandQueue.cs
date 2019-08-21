@@ -45,25 +45,25 @@ namespace Cloo
         /// Gets the <see cref="ComputeContext"/> of the <see cref="ComputeCommandQueue"/>.
         /// </summary>
         /// <value> The <see cref="ComputeContext"/> of the <see cref="ComputeCommandQueue"/>. </value>
-        public ComputeContext Context { get { return context; } }
+        public ComputeContext Context => context;
 
         /// <summary>
         /// Gets the <see cref="ComputeDevice"/> of the <see cref="ComputeCommandQueue"/>.
         /// </summary>
         /// <value> The <see cref="ComputeDevice"/> of the <see cref="ComputeCommandQueue"/>. </value>
-        public ComputeDevice Device { get { return device; } }
+        public ComputeDevice Device => device;
 
         /// <summary>
         /// Gets the out-of-order execution mode of the commands in the <see cref="ComputeCommandQueue"/>.
         /// </summary>
         /// <value> Is <c>true</c> if <see cref="ComputeCommandQueue"/> has out-of-order execution mode enabled and <c>false</c> otherwise. </value>
-        public bool OutOfOrderExecution { get { return outOfOrderExec; } }
+        public bool OutOfOrderExecution => outOfOrderExec;
 
         /// <summary>
         /// Gets the profiling mode of the commands in the <see cref="ComputeCommandQueue"/>.
         /// </summary>
         /// <value> Is <c>true</c> if <see cref="ComputeCommandQueue"/> has profiling enabled and <c>false</c> otherwise. </value>
-        public bool Profiling { get { return profiling; } }
+        public bool Profiling => profiling;
 
         #endregion
 
@@ -128,7 +128,7 @@ namespace Cloo
         /// <remarks> A barrier ensures that all queued commands have finished execution before the next batch of commands can begin execution. </remarks>
         public void AddBarrier()
         {
-            ComputeErrorCode error = CL10.EnqueueBarrier(Handle);
+            var error = CL10.EnqueueBarrier(Handle);
             ComputeException.ThrowOnError(error);
         }
 
@@ -157,7 +157,7 @@ namespace Cloo
             int sizeofT = Marshal.SizeOf(typeof(T));
 
             var eventHandles = ComputeTools.ExtractHandles(events, out int eventWaitListSize);
-            bool eventsWritable = (events != null && !events.IsReadOnly);
+            var eventsWritable = (events != null && !events.IsReadOnly);
             var newEventHandle = (eventsWritable) ? new CLEventHandle[1] : null;
 
             var error = CL10.EnqueueCopyBuffer(Handle, source.Handle, destination.Handle, new IntPtr(sourceOffset * sizeofT), new IntPtr(destinationOffset * sizeofT), new IntPtr(region * sizeofT), eventWaitListSize, eventHandles, newEventHandle);
@@ -511,7 +511,7 @@ namespace Cloo
             var eventsWritable = (events != null && !events.IsReadOnly);
             var newEventHandle = (eventsWritable) ? new CLEventHandle[1] : null;
 
-            ComputeErrorCode error = CL11.EnqueueReadBufferRect(this.Handle, source.Handle, blocking, ref sourceOffset,
+            var error = CL11.EnqueueReadBufferRect(this.Handle, source.Handle, blocking, ref sourceOffset,
                 ref destinationOffset, ref region, new IntPtr(sourceRowPitch), new IntPtr(sourceSlicePitch),
                 new IntPtr(destinationRowPitch), new IntPtr(destinationSlicePitch), destination, eventWaitListSize,
                 eventHandles, newEventHandle);
@@ -703,12 +703,6 @@ namespace Cloo
         /// <remarks> <paramref name="manual"/> must be <c>true</c> if this method is invoked directly by the application. </remarks>
         protected override void Dispose(bool manual)
         {
-            if (manual)
-            {
-                //free managed resources
-            }
-
-            // free native resources
             if (Handle.IsValid)
             {
                 logger.Info("Dispose " + this + " in Thread(" + Thread.CurrentThread.ManagedThreadId + ").", "Information");
@@ -728,7 +722,8 @@ namespace Cloo
         /// <param name="source"> The buffer to copy from. </param>
         /// <param name="destination"> The buffer to copy to. </param>
         /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> a new event identifying this command is attached to the end of the collection. </param>
-        public void CopyBuffer<T>(ComputeBufferBase<T> source, ComputeBufferBase<T> destination, ICollection<ComputeEventBase> events) where T : struct
+        public void CopyBuffer<T>(ComputeBufferBase<T> source, ComputeBufferBase<T> destination,
+            ICollection<ComputeEventBase> events) where T : struct
         {
             Copy(source, destination, 0, 0, source.Count, events);
         }
@@ -743,7 +738,8 @@ namespace Cloo
         /// <param name="destinationOffset"> The <paramref name="destination"/> element position where writing starts. </param>
         /// <param name="region"> The region of elements to copy. </param>
         /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> a new event identifying this command is attached to the end of the collection. </param>
-        public void CopyBuffer<T>(ComputeBufferBase<T> source, ComputeBufferBase<T> destination, long sourceOffset, long destinationOffset, long region, ICollection<ComputeEventBase> events) where T : struct
+        public void CopyBuffer<T>(ComputeBufferBase<T> source, ComputeBufferBase<T> destination,
+            long sourceOffset, long destinationOffset, long region, ICollection<ComputeEventBase> events) where T : struct
         {
             Copy(source, destination, sourceOffset, destinationOffset, region, events);
         }
@@ -758,9 +754,11 @@ namespace Cloo
         /// <param name="destinationOffset"> The <paramref name="destination"/> element position where writing starts. </param>
         /// <param name="region"> The region of elements to copy. </param>
         /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> a new event identifying this command is attached to the end of the collection. </param>
-        public void CopyBuffer<T>(ComputeBufferBase<T> source, ComputeBufferBase<T> destination, SysIntX2 sourceOffset, SysIntX2 destinationOffset, SysIntX2 region, ICollection<ComputeEventBase> events) where T : struct
+        public void CopyBuffer<T>(ComputeBufferBase<T> source, ComputeBufferBase<T> destination,
+            SysIntX2 sourceOffset, SysIntX2 destinationOffset, SysIntX2 region, ICollection<ComputeEventBase> events) where T : struct
         {
-            Copy(source, destination, new SysIntX3(sourceOffset, 0), new SysIntX3(destinationOffset, 0), new SysIntX3(region, 1), 0, 0, 0, 0, events);
+            Copy(source, destination, new SysIntX3(sourceOffset, 0), new SysIntX3(destinationOffset, 0),
+                new SysIntX3(region, 1), 0, 0, 0, 0, events);
         }
 
         /// <summary>
@@ -773,7 +771,8 @@ namespace Cloo
         /// <param name="destinationOffset"> The <paramref name="destination"/> element position where writing starts. </param>
         /// <param name="region"> The region of elements to copy. </param>
         /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> a new event identifying this command is attached to the end of the collection. </param>
-        public void CopyBuffer<T>(ComputeBufferBase<T> source, ComputeBufferBase<T> destination, SysIntX3 sourceOffset, SysIntX3 destinationOffset, SysIntX3 region, ICollection<ComputeEventBase> events) where T : struct
+        public void CopyBuffer<T>(ComputeBufferBase<T> source, ComputeBufferBase<T> destination,
+            SysIntX3 sourceOffset, SysIntX3 destinationOffset, SysIntX3 region, ICollection<ComputeEventBase> events) where T : struct
         {
             Copy(source, destination, sourceOffset, destinationOffset, region, 0, 0, 0, 0, events);
         }
@@ -790,9 +789,12 @@ namespace Cloo
         /// <param name="sourceRowPitch"> The size of a row of elements of <paramref name="source"/> in bytes. </param>
         /// <param name="destinationRowPitch"> The size of a row of elements of <paramref name="destination"/> in bytes. </param>
         /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> a new event identifying this command is attached to the end of the collection. </param>
-        public void CopyBuffer<T>(ComputeBufferBase<T> source, ComputeBufferBase<T> destination, SysIntX2 sourceOffset, SysIntX2 destinationOffset, SysIntX2 region, long sourceRowPitch, long destinationRowPitch, ICollection<ComputeEventBase> events) where T : struct
+        public void CopyBuffer<T>(ComputeBufferBase<T> source, ComputeBufferBase<T> destination,
+            SysIntX2 sourceOffset, SysIntX2 destinationOffset, SysIntX2 region, long sourceRowPitch, long destinationRowPitch,
+            ICollection<ComputeEventBase> events) where T : struct
         {
-            Copy(source, destination, new SysIntX3(sourceOffset, 0), new SysIntX3(destinationOffset, 0), new SysIntX3(region, 1), sourceRowPitch, 0, destinationRowPitch, 0, events);
+            Copy(source, destination, new SysIntX3(sourceOffset, 0), new SysIntX3(destinationOffset, 0),
+                new SysIntX3(region, 1), sourceRowPitch, 0, destinationRowPitch, 0, events);
         }
 
         /// <summary>
@@ -809,9 +811,13 @@ namespace Cloo
         /// <param name="sourceSlicePitch"> The size of a 2D slice of elements of <paramref name="source"/> in bytes. </param>
         /// <param name="destinationSlicePitch"> The size of a 2D slice of elements of <paramref name="destination"/> in bytes. </param>
         /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> a new event identifying this command is attached to the end of the collection. </param>
-        public void CopyBuffer<T>(ComputeBufferBase<T> source, ComputeBufferBase<T> destination, SysIntX3 sourceOffset, SysIntX3 destinationOffset, SysIntX3 region, long sourceRowPitch, long destinationRowPitch, long sourceSlicePitch, long destinationSlicePitch, ICollection<ComputeEventBase> events) where T : struct
+        public void CopyBuffer<T>(ComputeBufferBase<T> source, ComputeBufferBase<T> destination,
+            SysIntX3 sourceOffset, SysIntX3 destinationOffset, SysIntX3 region, long sourceRowPitch,
+            long destinationRowPitch, long sourceSlicePitch, long destinationSlicePitch,
+            ICollection<ComputeEventBase> events) where T : struct
         {
-            Copy(source, destination, sourceOffset, destinationOffset, region, sourceRowPitch, sourceSlicePitch, destinationRowPitch, destinationSlicePitch, events);
+            Copy(source, destination, sourceOffset, destinationOffset, region, sourceRowPitch,
+                sourceSlicePitch, destinationRowPitch, destinationSlicePitch, events);
         }
 
         #endregion
@@ -929,7 +935,8 @@ namespace Cloo
         /// <param name="destinationOffset"> The <paramref name="destination"/> element position where writing starts. </param>
         /// <param name="region"> The region of elements to copy. </param>
         /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> a new event identifying this command is attached to the end of the collection. </param>
-        public void CopyImage(ComputeImage3D source, ComputeImage3D destination, SysIntX3 sourceOffset, SysIntX3 destinationOffset, SysIntX3 region, ICollection<ComputeEventBase> events)
+        public void CopyImage(ComputeImage3D source, ComputeImage3D destination, SysIntX3 sourceOffset,
+            SysIntX3 destinationOffset, SysIntX3 region, ICollection<ComputeEventBase> events)
         {
             Copy(source, destination, sourceOffset, destinationOffset, region, events);
         }
@@ -945,9 +952,11 @@ namespace Cloo
         /// <param name="source"> The image to copy from. </param>
         /// <param name="destination"> The buffer to copy to. </param>
         /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> a new event identifying this command is attached to the end of the collection. </param>
-        public void CopyImageToBuffer<T>(ComputeImage source, ComputeBufferBase<T> destination, ICollection<ComputeEventBase> events) where T : struct
+        public void CopyImageToBuffer<T>(ComputeImage source, ComputeBufferBase<T> destination,
+            ICollection<ComputeEventBase> events) where T : struct
         {
-            Copy(source, destination, new SysIntX3(), 0, new SysIntX3(source.Width, source.Height, (source.Depth == 0) ? 1 : source.Depth), events);
+            Copy(source, destination, new SysIntX3(), 0,
+                new SysIntX3(source.Width, source.Height, (source.Depth == 0) ? 1 : source.Depth), events);
         }
 
         /// <summary>
@@ -960,7 +969,8 @@ namespace Cloo
         /// <param name="destinationOffset"> The <paramref name="destination"/> element position where writing starts. </param>
         /// <param name="region"> The region of elements to copy. </param>
         /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> a new event identifying this command is attached to the end of the collection. </param>
-        public void CopyImageToBuffer<T>(ComputeImage2D source, ComputeBufferBase<T> destination, SysIntX2 sourceOffset, long destinationOffset, SysIntX2 region, ICollection<ComputeEventBase> events) where T : struct
+        public void CopyImageToBuffer<T>(ComputeImage2D source, ComputeBufferBase<T> destination,
+            SysIntX2 sourceOffset, long destinationOffset, SysIntX2 region, ICollection<ComputeEventBase> events) where T : struct
         {
             Copy(source, destination, new SysIntX3(sourceOffset, 0), destinationOffset, new SysIntX3(region, 1), events);
         }
