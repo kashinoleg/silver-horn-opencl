@@ -45,54 +45,50 @@ namespace Cloo
         /// <summary>
         /// The handle of the <see cref="ComputePlatform"/>.
         /// </summary>
-        public CLPlatformHandle Handle
-        {
-            get;
-            protected set;
-        }
+        public CLPlatformHandle Handle { get; protected set; }
 
         /// <summary>
         /// Gets a read-only collection of <see cref="ComputeDevice"/>s available on the <see cref="ComputePlatform"/>.
         /// </summary>
         /// <value> A read-only collection of <see cref="ComputeDevice"/>s available on the <see cref="ComputePlatform"/>. </value>
-        public ReadOnlyCollection<ComputeDevice> Devices { get { return devices; } }
+        public ReadOnlyCollection<ComputeDevice> Devices => devices;
 
         /// <summary>
         /// Gets a read-only collection of extension names supported by the <see cref="ComputePlatform"/>.
         /// </summary>
         /// <value> A read-only collection of extension names supported by the <see cref="ComputePlatform"/>. </value>
-        public ReadOnlyCollection<string> Extensions { get { return extensions; } }
+        public ReadOnlyCollection<string> Extensions => extensions;
 
         /// <summary>
         /// Gets the <see cref="ComputePlatform"/> name.
         /// </summary>
         /// <value> The <see cref="ComputePlatform"/> name. </value>
-        public string Name { get { return name; } }
+        public string Name => name;
 
         /// <summary>
         /// Gets a read-only collection of available <see cref="ComputePlatform"/>s.
         /// </summary>
         /// <value> A read-only collection of available <see cref="ComputePlatform"/>s. </value>
         /// <remarks> The collection will contain no items, if no OpenCL platforms are found on the system. </remarks>
-        public static ReadOnlyCollection<ComputePlatform> Platforms { get { return platforms; } }
+        public static ReadOnlyCollection<ComputePlatform> Platforms => platforms;
 
         /// <summary>
         /// Gets the name of the profile supported by the <see cref="ComputePlatform"/>.
         /// </summary>
         /// <value> The name of the profile supported by the <see cref="ComputePlatform"/>. </value>
-        public string Profile { get { return profile; } }
+        public string Profile => profile;
 
         /// <summary>
         /// Gets the <see cref="ComputePlatform"/> vendor.
         /// </summary>
         /// <value> The <see cref="ComputePlatform"/> vendor. </value>
-        public string Vendor { get { return vendor; } }
+        public string Vendor => vendor;
 
         /// <summary>
         /// Gets the OpenCL version string supported by the <see cref="ComputePlatform"/>.
         /// </summary>
         /// <value> The OpenCL version string supported by the <see cref="ComputePlatform"/>. It has the following format: <c>OpenCL[space][major_version].[minor_version][space][vendor-specific information]</c>. </value>
-        public string Version { get { return version; } }
+        public string Version => version;
 
         #endregion
 
@@ -105,21 +101,23 @@ namespace Cloo
                 try
                 {
                     if (platforms != null)
+                    {
                         return;
+                    }
 
                     CLPlatformHandle[] handles;
-                    int handlesLength;
-                    ComputeErrorCode error = CL10.GetPlatformIDs(0, null, out handlesLength);
+                    var error = CL10.GetPlatformIDs(0, null, out int handlesLength);
                     ComputeException.ThrowOnError(error);
                     handles = new CLPlatformHandle[handlesLength];
 
                     error = CL10.GetPlatformIDs(handlesLength, handles, out handlesLength);
                     ComputeException.ThrowOnError(error);
 
-                    List<ComputePlatform> platformList = new List<ComputePlatform>(handlesLength);
+                    var platformList = new List<ComputePlatform>(handlesLength);
                     foreach (CLPlatformHandle handle in handles)
+                    {
                         platformList.Add(new ComputePlatform(handle));
-
+                    }
                     platforms = platformList.AsReadOnly();
                 }
                 catch (DllNotFoundException)
@@ -134,7 +132,8 @@ namespace Cloo
             Handle = handle;
             SetID(Handle.Value);
 
-            string extensionString = GetStringInfo<CLPlatformHandle, ComputePlatformInfo>(Handle, ComputePlatformInfo.Extensions, CL10.GetPlatformInfo);
+            string extensionString = GetStringInfo<CLPlatformHandle, ComputePlatformInfo>(Handle, ComputePlatformInfo.Extensions,
+                CL10.GetPlatformInfo);
             extensions = new ReadOnlyCollection<string>(extensionString.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries));
 
             name = GetStringInfo<CLPlatformHandle, ComputePlatformInfo>(Handle, ComputePlatformInfo.Name, CL10.GetPlatformInfo);
@@ -156,9 +155,12 @@ namespace Cloo
         public static ComputePlatform GetByHandle(IntPtr handle)
         {
             foreach (ComputePlatform platform in Platforms)
+            {
                 if (platform.Handle.Value == handle)
+                {
                     return platform;
-
+                }
+            }
             return null;
         }
 
@@ -170,9 +172,12 @@ namespace Cloo
         public static ComputePlatform GetByName(string platformName)
         {
             foreach (ComputePlatform platform in Platforms)
+            {
                 if (platform.Name.Equals(platformName))
+                {
                     return platform;
-
+                }
+            }
             return null;
         }
 
@@ -184,9 +189,12 @@ namespace Cloo
         public static ComputePlatform GetByVendor(string platformVendor)
         {
             foreach (ComputePlatform platform in Platforms)
+            {
                 if (platform.Vendor.Equals(platformVendor))
+                {
                     return platform;
-
+                }
+            }
             return null;
         }
 
@@ -197,20 +205,19 @@ namespace Cloo
         /// <remarks> This method resets the <c>ComputePlatform.Devices</c>. This is useful if one or more of them become unavailable (<c>ComputeDevice.Available</c> is <c>false</c>) after a <see cref="ComputeContext"/> and <see cref="ComputeCommandQueue"/>s that use the <see cref="ComputeDevice"/> have been created and commands have been queued to them. Further calls will trigger an <c>OutOfResourcesComputeException</c> until this method is executed. You will also need to recreate any <see cref="ComputeResource"/> that was created on the no longer available <see cref="ComputeDevice"/>. </remarks>
         public ReadOnlyCollection<ComputeDevice> QueryDevices()
         {
-            int handlesLength = 0;
-            ComputeErrorCode error = CL10.GetDeviceIDs(Handle, ComputeDeviceTypes.All, 0, null, out handlesLength);
+            var error = CL10.GetDeviceIDs(Handle, ComputeDeviceTypes.All, 0, null, out int handlesLength);
             ComputeException.ThrowOnError(error);
 
-            CLDeviceHandle[] handles = new CLDeviceHandle[handlesLength];
+            var handles = new CLDeviceHandle[handlesLength];
             error = CL10.GetDeviceIDs(Handle, ComputeDeviceTypes.All, handlesLength, handles, out handlesLength);
             ComputeException.ThrowOnError(error);
 
-            ComputeDevice[] devices = new ComputeDevice[handlesLength];
+            var devices = new ComputeDevice[handlesLength];
             for (int i = 0; i < handlesLength; i++)
+            {
                 devices[i] = new ComputeDevice(this, handles[i]);
-
+            }
             this.devices = new ReadOnlyCollection<ComputeDevice>(devices);
-
             return this.devices;
         }
 
