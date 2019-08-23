@@ -33,19 +33,17 @@ using System;
 using System.IO;
 using Cloo;
 using Cloo.Bindings;
+using SilverHorn.Cloo.Program;
 
 namespace Clootils
 {
     class ProgramExample : IExample
     {
-        TextWriter log;
-        ComputeProgram program;
-        string clSource = @"kernel void Test(int argument) { }";
+        private TextWriter log;
+        private IComputeProgram program;
+        private readonly string clSource = @"kernel void Test(int argument) { }";
 
-        public string Name
-        {
-            get { return "Program building"; }
-        }
+        public string Name => "Program building";
 
         public string Description
         {
@@ -70,7 +68,7 @@ namespace Clootils
         private void notify(CLProgramHandle programHandle, IntPtr userDataPtr)
         {
             log.WriteLine("Program build notification.");
-            byte[] bytes = program.Binaries[0];
+            byte[] bytes = program.GetBinaries()[0];
             log.WriteLine("Beginning of program binary (compiled for the 1st selected device):");
             log.WriteLine(BitConverter.ToString(bytes, 0, 24) + "...");
         }

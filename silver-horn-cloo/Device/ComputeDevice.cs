@@ -187,7 +187,7 @@ namespace Cloo
         public long MaxReadImageArguments { get; private set; }
 
         /// <summary>
-        /// Gets the maximum number of <see cref="ComputeSampler"/>s that can be used in a kernel.
+        /// Gets the maximum number of samplers that can be used in a kernel.
         /// </summary>
         /// <value> The minimum value is 16 if <see cref="ComputeDevice.ImageSupport"/> is <c>true</c>. </value>
         public long MaxSamplers { get; private set; }

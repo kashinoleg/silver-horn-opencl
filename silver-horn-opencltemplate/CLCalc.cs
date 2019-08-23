@@ -4,6 +4,7 @@ using System.Text;
 using System.Runtime.InteropServices;
 using Cloo;
 using SilverHorn.Cloo.Kernel;
+using SilverHorn.Cloo.Program;
 
 namespace OpenCLTemplate
 {
@@ -184,7 +185,7 @@ namespace OpenCLTemplate
             public static int DefaultCQ;
 
             /// <summary>Compiled program</summary>
-            public static ComputeProgram Prog;
+            public static IComputeProgram Prog;
 
             /// <summary>Ends all commands being executed</summary>
             public static void Sync()

@@ -56,7 +56,7 @@ namespace Clootils
             log.WriteLine();
             log.WriteLine("[OPENCL PLATFORM]");
 
-            ComputePlatform platform = context.Platform;
+            var platform = context.Platform;
 
             log.WriteLine("Name: " + platform.Name);
             log.WriteLine("Vendor: " + platform.Vendor);

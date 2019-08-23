@@ -1,4 +1,5 @@
 ﻿using NLog;
+using SilverHorn.Cloo.Sampler;
 using System;
 using System.Runtime.InteropServices;
 using System.Security;

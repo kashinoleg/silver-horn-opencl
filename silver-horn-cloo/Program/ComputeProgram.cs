@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
 using Cloo.Bindings;
+using NLog;
 using SilverHorn.Cloo.Kernel;
+using SilverHorn.Cloo.Program;
 
 namespace Cloo
 {
@@ -13,77 +14,20 @@ namespace Cloo
     /// Represents an OpenCL program.
     /// </summary>
     /// <remarks> An OpenCL program consists of a set of kernels. Programs may also contain auxiliary functions called by the kernel functions and constant data. </remarks>
-    public class ComputeProgram : ComputeResource
+    public sealed class ComputeProgram : ComputeObject, IComputeProgram
     {
-        #region Fields
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private readonly ComputeContext context;
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private readonly ReadOnlyCollection<ComputeDevice> devices;
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private readonly ReadOnlyCollection<string> source;
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private ReadOnlyCollection<byte[]> binaries;
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private string buildOptions;
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private ComputeProgramBuildNotifier buildNotify;
-
+        #region Services
+        /// <summary>
+        /// Logger
+        /// </summary>
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         #endregion
 
         #region Properties
-
         /// <summary>
         /// The handle of the program.
         /// </summary>
-        public CLProgramHandle Handle { get; protected set; }
-
-        /// <summary>
-        /// Gets a read-only collection of program binaries associated with the devices.
-        /// </summary>
-        /// <value> A read-only collection of program binaries associated with the devices. </value>
-        /// <remarks> The bits returned can be an implementation-specific intermediate representation (a.k.a. IR) or device specific executable bits or both. The decision on which information is returned in the binary is up to the OpenCL implementation. </remarks>
-        public ReadOnlyCollection<byte[]> Binaries
-        {
-            get
-            {
-                if (binaries == null)
-                    binaries = GetBinaries();
-                return binaries;
-            }
-        }
-
-        /// <summary>
-        /// Gets the program build options as specified in options argument of build.
-        /// </summary>
-        /// <value> The program build options as specified in options argument of build. </value>
-        public string BuildOptions => buildOptions;
-
-        /// <summary>
-        /// Gets the <see cref="ComputeContext"/> of the program.
-        /// </summary>
-        /// <value> The <see cref="ComputeContext"/> of the program. </value>
-        public ComputeContext Context => context;
-
-        /// <summary>
-        /// Gets a read-only collection of <see cref="ComputeDevice"/>s associated with the program.
-        /// </summary>
-        /// <value> A read-only collection of <see cref="ComputeDevice"/>s associated with the program. </value>
-        /// <remarks> This collection is a subset of devices. </remarks>
-        public ReadOnlyCollection<ComputeDevice> Devices => devices;
-
-        /// <summary>
-        /// Gets a read-only collection of program source code strings specified when creating the program or <c>null</c> if program was created using program binaries.
-        /// </summary>
-        /// <value> A read-only collection of program source code strings specified when creating the program or <c>null</c> if program was created using program binaries. </value>
-        public ReadOnlyCollection<string> Source => source;
-
+        public CLProgramHandle Handle { get; private set; }
         #endregion
 
         #region Constructors
@@ -105,11 +49,6 @@ namespace Cloo
             ComputeException.ThrowOnError(error);
 
             SetID(Handle.Value);
-
-            this.context = context;
-            this.devices = context.Devices;
-            this.source = new ReadOnlyCollection<string>(new string[] { source });
-
             logger.Info("Create " + this + " in Thread(" + Thread.CurrentThread.ManagedThreadId + ").", "Information");
         }
 
@@ -128,11 +67,6 @@ namespace Cloo
                 null,
                 out ComputeErrorCode error);
             ComputeException.ThrowOnError(error);
-
-            this.context = context;
-            this.devices = context.Devices;
-            this.source = new ReadOnlyCollection<string>(source);
-
             logger.Info("Create " + this + " in Thread(" + Thread.CurrentThread.ManagedThreadId + ").", "Information");
         }
 
@@ -186,25 +120,11 @@ namespace Cloo
                     binariesGCHandles[i].Free();
                 }
             }
-
-
-            this.binaries = new ReadOnlyCollection<byte[]>(binaries);
-            this.context = context;
-            if (devices != null)
-            {
-                this.devices = new ReadOnlyCollection<ComputeDevice>(devices);
-            }
-            else
-            {
-                this.devices = new ReadOnlyCollection<ComputeDevice>(context.Devices);
-            }
             logger.Info("Create " + this + " in Thread(" + Thread.CurrentThread.ManagedThreadId + ").", "Information");
         }
-
         #endregion
 
         #region Public methods
-
         /// <summary>
         /// Builds (compiles and links) a program executable from the program source or binary for all or some of the devices.
         /// </summary>
@@ -216,14 +136,13 @@ namespace Cloo
             ComputeProgramBuildNotifier notify, IntPtr notifyDataPtr)
         {
             var deviceHandles = ComputeTools.ExtractHandles(devices, out int handleCount);
-            buildOptions = options ?? "";
-            buildNotify = notify;
+            var BuildOptions = options ?? "";
             var error = CL10.BuildProgram(
                 Handle,
                 handleCount,
                 deviceHandles,
                 options,
-                buildNotify,
+                notify,
                 notifyDataPtr);
             ComputeException.ThrowOnError(error);
         }
@@ -289,36 +208,16 @@ namespace Cloo
                 device.Handle, ComputeProgramBuildInfo.Status, CL10.GetProgramBuildInfo);
         }
 
-        #endregion
-
-        #region Protected methods
-
-        /// <summary>
-        /// Releases the associated OpenCL object.
-        /// </summary>
-        /// <param name="manual"> Specifies the operation mode of this method. </param>
-        /// <remarks> <paramref name="manual"/> must be <c>true</c> if this method is invoked directly by the application. </remarks>
-        protected override void Dispose(bool manual)
+        public List<byte[]> GetBinaries()
         {
-            if (Handle.IsValid)
-            {
-                logger.Info("Dispose " + this + " in Thread(" + Thread.CurrentThread.ManagedThreadId + ").", "Information");
-                CL10.ReleaseProgram(Handle);
-                Handle.Invalidate();
-            }
-        }
+            var binaryLengths = GetArrayInfo<CLProgramHandle, ComputeProgramInfo, IntPtr>(
+                Handle,
+                ComputeProgramInfo.BinarySizes,
+                CL10.GetProgramInfo);
 
-        #endregion
-
-        #region Private methods
-
-        private ReadOnlyCollection<byte[]> GetBinaries()
-        {
-            IntPtr[] binaryLengths = GetArrayInfo<CLProgramHandle, ComputeProgramInfo, IntPtr>(Handle, ComputeProgramInfo.BinarySizes, CL10.GetProgramInfo);
-
-            GCHandle[] binariesGCHandles = new GCHandle[binaryLengths.Length];
-            IntPtr[] binariesPtrs = new IntPtr[binaryLengths.Length];
-            IList<byte[]> binaries = new List<byte[]>();
+            var binariesGCHandles = new GCHandle[binaryLengths.Length];
+            var binariesPtrs = new IntPtr[binaryLengths.Length];
+            var binaries = new List<byte[]>();
             GCHandle binariesPtrsGCHandle = GCHandle.Alloc(binariesPtrs, GCHandleType.Pinned);
 
             try
@@ -345,9 +244,48 @@ namespace Cloo
                 binariesPtrsGCHandle.Free();
             }
 
-            return new ReadOnlyCollection<byte[]>(binaries);
+            return binaries;
+        }
+        #endregion
+
+        #region IDisposable Support
+        private bool disposedValue = false; // Для определения избыточных вызовов
+
+        public void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    // TODO: освободить управляемое состояние (управляемые объекты).
+                }
+                // TODO: освободить неуправляемые ресурсы (неуправляемые объекты) и переопределить ниже метод завершения.
+                // TODO: задать большим полям значение NULL.
+                if (Handle.IsValid)
+                {
+                    logger.Info("Dispose " + this + " in Thread(" + Thread.CurrentThread.ManagedThreadId + ").", "Information");
+                    CL10.ReleaseProgram(Handle);
+                    Handle.Invalidate();
+                }
+                disposedValue = true;
+            }
         }
 
+        // TODO: переопределить метод завершения, только если Dispose(bool disposing) выше включает код для освобождения неуправляемых ресурсов.
+        ~ComputeProgram()
+        {
+            // Не изменяйте этот код. Разместите код очистки выше, в методе Dispose(bool disposing).
+            Dispose(false);
+        }
+
+        // Этот код добавлен для правильной реализации шаблона высвобождаемого класса.
+        public void Dispose()
+        {
+            // Не изменяйте этот код. Разместите код очистки выше, в методе Dispose(bool disposing).
+            Dispose(true);
+            // TODO: раскомментировать следующую строку, если метод завершения переопределен выше.
+            GC.SuppressFinalize(this);
+        }
         #endregion
     }
 }

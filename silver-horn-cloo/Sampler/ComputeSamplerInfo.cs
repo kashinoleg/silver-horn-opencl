@@ -1,4 +1,4 @@
-﻿namespace Cloo
+﻿namespace SilverHorn.Cloo.Sampler
 {
     /// <summary>
     /// The sampler info query symbols.

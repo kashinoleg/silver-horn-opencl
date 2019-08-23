@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
 
-namespace Cloo.Bindings
+namespace SilverHorn.Cloo.Sampler
 {
     /// <summary>
-    /// Represents the <see cref="ComputeSampler"/> ID.
+    /// Represents the sampler ID.
     /// </summary>
     public struct CLSamplerHandle
     {

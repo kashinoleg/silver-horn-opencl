@@ -749,7 +749,7 @@ namespace OpenCLTemplate.CLGLInterop
         {
             //Kernels
             OpenCLDispSrc src = new OpenCLDispSrc();
-            ComputeProgram prog = new ComputeProgram(this.CLGLCtx, src.src);
+            var prog = new ComputeProgram(this.CLGLCtx, src.src);
             prog.Build(CLGLCtx.Devices, "", null, IntPtr.Zero);
 
             kernelHide = prog.CreateKernel("HideElems");

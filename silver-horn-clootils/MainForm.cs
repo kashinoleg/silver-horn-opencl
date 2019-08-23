@@ -109,12 +109,14 @@ namespace Clootils
         private string[] ParseLines(string text)
         {
             List<string> lineList = new List<string>();
-            StringReader reader = new StringReader(text);
-            string line = reader.ReadLine();
-            while (line != null)
+            using (var reader = new StringReader(text))
             {
-                lineList.Add(line);
-                line = reader.ReadLine();
+                string line = reader.ReadLine();
+                while (line != null)
+                {
+                    lineList.Add(line);
+                    line = reader.ReadLine();
+                }
             }
             return lineList.ToArray();
         }

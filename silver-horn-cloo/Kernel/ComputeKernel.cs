@@ -4,6 +4,8 @@ using System.Threading;
 using Cloo.Bindings;
 using NLog;
 using SilverHorn.Cloo.Kernel;
+using SilverHorn.Cloo.Program;
+using SilverHorn.Cloo.Sampler;
 
 namespace Cloo
 {
@@ -43,7 +45,7 @@ namespace Cloo
             logger.Info("Create " + this + " in Thread(" + Thread.CurrentThread.ManagedThreadId + ").", "Information");
         }
 
-        internal ComputeKernel(string functionName, ComputeProgram program)
+        internal ComputeKernel(string functionName, IComputeProgram program)
         {
             Handle = CL10.CreateKernel(
                 program.Handle,
@@ -165,8 +167,8 @@ namespace Cloo
         /// Sets a <c>sampler_t</c> argument of the kernel.
         /// </summary>
         /// <param name="index"> The argument index. </param>
-        /// <param name="sampler"> The <see cref="ComputeSampler"/> that is passed as the argument. </param>
-        /// <remarks> This method will automatically track <paramref name="sampler"/> to prevent it from being collected by the GC.<br/> Arguments to the kernel are referred by indices that go from 0 for the leftmost argument to n-1, where n is the total number of arguments declared by the kernel. </remarks>
+        /// <param name="sampler"> The sampler that is passed as the argument. </param>
+        /// <remarks> This method will automatically track sampler to prevent it from being collected by the GC.<br/> Arguments to the kernel are referred by indices that go from 0 for the leftmost argument to n-1, where n is the total number of arguments declared by the kernel. </remarks>
         public void SetSamplerArgument(int index, ComputeSampler sampler)
         {
             SetValueArgument<CLSamplerHandle>(index, sampler.Handle);
