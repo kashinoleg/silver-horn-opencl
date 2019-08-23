@@ -15,25 +15,6 @@ namespace Cloo
     /// <seealso cref="ComputeDevice"/>
     public partial class ComputeCommandQueue : ComputeResource
     {
-        #region Fields
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private readonly ComputeContext context;
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private readonly ComputeDevice device;
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private bool outOfOrderExec;
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private bool profiling;
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        internal IList<ComputeEventBase> Events;
-
-        #endregion
-
         #region Properties
 
         /// <summary>
@@ -45,26 +26,27 @@ namespace Cloo
         /// Gets the <see cref="ComputeContext"/> of the <see cref="ComputeCommandQueue"/>.
         /// </summary>
         /// <value> The <see cref="ComputeContext"/> of the <see cref="ComputeCommandQueue"/>. </value>
-        public ComputeContext Context => context;
+        public ComputeContext Context { get; private set; }
 
         /// <summary>
         /// Gets the <see cref="ComputeDevice"/> of the <see cref="ComputeCommandQueue"/>.
         /// </summary>
         /// <value> The <see cref="ComputeDevice"/> of the <see cref="ComputeCommandQueue"/>. </value>
-        public ComputeDevice Device => device;
+        public ComputeDevice Device { get; private set; }
 
         /// <summary>
         /// Gets the out-of-order execution mode of the commands in the <see cref="ComputeCommandQueue"/>.
         /// </summary>
         /// <value> Is <c>true</c> if <see cref="ComputeCommandQueue"/> has out-of-order execution mode enabled and <c>false</c> otherwise. </value>
-        public bool OutOfOrderExecution => outOfOrderExec;
+        public bool OutOfOrderExecution { get; private set; }
 
         /// <summary>
         /// Gets the profiling mode of the commands in the <see cref="ComputeCommandQueue"/>.
         /// </summary>
         /// <value> Is <c>true</c> if <see cref="ComputeCommandQueue"/> has profiling enabled and <c>false</c> otherwise. </value>
-        public bool Profiling => profiling;
+        public bool Profiling { get; private set; }
 
+        internal IList<ComputeEventBase> Events { get; set; }
         #endregion
 
         #region Constructors
@@ -77,16 +59,16 @@ namespace Cloo
         /// <param name="properties"> The properties for the <see cref="ComputeCommandQueue"/>. </param>
         public ComputeCommandQueue(ComputeContext context, ComputeDevice device, ComputeCommandQueueFlags properties)
         {
-            Handle = CL10.CreateCommandQueue(context.Handle, device.Handle, properties, out ComputeErrorCode error);
+            Handle = OpenCL100.CreateCommandQueue(context.Handle, device.Handle, properties, out ComputeErrorCode error);
             ComputeException.ThrowOnError(error);
 
             SetID(Handle.Value);
 
-            this.device = device;
-            this.context = context;
+            Device = device;
+            Context = context;
 
-            outOfOrderExec = ((properties & ComputeCommandQueueFlags.OutOfOrderExecution) == ComputeCommandQueueFlags.OutOfOrderExecution);
-            profiling = ((properties & ComputeCommandQueueFlags.Profiling) == ComputeCommandQueueFlags.Profiling);
+            OutOfOrderExecution = ((properties & ComputeCommandQueueFlags.OutOfOrderExecution) == ComputeCommandQueueFlags.OutOfOrderExecution);
+            Profiling = ((properties & ComputeCommandQueueFlags.Profiling) == ComputeCommandQueueFlags.Profiling);
 
             Events = new List<ComputeEventBase>();
 
@@ -706,7 +688,7 @@ namespace Cloo
             if (Handle.IsValid)
             {
                 logger.Info("Dispose " + this + " in Thread(" + Thread.CurrentThread.ManagedThreadId + ").", "Information");
-                CL10.ReleaseCommandQueue(Handle);
+                OpenCL100.ReleaseCommandQueue(Handle);
                 Handle.Invalidate();
             }
         }

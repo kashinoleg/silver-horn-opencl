@@ -54,24 +54,7 @@ namespace Cloo
     /// <seealso cref="ComputePlatform"/>
     public class ComputeContext : ComputeResource
     {
-        #region Fields
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private readonly ReadOnlyCollection<ComputeDevice> devices;
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private readonly ComputePlatform platform;
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private readonly ComputeContextPropertyList properties;
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private ComputeContextNotifier callback;
-
-        #endregion
-
         #region Properties
-
         /// <summary>
         /// The handle of the <see cref="ComputeContext"/>.
         /// </summary>
@@ -81,20 +64,22 @@ namespace Cloo
         /// Gets a read-only collection of the <see cref="ComputeDevice"/>s of the <see cref="ComputeContext"/>.
         /// </summary>
         /// <value> A read-only collection of the <see cref="ComputeDevice"/>s of the <see cref="ComputeContext"/>. </value>
-        public ReadOnlyCollection<ComputeDevice> Devices { get { return devices; } }
+        public ReadOnlyCollection<ComputeDevice> Devices { get; private set; }
 
         /// <summary>
         /// Gets the <see cref="ComputePlatform"/> of the <see cref="ComputeContext"/>.
         /// </summary>
         /// <value> The <see cref="ComputePlatform"/> of the <see cref="ComputeContext"/>. </value>
-        public ComputePlatform Platform { get { return platform; } }
+        public ComputePlatform Platform { get; private set; }
 
         /// <summary>
         /// Gets a collection of <see cref="ComputeContextProperty"/>s of the <see cref="ComputeContext"/>.
         /// </summary>
         /// <value> A collection of <see cref="ComputeContextProperty"/>s of the <see cref="ComputeContext"/>. </value>
-        public ComputeContextPropertyList Properties { get { return properties; } }
+        public ComputeContextPropertyList Properties { get; set; }
 
+
+        private ComputeContextNotifier Callback { get; set; }
         #endregion
 
         #region Constructors
@@ -106,22 +91,23 @@ namespace Cloo
         /// <param name="properties"> A <see cref="ComputeContextPropertyList"/> of the <see cref="ComputeContext"/>. </param>
         /// <param name="notify"> A delegate instance that refers to a notification routine. This routine is a callback function that will be used by the OpenCL implementation to report information on errors that occur in the <see cref="ComputeContext"/>. The callback function may be called asynchronously by the OpenCL implementation. It is the application's responsibility to ensure that the callback function is thread-safe and that the delegate instance doesn't get collected by the Garbage Collector until <see cref="ComputeContext"/> is disposed. If <paramref name="notify"/> is <c>null</c>, no callback function is registered. </param>
         /// <param name="notifyDataPtr"> Optional user data that will be passed to <paramref name="notify"/>. </param>
-        public ComputeContext(ICollection<ComputeDevice> devices, ComputeContextPropertyList properties, ComputeContextNotifier notify, IntPtr notifyDataPtr)
+        public ComputeContext(ICollection<ComputeDevice> devices, ComputeContextPropertyList properties,
+            ComputeContextNotifier notify, IntPtr notifyDataPtr)
         {
             var deviceHandles = ComputeTools.ExtractHandles(devices, out int handleCount);
             IntPtr[] propertyArray = properties?.ToIntPtrArray();
-            callback = notify;
+            Callback = notify;
 
             var error = ComputeErrorCode.Success;
-            Handle = CL10.CreateContext(propertyArray, handleCount, deviceHandles, notify, notifyDataPtr, out error);
+            Handle = OpenCL100.CreateContext(propertyArray, handleCount, deviceHandles, notify, notifyDataPtr, out error);
             ComputeException.ThrowOnError(error);
 
             SetID(Handle.Value);
 
-            this.properties = properties;
+            Properties = properties;
             var platformProperty = properties.GetByName(ComputeContextPropertyName.Platform);
-            this.platform = ComputePlatform.GetByHandle(platformProperty.Value);
-            this.devices = GetDevices();
+            Platform = ComputePlatform.GetByHandle(platformProperty.Value);
+            Devices = GetDevices();
 
             logger.Info("Create " + this + " in Thread(" + Thread.CurrentThread.ManagedThreadId + ").", "Information");
         }
@@ -136,18 +122,18 @@ namespace Cloo
         public ComputeContext(ComputeDeviceTypes deviceType, ComputeContextPropertyList properties, ComputeContextNotifier notify, IntPtr userDataPtr)
         {
             IntPtr[] propertyArray = (properties != null) ? properties.ToIntPtrArray() : null;
-            callback = notify;
+            Callback = notify;
 
             ComputeErrorCode error = ComputeErrorCode.Success;
-            Handle = CL10.CreateContextFromType(propertyArray, deviceType, notify, userDataPtr, out error);
+            Handle = OpenCL100.CreateContextFromType(propertyArray, deviceType, notify, userDataPtr, out error);
             ComputeException.ThrowOnError(error);
 
             SetID(Handle.Value);
 
-            this.properties = properties;
+            Properties = properties;
             var platformProperty = properties.GetByName(ComputeContextPropertyName.Platform);
-            this.platform = ComputePlatform.GetByHandle(platformProperty.Value);
-            this.devices = GetDevices();
+            Platform = ComputePlatform.GetByHandle(platformProperty.Value);
+            Devices = GetDevices();
 
             logger.Info("Create " + this + " in Thread(" + Thread.CurrentThread.ManagedThreadId + ").", "Information");
         }
@@ -163,33 +149,32 @@ namespace Cloo
         /// <remarks> <paramref name="manual"/> must be <c>true</c> if this method is invoked directly by the application. </remarks>
         protected override void Dispose(bool manual)
         {
-            if (manual)
-            {
-                //free managed resources
-            }
-
-            // free native resources
             if (Handle.IsValid)
             {
                 logger.Info("Dispose " + this + " in Thread(" + Thread.CurrentThread.ManagedThreadId + ").", "Information");
-                CL10.ReleaseContext(Handle);
+                OpenCL100.ReleaseContext(Handle);
                 Handle.Invalidate();
             }
         }
-
         #endregion
 
         #region Private methods
 
         private ReadOnlyCollection<ComputeDevice> GetDevices()
         {
-            List<CLDeviceHandle> deviceHandles = new List<CLDeviceHandle>(GetArrayInfo<CLContextHandle, ComputeContextInfo, CLDeviceHandle>(Handle, ComputeContextInfo.Devices, CL10.GetContextInfo));
+            var arrayDevices = GetArrayInfo<CLContextHandle, ComputeContextInfo, CLDeviceHandle>(Handle,
+                ComputeContextInfo.Devices, OpenCL100.GetContextInfo);
+            List<CLDeviceHandle> deviceHandles = new List<CLDeviceHandle>(arrayDevices);
             List<ComputeDevice> devices = new List<ComputeDevice>();
             foreach (ComputePlatform platform in ComputePlatform.Platforms)
             {
                 foreach (ComputeDevice device in platform.Devices)
+                {
                     if (deviceHandles.Contains(device.Handle))
+                    {
                         devices.Add(device);
+                    }
+                }
             }
             return new ReadOnlyCollection<ComputeDevice>(devices);
         }
