@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
 using Cloo.Bindings;
+using SilverHorn.Cloo.Kernel;
 
 namespace Cloo
 {
@@ -12,7 +13,6 @@ namespace Cloo
     /// Represents an OpenCL program.
     /// </summary>
     /// <remarks> An OpenCL program consists of a set of kernels. Programs may also contain auxiliary functions called by the kernel functions and constant data. </remarks>
-    /// <seealso cref="ComputeKernel"/>
     public class ComputeProgram : ComputeResource
     {
         #region Fields
@@ -40,14 +40,14 @@ namespace Cloo
         #region Properties
 
         /// <summary>
-        /// The handle of the <see cref="ComputeProgram"/>.
+        /// The handle of the program.
         /// </summary>
         public CLProgramHandle Handle { get; protected set; }
 
         /// <summary>
-        /// Gets a read-only collection of program binaries associated with the <see cref="ComputeProgram.Devices"/>.
+        /// Gets a read-only collection of program binaries associated with the devices.
         /// </summary>
-        /// <value> A read-only collection of program binaries associated with the <see cref="ComputeProgram.Devices"/>. </value>
+        /// <value> A read-only collection of program binaries associated with the devices. </value>
         /// <remarks> The bits returned can be an implementation-specific intermediate representation (a.k.a. IR) or device specific executable bits or both. The decision on which information is returned in the binary is up to the OpenCL implementation. </remarks>
         public ReadOnlyCollection<byte[]> Binaries
         {
@@ -60,28 +60,28 @@ namespace Cloo
         }
 
         /// <summary>
-        /// Gets the <see cref="ComputeProgram"/> build options as specified in <paramref name="options"/> argument of <see cref="ComputeProgram.Build"/>.
+        /// Gets the program build options as specified in options argument of build.
         /// </summary>
-        /// <value> The <see cref="ComputeProgram"/> build options as specified in <paramref name="options"/> argument of <see cref="ComputeProgram.Build"/>. </value>
+        /// <value> The program build options as specified in options argument of build. </value>
         public string BuildOptions => buildOptions;
 
         /// <summary>
-        /// Gets the <see cref="ComputeContext"/> of the <see cref="ComputeProgram"/>.
+        /// Gets the <see cref="ComputeContext"/> of the program.
         /// </summary>
-        /// <value> The <see cref="ComputeContext"/> of the <see cref="ComputeProgram"/>. </value>
+        /// <value> The <see cref="ComputeContext"/> of the program. </value>
         public ComputeContext Context => context;
 
         /// <summary>
-        /// Gets a read-only collection of <see cref="ComputeDevice"/>s associated with the <see cref="ComputeProgram"/>.
+        /// Gets a read-only collection of <see cref="ComputeDevice"/>s associated with the program.
         /// </summary>
-        /// <value> A read-only collection of <see cref="ComputeDevice"/>s associated with the <see cref="ComputeProgram"/>. </value>
-        /// <remarks> This collection is a subset of <see cref="ComputeProgram.Context.Devices"/>. </remarks>
+        /// <value> A read-only collection of <see cref="ComputeDevice"/>s associated with the program. </value>
+        /// <remarks> This collection is a subset of devices. </remarks>
         public ReadOnlyCollection<ComputeDevice> Devices => devices;
 
         /// <summary>
-        /// Gets a read-only collection of program source code strings specified when creating the <see cref="ComputeProgram"/> or <c>null</c> if <see cref="ComputeProgram"/> was created using program binaries.
+        /// Gets a read-only collection of program source code strings specified when creating the program or <c>null</c> if program was created using program binaries.
         /// </summary>
-        /// <value> A read-only collection of program source code strings specified when creating the <see cref="ComputeProgram"/> or <c>null</c> if <see cref="ComputeProgram"/> was created using program binaries. </value>
+        /// <value> A read-only collection of program source code strings specified when creating the program or <c>null</c> if program was created using program binaries. </value>
         public ReadOnlyCollection<string> Source => source;
 
         #endregion
@@ -89,11 +89,11 @@ namespace Cloo
         #region Constructors
 
         /// <summary>
-        /// Creates a new <see cref="ComputeProgram"/> from a source code string.
+        /// Creates a new program from a source code string.
         /// </summary>
-        /// <param name="context"> A <see cref="ComputeContext"/>. </param>
-        /// <param name="source"> The source code for the <see cref="ComputeProgram"/>. </param>
-        /// <remarks> The created <see cref="ComputeProgram"/> is associated with the <see cref="ComputeContext.Devices"/>. </remarks>
+        /// <param name="context"> A program. </param>
+        /// <param name="source"> The source code for the program. </param>
+        /// <remarks> The created program is associated with the devices. </remarks>
         public ComputeProgram(ComputeContext context, string source)
         {
             Handle = CL10.CreateProgramWithSource(
@@ -114,11 +114,11 @@ namespace Cloo
         }
 
         /// <summary>
-        /// Creates a new <see cref="ComputeProgram"/> from an array of source code strings.
+        /// Creates a new program from an array of source code strings.
         /// </summary>
         /// <param name="context"> A <see cref="ComputeContext"/>. </param>
-        /// <param name="source"> The source code lines for the <see cref="ComputeProgram"/>. </param>
-        /// <remarks> The created <see cref="ComputeProgram"/> is associated with the <see cref="ComputeContext.Devices"/>. </remarks>
+        /// <param name="source"> The source code lines for the program. </param>
+        /// <remarks> The created program is associated with the devices. </remarks>
         public ComputeProgram(ComputeContext context, string[] source)
         {
             Handle = CL10.CreateProgramWithSource(
@@ -137,11 +137,11 @@ namespace Cloo
         }
 
         /// <summary>
-        /// Creates a new <see cref="ComputeProgram"/> from a specified list of binaries.
+        /// Creates a new program from a specified list of binaries.
         /// </summary>
         /// <param name="context"> A <see cref="ComputeContext"/>. </param>
         /// <param name="binaries"> A list of binaries, one for each item in <paramref name="devices"/>. </param>
-        /// <param name="devices"> A subset of the <see cref="ComputeContext.Devices"/>. If <paramref name="devices"/> is <c>null</c>, OpenCL will associate every binary from <see cref="ComputeProgram.Binaries"/> with a corresponding <see cref="ComputeDevice"/> from <see cref="ComputeContext.Devices"/>. </param>
+        /// <param name="devices"> A subset of the <see cref="ComputeContext.Devices"/>. If <paramref name="devices"/> is <c>null</c>, OpenCL will associate every binary from binaries with a corresponding <see cref="ComputeDevice"/> from <see cref="ComputeContext.Devices"/>. </param>
         public ComputeProgram(ComputeContext context, IList<byte[]> binaries, IList<ComputeDevice> devices)
         {
             int count;
@@ -206,73 +206,87 @@ namespace Cloo
         #region Public methods
 
         /// <summary>
-        /// Builds (compiles and links) a program executable from the program source or binary for all or some of the <see cref="ComputeProgram.Devices"/>.
+        /// Builds (compiles and links) a program executable from the program source or binary for all or some of the devices.
         /// </summary>
-        /// <param name="devices"> A subset or all of <see cref="ComputeProgram.Devices"/>. If <paramref name="devices"/> is <c>null</c>, the executable is built for every item of <see cref="ComputeProgram.Devices"/> for which a source or a binary has been loaded. </param>
+        /// <param name="devices"> A subset or all of devices. If devices is <c>null</c>, the executable is built for every item of devices for which a source or a binary has been loaded. </param>
         /// <param name="options"> A set of options for the OpenCL compiler. </param>
-        /// <param name="notify"> A delegate instance that represents a reference to a notification routine. This routine is a callback function that an application can register and which will be called when the program executable has been built (successfully or unsuccessfully). If <paramref name="notify"/> is not <c>null</c>, <see cref="ComputeProgram.Build"/> does not need to wait for the build to complete and can return immediately. If <paramref name="notify"/> is <c>null</c>, <see cref="ComputeProgram.Build"/> does not return until the build has completed. The callback function may be called asynchronously by the OpenCL implementation. It is the application's responsibility to ensure that the callback function is thread-safe and that the delegate instance doesn't get collected by the Garbage Collector until the build operation triggers the callback. </param>
+        /// <param name="notify"> A delegate instance that represents a reference to a notification routine. This routine is a callback function that an application can register and which will be called when the program executable has been built (successfully or unsuccessfully). If <paramref name="notify"/> is not <c>null</c>, build does not need to wait for the build to complete and can return immediately. If <paramref name="notify"/> is <c>null</c>, build does not return until the build has completed. The callback function may be called asynchronously by the OpenCL implementation. It is the application's responsibility to ensure that the callback function is thread-safe and that the delegate instance doesn't get collected by the Garbage Collector until the build operation triggers the callback. </param>
         /// <param name="notifyDataPtr"> Optional user data that will be passed to <paramref name="notify"/>. </param>
-        public void Build(ICollection<ComputeDevice> devices, string options, ComputeProgramBuildNotifier notify, IntPtr notifyDataPtr)
+        public void Build(ICollection<ComputeDevice> devices, string options,
+            ComputeProgramBuildNotifier notify, IntPtr notifyDataPtr)
         {
-            CLDeviceHandle[] deviceHandles = ComputeTools.ExtractHandles(devices, out int handleCount);
+            var deviceHandles = ComputeTools.ExtractHandles(devices, out int handleCount);
             buildOptions = options ?? "";
             buildNotify = notify;
-
-            ComputeErrorCode error = CL10.BuildProgram(Handle, handleCount, deviceHandles, options, buildNotify, notifyDataPtr);
+            var error = CL10.BuildProgram(
+                Handle,
+                handleCount,
+                deviceHandles,
+                options,
+                buildNotify,
+                notifyDataPtr);
             ComputeException.ThrowOnError(error);
         }
 
         /// <summary>
-        /// Creates a <see cref="ComputeKernel"/> for every <c>kernel</c> function in <see cref="ComputeProgram"/>.
+        /// Creates a kernel for every <c>kernel</c> function in program.
         /// </summary>
-        /// <returns> The collection of created <see cref="ComputeKernel"/>s. </returns>
-        /// <remarks> <see cref="ComputeKernel"/>s are not created for any <c>kernel</c> functions in <see cref="ComputeProgram"/> that do not have the same function definition across all <see cref="ComputeProgram.Devices"/> for which a program executable has been successfully built. </remarks>
-        public ICollection<ComputeKernel> CreateAllKernels()
+        /// <returns> The collection of created kernels. </returns>
+        /// <remarks> kernels are not created for any <c>kernel</c> functions in program that do not have the same function definition across all devices for which a program executable has been successfully built. </remarks>
+        public ICollection<IComputeKernel> CreateAllKernels()
         {
-            ICollection<ComputeKernel> kernels = new Collection<ComputeKernel>();
-            CLKernelHandle[] kernelHandles;
-
-            ComputeErrorCode error = CL10.CreateKernelsInProgram(Handle, 0, null, out int kernelsCount);
+            var kernels = new Collection<IComputeKernel>();
+            var error = CL10.CreateKernelsInProgram(
+                Handle,
+                0,
+                null,
+                out int kernelsCount);
             ComputeException.ThrowOnError(error);
 
-            kernelHandles = new CLKernelHandle[kernelsCount];
-            error = CL10.CreateKernelsInProgram(Handle, kernelsCount, kernelHandles, out kernelsCount);
+            var kernelHandles = new CLKernelHandle[kernelsCount];
+            error = CL10.CreateKernelsInProgram(
+                Handle,
+                kernelsCount,
+                kernelHandles,
+                out kernelsCount);
             ComputeException.ThrowOnError(error);
 
             for (int i = 0; i < kernelsCount; i++)
             {
-                kernels.Add(new ComputeKernel(kernelHandles[i], this));
+                kernels.Add(new ComputeKernel(kernelHandles[i]));
             }
             return kernels;
         }
 
         /// <summary>
-        /// Creates a <see cref="ComputeKernel"/> for a kernel function of a specified name.
+        /// Creates a kernel for a kernel function of a specified name.
         /// </summary>
-        /// <returns> The created <see cref="ComputeKernel"/>. </returns>
-        public ComputeKernel CreateKernel(string functionName)
+        /// <returns> The created kernel. </returns>
+        public IComputeKernel CreateKernel(string functionName)
         {
             return new ComputeKernel(functionName, this);
         }
 
         /// <summary>
-        /// Gets the build log of the <see cref="ComputeProgram"/> for a specified <see cref="ComputeDevice"/>.
+        /// Gets the build log of the program for a specified <see cref="ComputeDevice"/>.
         /// </summary>
-        /// <param name="device"> The <see cref="ComputeDevice"/> building the <see cref="ComputeProgram"/>. Must be one of <see cref="ComputeProgram.Devices"/>. </param>
-        /// <returns> The build log of the <see cref="ComputeProgram"/> for <paramref name="device"/>. </returns>
+        /// <param name="device"> The <see cref="ComputeDevice"/> building the program. Must be one of devices. </param>
+        /// <returns> The build log of the program for device. </returns>
         public string GetBuildLog(ComputeDevice device)
         {
-            return GetStringInfo<CLProgramHandle, CLDeviceHandle, ComputeProgramBuildInfo>(Handle, device.Handle, ComputeProgramBuildInfo.BuildLog, CL10.GetProgramBuildInfo);
+            return GetStringInfo<CLProgramHandle, CLDeviceHandle, ComputeProgramBuildInfo>(Handle, device.Handle,
+                ComputeProgramBuildInfo.BuildLog, CL10.GetProgramBuildInfo);
         }
 
         /// <summary>
-        /// Gets the <see cref="ComputeProgramBuildStatus"/> of the <see cref="ComputeProgram"/> for a specified <see cref="ComputeDevice"/>.
+        /// Gets the <see cref="ComputeProgramBuildStatus"/> of the program for a specified <see cref="ComputeDevice"/>.
         /// </summary>
-        /// <param name="device"> The <see cref="ComputeDevice"/> building the <see cref="ComputeProgram"/>. Must be one of <see cref="ComputeProgram.Devices"/>. </param>
-        /// <returns> The <see cref="ComputeProgramBuildStatus"/> of the <see cref="ComputeProgram"/> for <paramref name="device"/>. </returns>
+        /// <param name="device"> The <see cref="ComputeDevice"/> building the program. Must be one of devices. </param>
+        /// <returns> The <see cref="ComputeProgramBuildStatus"/> of the program for device. </returns>
         public ComputeProgramBuildStatus GetBuildStatus(ComputeDevice device)
         {
-            return (ComputeProgramBuildStatus)GetInfo<CLProgramHandle, CLDeviceHandle, ComputeProgramBuildInfo, uint>(Handle, device.Handle, ComputeProgramBuildInfo.Status, CL10.GetProgramBuildInfo);
+            return (ComputeProgramBuildStatus)GetInfo<CLProgramHandle, CLDeviceHandle, ComputeProgramBuildInfo, uint>(Handle,
+                device.Handle, ComputeProgramBuildInfo.Status, CL10.GetProgramBuildInfo);
         }
 
         #endregion

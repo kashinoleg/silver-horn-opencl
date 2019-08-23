@@ -11,7 +11,6 @@ namespace Cloo
     /// </summary>
     /// <remarks> An event encapsulates the status of an operation such as a command. It can be used to synchronize operations in a context. </remarks>
     /// <seealso cref="ComputeUserEvent"/>
-    /// <seealso cref="ComputeCommandQueue"/>
     /// <seealso cref="ComputeContext"/>
     public class ComputeEvent : ComputeEventBase
     {
@@ -25,9 +24,9 @@ namespace Cloo
         #region Properties
 
         /// <summary>
-        /// Gets the <see cref="ComputeCommandQueue"/> associated with the <see cref="ComputeEvent"/>.
+        /// Gets the command queue associated with the <see cref="ComputeEvent"/>.
         /// </summary>
-        /// <value> The <see cref="ComputeCommandQueue"/> associated with the <see cref="ComputeEvent"/>. </value>
+        /// <value> The command queue associated with the <see cref="ComputeEvent"/>. </value>
         public ComputeCommandQueue CommandQueue { get; private set; }
 
         #endregion
@@ -44,8 +43,9 @@ namespace Cloo
             Context = queue.Context;
 
             if (ComputeTools.ParseVersionString(CommandQueue.Device.Platform.Version, 1) > new Version(1, 0))
+            {
                 HookNotifier();
-
+            }
             logger.Info("Create " + this + " in Thread(" + Thread.CurrentThread.ManagedThreadId + ").", "Information");
         }
 
@@ -90,16 +90,19 @@ namespace Cloo
                     Dispose();
                 }
                 else
+                {
                     FreeGCHandle();
+                }
             }
         }
 
         private void FreeGCHandle()
         {
             if (gcHandle.IsAllocated && gcHandle.Target != null)
+            {
                 gcHandle.Free();
+            }
         }
-
         #endregion
     }
 }

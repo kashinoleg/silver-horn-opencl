@@ -4,7 +4,7 @@ using System.Diagnostics;
 namespace Cloo.Bindings
 {
     /// <summary>
-    /// Represents the <see cref="ComputeKernel"/> ID.
+    /// Represents the kernel ID.
     /// </summary>
     public struct CLKernelHandle
     {

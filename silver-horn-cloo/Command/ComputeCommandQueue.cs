@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
 using Cloo.Bindings;
+using SilverHorn.Cloo.Kernel;
 
 namespace Cloo
 {
@@ -18,32 +19,32 @@ namespace Cloo
         #region Properties
 
         /// <summary>
-        /// The handle of the <see cref="ComputeCommandQueue"/>.
+        /// The handle of the command queue.
         /// </summary>
         public CLCommandQueueHandle Handle { get; protected set; }
 
         /// <summary>
-        /// Gets the <see cref="ComputeContext"/> of the <see cref="ComputeCommandQueue"/>.
+        /// Gets the <see cref="ComputeContext"/> of the command queue.
         /// </summary>
-        /// <value> The <see cref="ComputeContext"/> of the <see cref="ComputeCommandQueue"/>. </value>
+        /// <value> The <see cref="ComputeContext"/> of the command queue. </value>
         public ComputeContext Context { get; private set; }
 
         /// <summary>
-        /// Gets the <see cref="ComputeDevice"/> of the <see cref="ComputeCommandQueue"/>.
+        /// Gets the <see cref="ComputeDevice"/> of the command queue.
         /// </summary>
-        /// <value> The <see cref="ComputeDevice"/> of the <see cref="ComputeCommandQueue"/>. </value>
+        /// <value> The <see cref="ComputeDevice"/> of the command queue. </value>
         public ComputeDevice Device { get; private set; }
 
         /// <summary>
-        /// Gets the out-of-order execution mode of the commands in the <see cref="ComputeCommandQueue"/>.
+        /// Gets the out-of-order execution mode of the commands in the command queue.
         /// </summary>
-        /// <value> Is <c>true</c> if <see cref="ComputeCommandQueue"/> has out-of-order execution mode enabled and <c>false</c> otherwise. </value>
+        /// <value> Is <c>true</c> if command queue has out-of-order execution mode enabled and <c>false</c> otherwise. </value>
         public bool OutOfOrderExecution { get; private set; }
 
         /// <summary>
-        /// Gets the profiling mode of the commands in the <see cref="ComputeCommandQueue"/>.
+        /// Gets the profiling mode of the commands in the command queue.
         /// </summary>
-        /// <value> Is <c>true</c> if <see cref="ComputeCommandQueue"/> has profiling enabled and <c>false</c> otherwise. </value>
+        /// <value> Is <c>true</c> if command queue has profiling enabled and <c>false</c> otherwise. </value>
         public bool Profiling { get; private set; }
 
         internal IList<ComputeEventBase> Events { get; set; }
@@ -52,11 +53,11 @@ namespace Cloo
         #region Constructors
 
         /// <summary>
-        /// Creates a new <see cref="ComputeCommandQueue"/>.
+        /// Creates a new command queue.
         /// </summary>
         /// <param name="context"> A <see cref="ComputeContext"/>. </param>
         /// <param name="device"> A <see cref="ComputeDevice"/> associated with the <paramref name="context"/>. It can either be one of <see cref="ComputeContext.Devices"/> or have the same <see cref="ComputeDeviceTypes"/> as the <paramref name="device"/> specified when the <paramref name="context"/> is created. </param>
-        /// <param name="properties"> The properties for the <see cref="ComputeCommandQueue"/>. </param>
+        /// <param name="properties"> The properties for the command queue. </param>
         public ComputeCommandQueue(ComputeContext context, ComputeDevice device, ComputeCommandQueueFlags properties)
         {
             Handle = OpenCL100.CreateCommandQueue(context.Handle, device.Handle, properties, out ComputeErrorCode error);
@@ -277,11 +278,11 @@ namespace Cloo
         }
 
         /// <summary>
-        /// Enqueues a command to execute a single <see cref="ComputeKernel"/>.
+        /// Enqueues a command to execute a kernel single.
         /// </summary>
-        /// <param name="kernel"> The <see cref="ComputeKernel"/> to execute. </param>
+        /// <param name="kernel"> The kernel to execute. </param>
         /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> or read-only a new <see cref="ComputeEvent"/> identifying this command is created and attached to the end of the collection. </param>
-        public void ExecuteTask(ComputeKernel kernel, ICollection<ComputeEventBase> events)
+        public void ExecuteTask(IComputeKernel kernel, ICollection<ComputeEventBase> events)
         {
             var eventHandles = ComputeTools.ExtractHandles(events, out int eventWaitListSize);
             var eventsWritable = (events != null && !events.IsReadOnly);
@@ -295,14 +296,14 @@ namespace Cloo
         }
 
         /// <summary>
-        /// Enqueues a command to execute a range of <see cref="ComputeKernel"/>s in parallel.
+        /// Enqueues a command to execute a range of kernels in parallel.
         /// </summary>
-        /// <param name="kernel"> The <see cref="ComputeKernel"/> to execute. </param>
+        /// <param name="kernel"> The kernel to execute. </param>
         /// <param name="globalWorkOffset"> An array of values that describe the offset used to calculate the global ID of a work-item instead of having the global IDs always start at offset (0, 0,... 0). </param>
         /// <param name="globalWorkSize"> An array of values that describe the number of global work-items in dimensions that will execute the kernel function. The total number of global work-items is computed as global_work_size[0] *...* global_work_size[work_dim - 1]. </param>
         /// <param name="localWorkSize"> An array of values that describe the number of work-items that make up a work-group (also referred to as the size of the work-group) that will execute the <paramref name="kernel"/>. The total number of work-items in a work-group is computed as local_work_size[0] *... * local_work_size[work_dim - 1]. </param>
         /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> or read-only a new <see cref="ComputeEvent"/> identifying this command is created and attached to the end of the collection. </param>
-        public void Execute(ComputeKernel kernel,
+        public void Execute(IComputeKernel kernel,
             long[] globalWorkOffset,
             long[] globalWorkSize,
             long[] localWorkSize,
@@ -312,9 +313,16 @@ namespace Cloo
             var eventsWritable = (events != null && !events.IsReadOnly);
             var newEventHandle = (eventsWritable) ? new CLEventHandle[1] : null;
 
-            var error = CL10.EnqueueNDRangeKernel(Handle, kernel.Handle, globalWorkSize.Length,
-                ComputeTools.ConvertArray(globalWorkOffset), ComputeTools.ConvertArray(globalWorkSize),
-                ComputeTools.ConvertArray(localWorkSize), eventWaitListSize, eventHandles, newEventHandle);
+            var error = CL10.EnqueueNDRangeKernel(
+                Handle,
+                kernel.Handle,
+                globalWorkSize.Length,
+                ComputeTools.ConvertArray(globalWorkOffset),
+                ComputeTools.ConvertArray(globalWorkSize),
+                ComputeTools.ConvertArray(localWorkSize),
+                eventWaitListSize,
+                eventHandles,
+                newEventHandle);
             ComputeException.ThrowOnError(error);
 
             if (eventsWritable)
@@ -322,7 +330,7 @@ namespace Cloo
         }
 
         /// <summary>
-        /// Blocks until all previously enqueued commands are issued to the <see cref="ComputeCommandQueue.Device"/> and have completed.
+        /// Blocks until all previously enqueued commands are issued to the device and have completed.
         /// </summary>
         public void Finish()
         {
@@ -331,7 +339,7 @@ namespace Cloo
         }
 
         /// <summary>
-        /// Issues all previously enqueued commands to the <see cref="ComputeCommandQueue.Device"/>.
+        /// Issues all previously enqueued commands to the device.
         /// </summary>
         /// <remarks> This method only guarantees that all previously enqueued commands get issued to the OpenCL device. There is no guarantee that they will be complete after this method returns. </remarks>
         public void Flush()
@@ -554,7 +562,7 @@ namespace Cloo
         /// Enqueues a command to unmap a buffer or a <see cref="ComputeImage"/> from the host address space.
         /// </summary>
         /// <param name="memory"> The <see cref="ComputeMemory"/>. </param>
-        /// <param name="mappedPtr"> The host address returned by a previous call to <see cref="ComputeCommandQueue.Map"/>. This pointer is <c>IntPtr.Zero</c> after this method returns. </param>
+        /// <param name="mappedPtr"> The host address returned by a previous call to map. This pointer is <c>IntPtr.Zero</c> after this method returns. </param>
         /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> or read-only a new <see cref="ComputeEvent"/> identifying this command is created and attached to the end of the collection. </param>
         public void Unmap(ComputeMemory memory, ref IntPtr mappedPtr, ICollection<ComputeEventBase> events)
         {
@@ -573,7 +581,7 @@ namespace Cloo
         }
 
         /// <summary>
-        /// Enqueues a wait command for a collection of <see cref="ComputeEvent"/>s to complete before any future commands queued in the <see cref="ComputeCommandQueue"/> are executed.
+        /// Enqueues a wait command for a collection of <see cref="ComputeEvent"/>s to complete before any future commands queued in the command queue are executed.
         /// </summary>
         /// <param name="events"> The <see cref="ComputeEvent"/>s that this command will wait for. </param>
         public void Wait(ICollection<ComputeEventBase> events)

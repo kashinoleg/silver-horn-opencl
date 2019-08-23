@@ -14,17 +14,14 @@ namespace Cloo
     public abstract class ComputeBufferBase<T> : ComputeMemory where T : struct
     {
         #region Properties
-
         /// <summary>
-        /// Gets the number of elements in the <see cref="ComputeBufferBase{T}"/>.
+        /// Gets the number of elements in the buffer.
         /// </summary>
-        /// <value> The number of elements in the <see cref="ComputeBufferBase{T}"/>. </value>
+        /// <value> The number of elements in the buffer. </value>
         public long Count { get; private set; }
-
         #endregion
 
         #region Constructors
-
         /// <summary>
         /// 
         /// </summary>

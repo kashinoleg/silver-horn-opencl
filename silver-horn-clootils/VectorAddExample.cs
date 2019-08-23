@@ -35,6 +35,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Runtime.InteropServices;
 using Cloo;
+using SilverHorn.Cloo.Kernel;
 
 namespace Clootils
 {
@@ -83,18 +84,18 @@ kernel void VectorAdd(
                 // Create the input buffers and fill them with data from the arrays.
                 // Access modifiers should match those in a kernel.
                 // CopyHostPointer means the buffer should be filled with the data provided in the last argument.
-                ComputeBuffer<float> a = new ComputeBuffer<float>(context, ComputeMemoryFlags.ReadOnly | ComputeMemoryFlags.CopyHostPointer, arrA);
-                ComputeBuffer<float> b = new ComputeBuffer<float>(context, ComputeMemoryFlags.ReadOnly | ComputeMemoryFlags.CopyHostPointer, arrB);
+                var a = new ComputeBuffer<float>(context, ComputeMemoryFlags.ReadOnly | ComputeMemoryFlags.CopyHostPointer, arrA);
+                var b = new ComputeBuffer<float>(context, ComputeMemoryFlags.ReadOnly | ComputeMemoryFlags.CopyHostPointer, arrB);
 
                 // The output buffer doesn't need any data from the host. Only its size is specified (arrC.Length).
-                ComputeBuffer<float> c = new ComputeBuffer<float>(context, ComputeMemoryFlags.WriteOnly, arrC.Length);
+                var c = new ComputeBuffer<float>(context, ComputeMemoryFlags.WriteOnly, arrC.Length);
 
                 // Create and build the opencl program.
                 program = new ComputeProgram(context, clProgramSource);
                 program.Build(null, null, null, IntPtr.Zero);
 
                 // Create the kernel function and set its arguments.
-                ComputeKernel kernel = program.CreateKernel("VectorAdd");
+                IComputeKernel kernel = program.CreateKernel("VectorAdd");
                 kernel.SetMemoryArgument(0, a);
                 kernel.SetMemoryArgument(1, b);
                 kernel.SetMemoryArgument(2, c);
@@ -102,10 +103,10 @@ kernel void VectorAdd(
                 // Create the event wait list. An event list is not really needed for this example but it is important to see how it works.
                 // Note that events (like everything else) consume OpenCL resources and creating a lot of them may slow down execution.
                 // For this reason their use should be avoided if possible.
-                ComputeEventList eventList = new ComputeEventList();
+                var eventList = new ComputeEventList();
 
                 // Create the command queue. This is used to control kernel execution and manage read/write/copy operations.
-                ComputeCommandQueue commands = new ComputeCommandQueue(context, context.Devices[0], ComputeCommandQueueFlags.None);
+                var commands = new ComputeCommandQueue(context, context.Devices[0], ComputeCommandQueueFlags.None);
 
                 // Execute the kernel "count" times. After this call returns, "eventList" will contain an event associated with this command.
                 // If eventList == null or typeof(eventList) == ReadOnlyCollection<ComputeEventBase>, a new event will not be created.

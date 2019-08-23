@@ -9,10 +9,7 @@ namespace Cloo
     /// Represents an OpenCL device.
     /// </summary>
     /// <value> A device is a collection of compute units. A command queue is used to queue commands to a device. Examples of commands include executing kernels, or reading and writing memory objects. OpenCL devices typically correspond to a GPU, a multi-core CPU, and other processors such as DSPs and the Cell/B.E. processor. </value>
-    /// <seealso cref="ComputeCommandQueue"/>
-    /// <seealso cref="ComputeKernel"/>
     /// <seealso cref="ComputeMemory"/>
-    /// <seealso cref="ComputePlatform"/>
     public class ComputeDevice : ComputeObject
     {
         #region Properties
@@ -160,7 +157,7 @@ namespace Cloo
         public long MaxComputeUnits { get; private set; }
 
         /// <summary>
-        /// Gets the maximum number of arguments declared with the <c>__constant</c> or <c>constant</c> qualifier in a <see cref="ComputeKernel"/> executing in the <see cref="ComputeDevice"/>.
+        /// Gets the maximum number of arguments declared with the <c>__constant</c> or <c>constant</c> qualifier in a kernel executing in the <see cref="ComputeDevice"/>.
         /// </summary>
         /// <value> The minimum value is 8. </value>
         public long MaxConstantArguments { get; private set; }
@@ -178,25 +175,25 @@ namespace Cloo
         public long MaxMemoryAllocationSize { get; private set; }
 
         /// <summary>
-        /// Gets the maximum size in bytes of the arguments that can be passed to a <see cref="ComputeKernel"/> executing in the <see cref="ComputeDevice"/>.
+        /// Gets the maximum size in bytes of the arguments that can be passed to a kernel executing in the <see cref="ComputeDevice"/>.
         /// </summary>
         /// <value> The minimum value is 256 (OpenCL 1.0) or 1024 (OpenCL 1.1). </value>
         public long MaxParameterSize { get; private set; }
 
         /// <summary>
-        /// Gets the maximum number of simultaneous <see cref="ComputeImage"/>s that can be read by a <see cref="ComputeKernel"/> executing in the <see cref="ComputeDevice"/>.
+        /// Gets the maximum number of simultaneous <see cref="ComputeImage"/>s that can be read by a kernel executing in the <see cref="ComputeDevice"/>.
         /// </summary>
         /// <value> The minimum value is 128 if <see cref="ComputeDevice.ImageSupport"/> is <c>true</c>. </value>
         public long MaxReadImageArguments { get; private set; }
 
         /// <summary>
-        /// Gets the maximum number of <see cref="ComputeSampler"/>s that can be used in a <see cref="ComputeKernel"/>.
+        /// Gets the maximum number of <see cref="ComputeSampler"/>s that can be used in a kernel.
         /// </summary>
         /// <value> The minimum value is 16 if <see cref="ComputeDevice.ImageSupport"/> is <c>true</c>. </value>
         public long MaxSamplers { get; private set; }
 
         /// <summary>
-        /// Gets the maximum number of work-items in a work-group executing a <see cref="ComputeKernel"/> in a <see cref="ComputeDevice"/> using the data parallel execution model.
+        /// Gets the maximum number of work-items in a work-group executing a kernel in a <see cref="ComputeDevice"/> using the data parallel execution model.
         /// </summary>
         /// <value> The minimum value is 1. </value>
         public long MaxWorkGroupSize { get; private set; }
@@ -208,13 +205,13 @@ namespace Cloo
         public long MaxWorkItemDimensions { get; private set; }
 
         /// <summary>
-        /// Gets the maximum number of work-items that can be specified in each dimension of the <paramref name="globalWorkSize"/> argument of <see cref="ComputeCommandQueue.Execute"/>.
+        /// Gets the maximum number of work-items that can be specified in each dimension of the <paramref name="globalWorkSize"/> argument of execute.
         /// </summary>
-        /// <value> The maximum number of work-items that can be specified in each dimension of the <paramref name="globalWorkSize"/> argument of <see cref="ComputeCommandQueue.Execute"/>. </value>
+        /// <value> The maximum number of work-items that can be specified in each dimension of the <paramref name="globalWorkSize"/> argument of execute. </value>
         public ReadOnlyCollection<long> MaxWorkItemSizes { get; private set; }
 
         /// <summary>
-        /// Gets the maximum number of simultaneous <see cref="ComputeImage"/>s that can be written to by a <see cref="ComputeKernel"/> executing in the <see cref="ComputeDevice"/>.
+        /// Gets the maximum number of simultaneous <see cref="ComputeImage"/>s that can be written to by a kernel executing in the <see cref="ComputeDevice"/>.
         /// </summary>
         /// <value> The minimum value is 8 if <see cref="ComputeDevice.ImageSupport"/> is <c>true</c>. </value>
         public long MaxWriteImageArguments { get; private set; }
@@ -238,9 +235,9 @@ namespace Cloo
         public string Name { get; private set; }
 
         /// <summary>
-        /// Gets the <see cref="ComputePlatform"/> associated with the <see cref="ComputeDevice"/>.
+        /// Gets the platform associated with the <see cref="ComputeDevice"/>.
         /// </summary>
-        /// <value> The <see cref="ComputePlatform"/> associated with the <see cref="ComputeDevice"/>. </value>
+        /// <value> The platform associated with the <see cref="ComputeDevice"/>. </value>
         public ComputePlatform Platform { get; private set; }
 
         /// <summary>

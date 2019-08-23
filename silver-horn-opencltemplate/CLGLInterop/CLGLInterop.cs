@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using System.Drawing;
 using Cloo;
 using System.Runtime.InteropServices;
+using SilverHorn.Cloo.Kernel;
 
 namespace OpenCLTemplate.CLGLInterop
 {
@@ -738,10 +739,10 @@ namespace OpenCLTemplate.CLGLInterop
         private ComputeBuffer<float> CLMouseRadius;
 
         /// <summary>Hide/show kernel</summary>
-        private ComputeKernel kernelHide, kernelShowAll, kernelHideLines;
+        private IComputeKernel kernelHide, kernelShowAll, kernelHideLines;
 
         /// <summary>Displacement kernel</summary>
-        private ComputeKernel kernelDisplace;
+        private IComputeKernel kernelDisplace;
 
         /// <summary>Initializes OpenCL kernels to calculate displacement and hide objects</summary>
         private void InitCLDisp()
@@ -804,7 +805,7 @@ namespace OpenCLTemplate.CLGLInterop
                     lock (model)
                     {
                         //Create from GL buffers
-                        ComputeBuffer<int> CLGLElems = ComputeBuffer<int>.CreateFromGLBuffer<int>(CLGLCtx, ComputeMemoryFlags.ReadWrite, model.GLElemBuffer);
+                        var CLGLElems = ComputeBuffer<int>.CreateFromGLBuffer<int>(CLGLCtx, ComputeMemoryFlags.ReadWrite, model.GLElemBuffer);
 
                         //Acquire
                         List<ComputeMemory> c = new List<ComputeMemory>() { CLGLElems };
@@ -843,8 +844,8 @@ namespace OpenCLTemplate.CLGLInterop
                     lock (model)
                     {
                         //Create from GL buffers
-                        ComputeBuffer<int> CLGLElems = ComputeBuffer<int>.CreateFromGLBuffer<int>(CLGLCtx, ComputeMemoryFlags.ReadWrite, model.GLElemBuffer);
-                        ComputeBuffer<float> CLGLVertexes = ComputeBuffer<float>.CreateFromGLBuffer<float>(CLGLCtx, ComputeMemoryFlags.ReadWrite, model.GLVertexBuffer);
+                        var CLGLElems = ComputeBuffer<int>.CreateFromGLBuffer<int>(CLGLCtx, ComputeMemoryFlags.ReadWrite, model.GLElemBuffer);
+                        var CLGLVertexes = ComputeBuffer<float>.CreateFromGLBuffer<float>(CLGLCtx, ComputeMemoryFlags.ReadWrite, model.GLVertexBuffer);
 
                         //Acquire
                         List<ComputeMemory> c = new List<ComputeMemory>() { CLGLElems, CLGLVertexes };
@@ -898,7 +899,7 @@ namespace OpenCLTemplate.CLGLInterop
                         if (model.ShowModel)
                         {
                             //Create from GL buffers
-                            ComputeBuffer<float> CLGLVertexes = ComputeBuffer<float>.CreateFromGLBuffer<float>(CLGLCtx, ComputeMemoryFlags.ReadWrite, model.GLVertexBuffer);
+                            var CLGLVertexes = ComputeBuffer<float>.CreateFromGLBuffer<float>(CLGLCtx, ComputeMemoryFlags.ReadWrite, model.GLVertexBuffer);
 
                             //Acquire
                             List<ComputeMemory> c = new List<ComputeMemory>() { CLGLVertexes };

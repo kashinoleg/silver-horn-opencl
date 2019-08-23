@@ -4,7 +4,7 @@ using System.Diagnostics;
 namespace Cloo.Bindings
 {
     /// <summary>
-    /// Represents the <see cref="ComputeProgram"/> ID.
+    /// Represents the program ID.
     /// </summary>
     public struct CLProgramHandle
     {

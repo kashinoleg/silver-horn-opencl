@@ -52,7 +52,7 @@ namespace Clootils
         {
             try
             {
-                ComputeCommandQueue commands = new ComputeCommandQueue(context, context.Devices[0], ComputeCommandQueueFlags.None);
+                var commands = new ComputeCommandQueue(context, context.Devices[0], ComputeCommandQueueFlags.None);
 
                 log.WriteLine("Original content:");
 
@@ -65,7 +65,7 @@ namespace Clootils
                     log.WriteLine("\t" + bufferContent[i]);
                 }
 
-                ComputeBuffer<long> buffer = new ComputeBuffer<long>(context, ComputeMemoryFlags.CopyHostPointer, bufferContent);
+                var buffer = new ComputeBuffer<long>(context, ComputeMemoryFlags.CopyHostPointer, bufferContent);
 
                 IntPtr mappedPtr = commands.Map(buffer, true, ComputeMemoryMappingFlags.Read, 0, bufferContent.Length, null);
 

@@ -24,13 +24,22 @@ namespace Cloo
         /// <param name="rowPitch"> The size in bytes of each row of elements of the <see cref="ComputeImage3D"/>. If <paramref name="rowPitch"/> is zero, OpenCL will compute the proper value based on <see cref="ComputeImage.Width"/> and <see cref="ComputeImage.ElementSize"/>. </param>
         /// <param name="slicePitch"> The size in bytes of each 2D slice in the <see cref="ComputeImage3D"/>. If <paramref name="slicePitch"/> is zero, OpenCL will compute the proper value based on <see cref="ComputeImage.RowPitch"/> and <see cref="ComputeImage.Height"/>. </param>
         /// <param name="data"> The data to initialize the <see cref="ComputeImage3D"/>. Can be <c>IntPtr.Zero</c>. </param>
-        public ComputeImage3D(ComputeContext context, ComputeMemoryFlags flags, ComputeImageFormat format, int width, int height, int depth, long rowPitch, long slicePitch, IntPtr data)
+        public ComputeImage3D(ComputeContext context, ComputeMemoryFlags flags, ComputeImageFormat format,
+            int width, int height, int depth, long rowPitch, long slicePitch, IntPtr data)
             : base(context, flags)
         {
-            ComputeErrorCode error = ComputeErrorCode.Success;
-            Handle = CL10.CreateImage3D(context.Handle, flags, ref format, new IntPtr(width), new IntPtr(height), new IntPtr(depth), new IntPtr(rowPitch), new IntPtr(slicePitch), data, out error);
+            Handle = CL10.CreateImage3D(
+                context.Handle,
+                flags,
+                ref format,
+                new IntPtr(width),
+                new IntPtr(height),
+                new IntPtr(depth),
+                new IntPtr(rowPitch),
+                new IntPtr(slicePitch),
+                data,
+                out ComputeErrorCode error);
             ComputeException.ThrowOnError(error);
-
             Init();
         }
 
@@ -57,11 +66,14 @@ namespace Cloo
         /// <returns> The created <see cref="ComputeImage2D"/>. </returns>
         public static ComputeImage3D CreateFromGLTexture3D(ComputeContext context, ComputeMemoryFlags flags, int textureTarget, int mipLevel, int textureId)
         {
-            CLMemoryHandle image;
-            ComputeErrorCode error = ComputeErrorCode.Success;
-            image = CL10.CreateFromGLTexture3D(context.Handle, flags, textureTarget, mipLevel, textureId, out error);
+            var image = CL10.CreateFromGLTexture3D(
+                context.Handle,
+                flags,
+                textureTarget,
+                mipLevel,
+                textureId,
+                out ComputeErrorCode error);
             ComputeException.ThrowOnError(error);
-
             return new ComputeImage3D(image, context, flags);
         }
 

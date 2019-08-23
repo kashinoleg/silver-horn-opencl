@@ -22,9 +22,9 @@ namespace Cloo
 
         #region Constructors
         /// <summary>
-        /// Creates a new <see cref="ComputeContextPropertyList"/> which contains a single item specifying a <see cref="ComputePlatform"/>.
+        /// Creates a new <see cref="ComputeContextPropertyList"/> which contains a single item specifying a platform.
         /// </summary>
-        /// <param name="platform"> A <see cref="ComputePlatform"/>. </param>
+        /// <param name="platform"> A platform. </param>
         public ComputeContextPropertyList(ComputePlatform platform)
         {
             properties = new List<ComputeContextProperty>();

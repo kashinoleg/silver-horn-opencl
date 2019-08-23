@@ -4,7 +4,7 @@ using System.Diagnostics;
 namespace Cloo.Bindings
 {
     /// <summary>
-    /// Represents the <see cref="ComputePlatform"/> ID.
+    /// Represents the platform ID.
     /// </summary>
     public struct CLPlatformHandle
     {

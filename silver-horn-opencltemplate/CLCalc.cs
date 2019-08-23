@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Runtime.InteropServices;
 using Cloo;
+using SilverHorn.Cloo.Kernel;
 
 namespace OpenCLTemplate
 {
@@ -117,9 +118,9 @@ namespace OpenCLTemplate
                         for (int i = 0; i < CLDevices.Count; i++)
                         {
                             //Comandos para os devices
-                            ComputeCommandQueue CQ = new ComputeCommandQueue(Program.Context, CLDevices[i], ComputeCommandQueueFlags.None);
+                            var CQ = new ComputeCommandQueue(Program.Context, CLDevices[i], ComputeCommandQueueFlags.None);
 
-                            ComputeCommandQueue AsyncCQ = new ComputeCommandQueue(Program.Context, CLDevices[i], ComputeCommandQueueFlags.OutOfOrderExecution);
+                            var AsyncCQ = new ComputeCommandQueue(Program.Context, CLDevices[i], ComputeCommandQueueFlags.OutOfOrderExecution);
 
 
 
@@ -336,7 +337,7 @@ namespace OpenCLTemplate
                 /// <summary>Sets this variable as an argument for a kernel</summary>
                 /// <param name="ArgIndex">Index of kernel argument</param>
                 /// <param name="Kernel">Kernel to receive argument</param>
-                public void SetAsArgument(int ArgIndex, ComputeKernel Kernel)
+                public void SetAsArgument(int ArgIndex, IComputeKernel Kernel)
                 {
                     //Is this a buffer object?
                     if (this is Variable)
@@ -1490,7 +1491,7 @@ namespace OpenCLTemplate
             public class Kernel : IDisposable
             {
                 /// <summary>Local kernel storage</summary>
-                private ComputeKernel kernel;
+                private IComputeKernel kernel;
 
                 ///// <summary>Number of arguments</summary>
                 //private int nArgs = 0;

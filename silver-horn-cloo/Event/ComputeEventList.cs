@@ -9,7 +9,6 @@ namespace Cloo
     /// <summary>
     /// Represents a list of OpenCL generated or user created events.
     /// </summary>
-    /// <seealso cref="ComputeCommandQueue"/>
     public class ComputeEventList : IList<ComputeEventBase>
     {
         #region Fields

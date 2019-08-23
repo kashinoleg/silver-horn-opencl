@@ -4,7 +4,7 @@ using System.Diagnostics;
 namespace Cloo.Bindings
 {
     /// <summary>
-    /// Represents the <see cref="ComputeCommandQueue"/> ID.
+    /// Represents the command queue ID.
     /// </summary>
     public struct CLCommandQueueHandle
     {

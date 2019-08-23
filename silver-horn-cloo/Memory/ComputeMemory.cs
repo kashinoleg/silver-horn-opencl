@@ -7,7 +7,6 @@ namespace Cloo
     /// Represents an OpenCL memory object.
     /// </summary>
     /// <remarks> A memory object is a handle to a region of global memory. </remarks>
-    /// <seealso cref="ComputeBuffer{T}"/>
     /// <seealso cref="ComputeImage"/>
     public abstract class ComputeMemory : ComputeResource
     {
@@ -37,7 +36,6 @@ namespace Cloo
         #endregion
 
         #region Constructors
-
         /// <summary>
         /// 
         /// </summary>
@@ -48,11 +46,9 @@ namespace Cloo
             Context = context;
             Flags = flags;
         }
-
         #endregion
 
         #region Protected methods
-
         /// <summary>
         /// Releases the associated OpenCL object.
         /// </summary>

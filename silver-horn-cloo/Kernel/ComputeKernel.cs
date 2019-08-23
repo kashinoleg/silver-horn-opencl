@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
 using Cloo.Bindings;
+using NLog;
+using SilverHorn.Cloo.Kernel;
 
 namespace Cloo
 {
@@ -11,88 +11,59 @@ namespace Cloo
     /// Represents an OpenCL kernel.
     /// </summary>
     /// <remarks> A kernel object encapsulates a specific kernel function declared in a program and the argument values to be used when executing this kernel function. </remarks>
-    /// <seealso cref="ComputeCommandQueue"/>
-    /// <seealso cref="ComputeProgram"/>
-    public class ComputeKernel : ComputeResource
+    public sealed class ComputeKernel : ComputeObject, IComputeKernel
     {
-        #region Fields
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private readonly ComputeContext context;
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private readonly string functionName;
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private readonly ComputeProgram program;
-
+        #region Services
+        /// <summary>
+        /// Logger
+        /// </summary>
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         #endregion
 
         #region Properties
+        /// <summary>
+        /// The handle of the kernel.
+        /// </summary>
+        public CLKernelHandle Handle { get; private set; }
 
         /// <summary>
-        /// The handle of the <see cref="ComputeKernel"/>.
+        /// Gets the function name of the kernel.
         /// </summary>
-        public CLKernelHandle Handle { get; protected set; }
-
-        /// <summary>
-        /// Gets the <see cref="ComputeContext"/> associated with the <see cref="ComputeKernel"/>.
-        /// </summary>
-        /// <value> The <see cref="ComputeContext"/> associated with the <see cref="ComputeKernel"/>. </value>
-        public ComputeContext Context { get { return context; } }
-
-        /// <summary>
-        /// Gets the function name of the <see cref="ComputeKernel"/>.
-        /// </summary>
-        /// <value> The function name of the <see cref="ComputeKernel"/>. </value>
-        public string FunctionName { get { return functionName; } }
-
-        /// <summary>
-        /// Gets the <see cref="ComputeProgram"/> that the <see cref="ComputeKernel"/> belongs to.
-        /// </summary>
-        /// <value> The <see cref="ComputeProgram"/> that the <see cref="ComputeKernel"/> belongs to. </value>
-        public ComputeProgram Program { get { return program; } }
-
+        /// <value> The function name of the kernel. </value>
+        public string FunctionName { get; private set; }
         #endregion
 
         #region Constructors
-
-        internal ComputeKernel(CLKernelHandle handle, ComputeProgram program)
+        internal ComputeKernel(CLKernelHandle handle)
         {
             Handle = handle;
             SetID(Handle.Value);
 
-            context = program.Context;
-            functionName = GetStringInfo<CLKernelHandle, ComputeKernelInfo>(Handle, ComputeKernelInfo.FunctionName, CL10.GetKernelInfo);
-            this.program = program;
-
+            FunctionName = GetStringInfo<CLKernelHandle, ComputeKernelInfo>(Handle, ComputeKernelInfo.FunctionName, CL10.GetKernelInfo);
             logger.Info("Create " + this + " in Thread(" + Thread.CurrentThread.ManagedThreadId + ").", "Information");
         }
 
         internal ComputeKernel(string functionName, ComputeProgram program)
         {
-            ComputeErrorCode error = ComputeErrorCode.Success;
-            Handle = CL10.CreateKernel(program.Handle, functionName, out error);
+            Handle = CL10.CreateKernel(
+                program.Handle,
+                functionName,
+                out ComputeErrorCode error);
             ComputeException.ThrowOnError(error);
 
             SetID(Handle.Value);
-
-            context = program.Context;
-            this.functionName = functionName;
-            this.program = program;
-
+            FunctionName = functionName;
             logger.Info("Create " + this + " in Thread(" + Thread.CurrentThread.ManagedThreadId + ").", "Information");
         }
 
         #endregion
 
         #region Public methods
-
         /// <summary>
-        /// Gets the amount of local memory in bytes used by the <see cref="ComputeKernel"/>.
+        /// Gets the amount of local memory in bytes used by the kernel.
         /// </summary>
-        /// <param name="device"> One of the <see cref="ComputeKernel.Program.Device"/>s. </param>
-        /// <returns> The amount of local memory in bytes used by the <see cref="ComputeKernel"/>. </returns>
+        /// <param name="device"> One of the device. </param>
+        /// <returns> The amount of local memory in bytes used by the kernel. </returns>
         public long GetLocalMemorySize(ComputeDevice device)
         {
             return GetInfo<CLKernelHandle, CLDeviceHandle, ComputeKernelWorkGroupInfo, long>(
@@ -102,7 +73,7 @@ namespace Cloo
         /// <summary>
         /// Gets the compile work-group size specified by the <c>__attribute__((reqd_work_group_size(X, Y, Z)))</c> qualifier.
         /// </summary>
-        /// <param name="device"> One of the <see cref="ComputeKernel.Program.Device"/>s. </param>
+        /// <param name="device"> One of the device. </param>
         /// <returns> The compile work-group size specified by the <c>__attribute__((reqd_work_group_size(X, Y, Z)))</c> qualifier. If no such qualifier is specified, (0, 0, 0) is returned. </returns>
         public long[] GetCompileWorkGroupSize(ComputeDevice device)
         {
@@ -114,7 +85,7 @@ namespace Cloo
         /// <summary>
         /// Gets the preferred multiple of workgroup size for launch. 
         /// </summary>
-        /// <param name="device"> One of the <see cref="ComputeKernel.Program.Device"/>s. </param>
+        /// <param name="device"> One of the device. </param>
         /// <returns> The preferred multiple of workgroup size for launch. </returns>
         /// <remarks> The returned value is a performance hint. Specifying a workgroup size that is not a multiple of the value returned by this query as the value of the local work size argument to ComputeCommandQueue.Execute will not fail to enqueue the kernel for execution unless the work-group size specified is larger than the device maximum. </remarks>
         /// <remarks> Requires OpenCL 1.1. </remarks>
@@ -127,7 +98,7 @@ namespace Cloo
         /// <summary>
         /// Gets the minimum amount of memory, in bytes, used by each work-item in the kernel.
         /// </summary>
-        /// <param name="device"> One of the <see cref="ComputeKernel.Program.Device"/>s. </param>
+        /// <param name="device"> One of the device. </param>
         /// <returns> The minimum amount of memory, in bytes, used by each work-item in the kernel. </returns>
         /// <remarks> The returned value may include any private memory needed by an implementation to execute the kernel, including that used by the language built-ins and variable declared inside the kernel with the <c>__private</c> or <c>private</c> qualifier. </remarks>
         public long GetPrivateMemorySize(ComputeDevice device)
@@ -137,10 +108,10 @@ namespace Cloo
         }
 
         /// <summary>
-        /// Gets the maximum work-group size that can be used to execute the <see cref="ComputeKernel"/> on a <see cref="ComputeDevice"/>.
+        /// Gets the maximum work-group size that can be used to execute the kernel on a device.
         /// </summary>
-        /// <param name="device"> One of the <see cref="ComputeKernel.Program.Device"/>s. </param>
-        /// <returns> The maximum work-group size that can be used to execute the <see cref="ComputeKernel"/> on <paramref name="device"/>. </returns>
+        /// <param name="device"> One of the device. </param>
+        /// <returns> The maximum work-group size that can be used to execute the kernel on device. </returns>
         public long GetWorkGroupSize(ComputeDevice device)
         {
             return (long)GetInfo<CLKernelHandle, CLDeviceHandle, ComputeKernelWorkGroupInfo, IntPtr>(
@@ -148,7 +119,7 @@ namespace Cloo
         }
 
         /// <summary>
-        /// Sets an argument of the <see cref="ComputeKernel"/> (no argument tracking).
+        /// Sets an argument of the kernel (no argument tracking).
         /// </summary>
         /// <param name="index"> The argument index. </param>
         /// <param name="dataSize"> The size of the argument data in bytes. </param>
@@ -160,7 +131,11 @@ namespace Cloo
         /// </remarks>
         public void SetArgument(int index, IntPtr dataSize, IntPtr dataAddr)
         {
-            ComputeErrorCode error = CL10.SetKernelArg(Handle, index, dataSize, dataAddr);
+            var error = CL10.SetKernelArg(
+                Handle,
+                index,
+                dataSize,
+                dataAddr);
             ComputeException.ThrowOnError(error);
         }
 
@@ -176,7 +151,7 @@ namespace Cloo
         }
 
         /// <summary>
-        /// Sets a <c>T*</c>, <c>image2d_t</c> or <c>image3d_t</c> argument of the <see cref="ComputeKernel"/>.
+        /// Sets a <c>T*</c>, <c>image2d_t</c> or <c>image3d_t</c> argument of the kernel.
         /// </summary>
         /// <param name="index"> The argument index. </param>
         /// <param name="memObj"> The <see cref="ComputeMemory"/> that is passed as the argument. </param>
@@ -187,7 +162,7 @@ namespace Cloo
         }
 
         /// <summary>
-        /// Sets a <c>sampler_t</c> argument of the <see cref="ComputeKernel"/>.
+        /// Sets a <c>sampler_t</c> argument of the kernel.
         /// </summary>
         /// <param name="index"> The argument index. </param>
         /// <param name="sampler"> The <see cref="ComputeSampler"/> that is passed as the argument. </param>
@@ -198,7 +173,7 @@ namespace Cloo
         }
 
         /// <summary>
-        /// Sets a value argument of the <see cref="ComputeKernel"/>.
+        /// Sets a value argument of the kernel.
         /// </summary>
         /// <typeparam name="T"> The type of the argument. </typeparam>
         /// <param name="index"> The argument index. </param>
@@ -219,26 +194,46 @@ namespace Cloo
                 gcHandle.Free();
             }
         }
-
         #endregion
 
-        #region Protected methods
+        #region IDisposable Support
+        private bool disposedValue = false; // Для определения избыточных вызовов
 
-        /// <summary>
-        /// Releases the associated OpenCL object.
-        /// </summary>
-        /// <param name="manual"> Specifies the operation mode of this method. </param>
-        /// <remarks> <paramref name="manual"/> must be <c>true</c> if this method is invoked directly by the application. </remarks>
-        protected override void Dispose(bool manual)
+        public void Dispose(bool disposing)
         {
-            if (Handle.IsValid)
+            if (!disposedValue)
             {
-                logger.Info("Dispose " + this + " in Thread(" + Thread.CurrentThread.ManagedThreadId + ").", "Information");
-                CL10.ReleaseKernel(Handle);
-                Handle.Invalidate();
+                if (disposing)
+                {
+                    // TODO: освободить управляемое состояние (управляемые объекты).
+                }
+                // TODO: освободить неуправляемые ресурсы (неуправляемые объекты) и переопределить ниже метод завершения.
+                // TODO: задать большим полям значение NULL.
+                if (Handle.IsValid)
+                {
+                    logger.Info("Dispose " + this + " in Thread(" + Thread.CurrentThread.ManagedThreadId + ").", "Information");
+                    CL10.ReleaseKernel(Handle);
+                    Handle.Invalidate();
+                }
+                disposedValue = true;
             }
         }
 
+        // TODO: переопределить метод завершения, только если Dispose(bool disposing) выше включает код для освобождения неуправляемых ресурсов.
+        ~ComputeKernel()
+        {
+            // Не изменяйте этот код. Разместите код очистки выше, в методе Dispose(bool disposing).
+            Dispose(false);
+        }
+
+        // Этот код добавлен для правильной реализации шаблона высвобождаемого класса.
+        public void Dispose()
+        {
+            // Не изменяйте этот код. Разместите код очистки выше, в методе Dispose(bool disposing).
+            Dispose(true);
+            // TODO: раскомментировать следующую строку, если метод завершения переопределен выше.
+            GC.SuppressFinalize(this);
+        }
         #endregion
     }
 }

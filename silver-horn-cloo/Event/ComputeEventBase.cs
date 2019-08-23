@@ -92,9 +92,9 @@ namespace Cloo
         }
 
         /// <summary>
-        /// Gets the <see cref="ComputeDevice"/> time counter in nanoseconds when the associated command is enqueued in the <see cref="ComputeCommandQueue"/> by the host.
+        /// Gets the <see cref="ComputeDevice"/> time counter in nanoseconds when the associated command is enqueued in the command queue by the host.
         /// </summary>
-        /// <value> The <see cref="ComputeDevice"/> time counter in nanoseconds when the associated command is enqueued in the <see cref="ComputeCommandQueue"/> by the host. </value>
+        /// <value> The <see cref="ComputeDevice"/> time counter in nanoseconds when the associated command is enqueued in the command queue by the host. </value>
         public long EnqueueTime
         {
             get { return (long)GetInfo<CLEventHandle, ComputeCommandProfilingInfo, long>(Handle, ComputeCommandProfilingInfo.Queued, CL10.GetEventProfilingInfo); }

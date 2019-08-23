@@ -1,5 +1,6 @@
 ﻿using Cloo;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SilverHorn.Cloo.Kernel;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -47,7 +48,7 @@ namespace SilverHorn.Cloo.Tests.Examples
                 {
                     var Devs = new List<ComputeDevice>() { Device };
                     Program.Build(Devs, "", null, IntPtr.Zero);
-                    ComputeKernel kernel = Program.CreateKernel("floatVectorSum");
+                    IComputeKernel kernel = Program.CreateKernel("floatVectorSum");
                     using (ComputeBuffer<float>
                         varA = new ComputeBuffer<float>(Context, ComputeMemoryFlags.ReadWrite | ComputeMemoryFlags.UseHostPointer, a),
                         varB = new ComputeBuffer<float>(Context, ComputeMemoryFlags.ReadOnly | ComputeMemoryFlags.UseHostPointer, b))
@@ -88,7 +89,7 @@ namespace SilverHorn.Cloo.Tests.Examples
                 {
                     var Devs = new List<ComputeDevice>() { Device };
                     Program.Build(Devs, "", null, IntPtr.Zero);
-                    ComputeKernel kernel = Program.CreateKernel("doubleVectorSum");
+                    IComputeKernel kernel = Program.CreateKernel("doubleVectorSum");
                     using (ComputeBuffer<double>
                         varA = new ComputeBuffer<double>(Context, ComputeMemoryFlags.ReadWrite | ComputeMemoryFlags.UseHostPointer, a),
                         varB = new ComputeBuffer<double>(Context, ComputeMemoryFlags.ReadOnly | ComputeMemoryFlags.UseHostPointer, b))
