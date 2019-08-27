@@ -33,6 +33,7 @@ using System;
 using System.IO;
 using System.Runtime.InteropServices;
 using Cloo;
+using SilverHorn.Cloo.Context;
 
 namespace Clootils
 {
@@ -48,7 +49,7 @@ namespace Clootils
             get { return "Shows how to map data from an OpenCL buffer to host memory"; }
         }
 
-        public void Run(ComputeContext context, TextWriter log)
+        public void Run(IComputeContext context, TextWriter log)
         {
             try
             {

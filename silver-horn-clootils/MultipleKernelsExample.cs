@@ -32,6 +32,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 using System;
 using System.IO;
 using Cloo;
+using SilverHorn.Cloo.Context;
 
 namespace Clootils
 {
@@ -56,7 +57,7 @@ namespace Clootils
             get { return "Demonstrates how to build all the kernels in a program simultaneously."; }
         }
 
-        public void Run(ComputeContext context, TextWriter log)
+        public void Run(IComputeContext context, TextWriter log)
         {
             try
             {

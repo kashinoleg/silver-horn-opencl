@@ -1,4 +1,4 @@
-﻿namespace Cloo
+﻿namespace SilverHorn.Cloo.Context
 {
     /// <summary>
     /// 

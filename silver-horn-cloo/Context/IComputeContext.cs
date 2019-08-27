@@ -1,21 +1,29 @@
 ﻿using SilverHorn.Cloo.Device;
 using SilverHorn.Cloo.Platform;
+using System;
 using System.Collections.ObjectModel;
 
-namespace Cloo
+namespace SilverHorn.Cloo.Context
 {
-    public interface IComputeContext
+    public interface IComputeContext : IDisposable
     {
+        #region Properties
         /// <summary>
-        /// Gets a read-only collection of the devices of the <see cref="ComputeContext"/>.
+        /// The handle of the context.
         /// </summary>
-        /// <value> A read-only collection of the devices of the <see cref="ComputeContext"/>. </value>
+        CLContextHandle Handle { get; }
+
+        /// <summary>
+        /// Gets a read-only collection of the devices of the context.
+        /// </summary>
+        /// <value> A read-only collection of the devices of the context. </value>
         ReadOnlyCollection<IComputeDevice> Devices { get; }
 
         /// <summary>
-        /// Gets the platform of the <see cref="ComputeContext"/>.
+        /// Gets the platform of the context.
         /// </summary>
-        /// <value> The platform of the <see cref="ComputeContext"/>. </value>
+        /// <value> The platform of the context. </value>
         ComputePlatform Platform { get; }
+        #endregion
     }
 }

@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading;
+using Cloo;
 using Cloo.Bindings;
+using NLog;
 using SilverHorn.Cloo.Device;
 using SilverHorn.Cloo.Platform;
 
-namespace Cloo
+namespace SilverHorn.Cloo.Context
 {
     /// <summary>
     /// Represents an OpenCL context.
@@ -14,7 +16,7 @@ namespace Cloo
     /// <remarks> The environment within which the kernels execute and the domain in which synchronization and memory management is defined. </remarks>
     /// <br/>
     /// <example> 
-    /// This example shows how to create a <see cref="ComputeContext"/> that is able to share data with an OpenGL context in a Microsoft Windows OS:
+    /// This example shows how to create a context that is able to share data with an OpenGL context in a Microsoft Windows OS:
     /// <code>
     /// <![CDATA[
     /// 
@@ -51,30 +53,37 @@ namespace Cloo
     /// 2) Make it available to OpenCL through the <see cref="ComputeCommandQueue.AcquireGLObjects"/> method.<br/>
     /// When finished, you should wait until <c>clglBuffer</c> isn't used any longer by OpenCL. After that, call <see cref="ComputeCommandQueue.ReleaseGLObjects"/> to make the buffer available to OpenGL again.
     /// </example>
-    public sealed class ComputeContext : ComputeResource, IComputeContext
+    public sealed class ComputeContext : ComputeObject, IComputeContext
     {
+        #region Services
+        /// <summary>
+        /// Logger
+        /// </summary>
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+        #endregion
+
         #region Properties
         /// <summary>
-        /// The handle of the <see cref="ComputeContext"/>.
+        /// The handle of the context.
         /// </summary>
         public CLContextHandle Handle { get; private set; }
 
         /// <summary>
-        /// Gets a read-only collection of the devices of the <see cref="ComputeContext"/>.
+        /// Gets a read-only collection of the devices of the context.
         /// </summary>
-        /// <value> A read-only collection of the devices of the <see cref="ComputeContext"/>. </value>
+        /// <value> A read-only collection of the devices of the context. </value>
         public ReadOnlyCollection<IComputeDevice> Devices { get; private set; }
 
         /// <summary>
-        /// Gets the platform of the <see cref="ComputeContext"/>.
+        /// Gets the platform of the context.
         /// </summary>
-        /// <value> The platform of the <see cref="ComputeContext"/>. </value>
+        /// <value> The platform of the context. </value>
         public ComputePlatform Platform { get; private set; }
 
         /// <summary>
-        /// Gets a collection of <see cref="ComputeContextProperty"/>s of the <see cref="ComputeContext"/>.
+        /// Gets a collection of <see cref="ComputeContextProperty"/>s of the context.
         /// </summary>
-        /// <value> A collection of <see cref="ComputeContextProperty"/>s of the <see cref="ComputeContext"/>. </value>
+        /// <value> A collection of <see cref="ComputeContextProperty"/>s of the context. </value>
         private ComputeContextPropertyList Properties { get; set; }
 
 
@@ -84,11 +93,11 @@ namespace Cloo
         #region Constructors
 
         /// <summary>
-        /// Creates a new <see cref="ComputeContext"/> on a collection of devices.
+        /// Creates a new context on a collection of devices.
         /// </summary>
-        /// <param name="devices"> A collection of devices to associate with the <see cref="ComputeContext"/>. </param>
-        /// <param name="properties"> A <see cref="ComputeContextPropertyList"/> of the <see cref="ComputeContext"/>. </param>
-        /// <param name="notify"> A delegate instance that refers to a notification routine. This routine is a callback function that will be used by the OpenCL implementation to report information on errors that occur in the <see cref="ComputeContext"/>. The callback function may be called asynchronously by the OpenCL implementation. It is the application's responsibility to ensure that the callback function is thread-safe and that the delegate instance doesn't get collected by the Garbage Collector until <see cref="ComputeContext"/> is disposed. If <paramref name="notify"/> is <c>null</c>, no callback function is registered. </param>
+        /// <param name="devices"> A collection of devices to associate with the context. </param>
+        /// <param name="properties"> A <see cref="ComputeContextPropertyList"/> of the context. </param>
+        /// <param name="notify"> A delegate instance that refers to a notification routine. This routine is a callback function that will be used by the OpenCL implementation to report information on errors that occur in the context. The callback function may be called asynchronously by the OpenCL implementation. It is the application's responsibility to ensure that the callback function is thread-safe and that the delegate instance doesn't get collected by the Garbage Collector until context is disposed. If <paramref name="notify"/> is <c>null</c>, no callback function is registered. </param>
         /// <param name="notifyDataPtr"> Optional user data that will be passed to <paramref name="notify"/>. </param>
         public ComputeContext(ICollection<IComputeDevice> devices, ComputeContextPropertyList properties,
             ComputeContextNotifier notify, IntPtr notifyDataPtr)
@@ -112,11 +121,11 @@ namespace Cloo
         }
 
         /// <summary>
-        /// Creates a new <see cref="ComputeContext"/> on all the devices that match the specified <see cref="ComputeDeviceTypes"/>.
+        /// Creates a new context on all the devices that match the specified <see cref="ComputeDeviceTypes"/>.
         /// </summary>
-        /// <param name="deviceType"> A bit-field that identifies the type of device to associate with the <see cref="ComputeContext"/>. </param>
-        /// <param name="properties"> A <see cref="ComputeContextPropertyList"/> of the <see cref="ComputeContext"/>. </param>
-        /// <param name="notify"> A delegate instance that refers to a notification routine. This routine is a callback function that will be used by the OpenCL implementation to report information on errors that occur in the <see cref="ComputeContext"/>. The callback function may be called asynchronously by the OpenCL implementation. It is the application's responsibility to ensure that the callback function is thread-safe and that the delegate instance doesn't get collected by the Garbage Collector until <see cref="ComputeContext"/> is disposed. If <paramref name="notify"/> is <c>null</c>, no callback function is registered. </param>
+        /// <param name="deviceType"> A bit-field that identifies the type of device to associate with the context. </param>
+        /// <param name="properties"> A <see cref="ComputeContextPropertyList"/> of the context. </param>
+        /// <param name="notify"> A delegate instance that refers to a notification routine. This routine is a callback function that will be used by the OpenCL implementation to report information on errors that occur in the context. The callback function may be called asynchronously by the OpenCL implementation. It is the application's responsibility to ensure that the callback function is thread-safe and that the delegate instance doesn't get collected by the Garbage Collector until context is disposed. If <paramref name="notify"/> is <c>null</c>, no callback function is registered. </param>
         /// <param name="userDataPtr"> Optional user data that will be passed to <paramref name="notify"/>. </param>
         public ComputeContext(ComputeDeviceTypes deviceType, ComputeContextPropertyList properties,
             ComputeContextNotifier notify, IntPtr userDataPtr)
@@ -140,24 +149,6 @@ namespace Cloo
 
         #endregion
 
-        #region Protected methods
-
-        /// <summary>
-        /// Releases the associated OpenCL object.
-        /// </summary>
-        /// <param name="manual"> Specifies the operation mode of this method. </param>
-        /// <remarks> <paramref name="manual"/> must be <c>true</c> if this method is invoked directly by the application. </remarks>
-        protected override void Dispose(bool manual)
-        {
-            if (Handle.IsValid)
-            {
-                logger.Info("Dispose " + this + " in Thread(" + Thread.CurrentThread.ManagedThreadId + ").", "Information");
-                OpenCL100.ReleaseContext(Handle);
-                Handle.Invalidate();
-            }
-        }
-        #endregion
-
         #region Private methods
 
         private ReadOnlyCollection<IComputeDevice> GetDevices()
@@ -177,6 +168,46 @@ namespace Cloo
                 }
             }
             return new ReadOnlyCollection<IComputeDevice>(devices);
+        }
+        #endregion
+
+        #region IDisposable Support
+        private bool disposedValue = false; // Для определения избыточных вызовов
+
+        public void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    // TODO: освободить управляемое состояние (управляемые объекты).
+                }
+                // TODO: освободить неуправляемые ресурсы (неуправляемые объекты) и переопределить ниже метод завершения.
+                // TODO: задать большим полям значение NULL.
+                if (Handle.IsValid)
+                {
+                    logger.Info("Dispose " + this + " in Thread(" + Thread.CurrentThread.ManagedThreadId + ").", "Information");
+                    OpenCL100.ReleaseContext(Handle);
+                    Handle.Invalidate();
+                }
+                disposedValue = true;
+            }
+        }
+
+        // TODO: переопределить метод завершения, только если Dispose(bool disposing) выше включает код для освобождения неуправляемых ресурсов.
+        ~ComputeContext()
+        {
+            // Не изменяйте этот код. Разместите код очистки выше, в методе Dispose(bool disposing).
+            Dispose(false);
+        }
+
+        // Этот код добавлен для правильной реализации шаблона высвобождаемого класса.
+        public void Dispose()
+        {
+            // Не изменяйте этот код. Разместите код очистки выше, в методе Dispose(bool disposing).
+            Dispose(true);
+            // TODO: раскомментировать следующую строку, если метод завершения переопределен выше.
+            GC.SuppressFinalize(this);
         }
         #endregion
     }

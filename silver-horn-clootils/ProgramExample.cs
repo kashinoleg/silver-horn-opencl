@@ -33,6 +33,7 @@ using System;
 using System.IO;
 using Cloo;
 using Cloo.Bindings;
+using SilverHorn.Cloo.Context;
 using SilverHorn.Cloo.Program;
 
 namespace Clootils
@@ -50,7 +51,7 @@ namespace Clootils
             get { return "Demonstrates how to use a callback function when building a program and retrieve its binary when finished."; }
         }
 
-        public void Run(ComputeContext context, TextWriter log)
+        public void Run(IComputeContext context, TextWriter log)
         {
             this.log = log;
 

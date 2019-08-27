@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using Cloo.Bindings;
+using SilverHorn.Cloo.Context;
 
 namespace Cloo
 {
@@ -18,21 +19,21 @@ namespace Cloo
         /// <summary>
         /// Creates a new buffer.
         /// </summary>
-        /// <param name="context"> A <see cref="ComputeContext"/> used to create the buffer. </param>
+        /// <param name="context"> A context used to create the buffer. </param>
         /// <param name="flags"> A bit-field that is used to specify allocation and usage information about the buffer. </param>
         /// <param name="count"> The number of elements of the buffer. </param>
-        public ComputeBuffer(ComputeContext context, ComputeMemoryFlags flags, long count)
+        public ComputeBuffer(IComputeContext context, ComputeMemoryFlags flags, long count)
             : this(context, flags, count, IntPtr.Zero)
         { }
 
         /// <summary>
         /// Creates a new buffer.
         /// </summary>
-        /// <param name="context"> A <see cref="ComputeContext"/> used to create the buffer. </param>
+        /// <param name="context"> A context used to create the buffer. </param>
         /// <param name="flags"> A bit-field that is used to specify allocation and usage information about the buffer. </param>
         /// <param name="count"> The number of elements of the buffer. </param>
         /// <param name="dataPtr"> A pointer to the data for the buffer. </param>
-        public ComputeBuffer(ComputeContext context, ComputeMemoryFlags flags, long count, IntPtr dataPtr)
+        public ComputeBuffer(IComputeContext context, ComputeMemoryFlags flags, long count, IntPtr dataPtr)
             : base(context, flags)
         {
             ComputeErrorCode error = ComputeErrorCode.Success;
@@ -44,11 +45,11 @@ namespace Cloo
         /// <summary>
         /// Creates a new buffer.
         /// </summary>
-        /// <param name="context"> A <see cref="ComputeContext"/> used to create the buffer. </param>
+        /// <param name="context"> A context used to create the buffer. </param>
         /// <param name="flags"> A bit-field that is used to specify allocation and usage information about the buffer. </param>
         /// <param name="data"> The data for the buffer. </param>
         /// <remarks> Note, that <paramref name="data"/> cannot be an "immediate" parameter, i.e.: <c>new T[100]</c>, because it could be quickly collected by the GC causing Cloo to send and invalid reference to OpenCL. </remarks>
-        public ComputeBuffer(ComputeContext context, ComputeMemoryFlags flags, T[] data)
+        public ComputeBuffer(IComputeContext context, ComputeMemoryFlags flags, T[] data)
             : base(context, flags)
         {
             GCHandle dataPtr = GCHandle.Alloc(data, GCHandleType.Pinned);
@@ -65,7 +66,7 @@ namespace Cloo
             Init();
         }
 
-        private ComputeBuffer(CLMemoryHandle handle, ComputeContext context, ComputeMemoryFlags flags)
+        private ComputeBuffer(CLMemoryHandle handle, IComputeContext context, ComputeMemoryFlags flags)
             : base(context, flags)
         {
             Handle = handle;
@@ -80,11 +81,11 @@ namespace Cloo
         /// Creates a new buffer from an existing OpenGL buffer object.
         /// </summary>
         /// <typeparam name="DataType"> The type of the elements of the buffer. <typeparamref name="T"/> should match the type of the elements in the OpenGL buffer. </typeparam>
-        /// <param name="context"> A <see cref="ComputeContext"/> with enabled CL/GL sharing. </param>
+        /// <param name="context"> A context with enabled CL/GL sharing. </param>
         /// <param name="flags"> A bit-field that is used to specify usage information about the buffer. Only <see cref="ComputeMemoryFlags.ReadOnly"/>, <see cref="ComputeMemoryFlags.WriteOnly"/> and <see cref="ComputeMemoryFlags.ReadWrite"/> are allowed. </param>
         /// <param name="bufferId"> The OpenGL buffer object id to use for the creation of the buffer. </param>
         /// <returns> The created buffer. </returns>
-        public static ComputeBuffer<DataType> CreateFromGLBuffer<DataType>(ComputeContext context, ComputeMemoryFlags flags, int bufferId) where DataType : struct
+        public static ComputeBuffer<DataType> CreateFromGLBuffer<DataType>(IComputeContext context, ComputeMemoryFlags flags, int bufferId) where DataType : struct
         {
             ComputeErrorCode error = ComputeErrorCode.Success;
             CLMemoryHandle handle = CL10.CreateFromGLBuffer(context.Handle, flags, bufferId, out error);

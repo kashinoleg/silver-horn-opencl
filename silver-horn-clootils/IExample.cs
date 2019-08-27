@@ -31,6 +31,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 using System.IO;
 using Cloo;
+using SilverHorn.Cloo.Context;
 
 namespace Clootils
 {
@@ -38,6 +39,6 @@ namespace Clootils
     {
         string Name { get; }
         string Description { get; }
-        void Run(ComputeContext context, TextWriter log);
+        void Run(IComputeContext context, TextWriter log);
     }
 }

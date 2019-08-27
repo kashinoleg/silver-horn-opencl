@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 
-namespace Cloo
+namespace SilverHorn.Cloo.Context
 {
     /// <summary>
     /// Represents an OpenCL context property.

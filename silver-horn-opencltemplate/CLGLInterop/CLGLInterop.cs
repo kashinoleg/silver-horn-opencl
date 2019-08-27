@@ -12,6 +12,7 @@ using System.Runtime.InteropServices;
 using SilverHorn.Cloo.Kernel;
 using SilverHorn.Cloo.Platform;
 using SilverHorn.Cloo.Device;
+using SilverHorn.Cloo.Context;
 
 namespace OpenCLTemplate.CLGLInterop
 {
@@ -724,7 +725,7 @@ namespace OpenCLTemplate.CLGLInterop
         }
 
         /// <summary>OpenGL/CL shared context</summary>
-        private ComputeContext CLGLCtx;
+        private IComputeContext CLGLCtx;
         /// <summary>OpenGL/CL shared command queue</summary>
         private ComputeCommandQueue CQ;
 

@@ -37,6 +37,7 @@ using System.Text;
 using System.Windows.Forms;
 using Cloo;
 using Clootils.Properties;
+using SilverHorn.Cloo.Context;
 using SilverHorn.Cloo.Device;
 using SilverHorn.Cloo.Platform;
 
@@ -143,8 +144,8 @@ namespace Clootils
             StringBuilder output = new StringBuilder();
             StringWriter log = new StringWriter(output);
 
-            ComputeContextPropertyList properties = new ComputeContextPropertyList(platform);
-            ComputeContext context = new ComputeContext(devices, properties, null, IntPtr.Zero);
+            var properties = new ComputeContextPropertyList(platform);
+            var context = new ComputeContext(devices, properties, null, IntPtr.Zero);
 
             for (int i = 0; i < exampleList.Count; i++)
             {

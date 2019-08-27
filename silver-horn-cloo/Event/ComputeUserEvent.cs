@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Threading;
 using Cloo.Bindings;
+using SilverHorn.Cloo.Context;
 
 namespace Cloo
 {
@@ -15,9 +16,9 @@ namespace Cloo
         /// <summary>
         /// Creates a new <see cref="ComputeUserEvent"/>.
         /// </summary>
-        /// <param name="context"> The <see cref="ComputeContext"/> in which the <see cref="ComputeUserEvent"/> is created. </param>
+        /// <param name="context"> The context in which the <see cref="ComputeUserEvent"/> is created. </param>
         /// <remarks> Requires OpenCL 1.1. </remarks>
-        public ComputeUserEvent(ComputeContext context)
+        public ComputeUserEvent(IComputeContext context)
         {
             Handle = CL11.CreateUserEvent(context.Handle, out ComputeErrorCode error);
             ComputeException.ThrowOnError(error);

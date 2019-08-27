@@ -1,5 +1,6 @@
 ﻿using System.Threading;
 using Cloo.Bindings;
+using SilverHorn.Cloo.Context;
 
 namespace Cloo
 {
@@ -17,10 +18,10 @@ namespace Cloo
         public CLMemoryHandle Handle { get; protected set; }
 
         /// <summary>
-        /// Gets the <see cref="ComputeContext"/> of the <see cref="ComputeMemory"/>.
+        /// Gets the context of the <see cref="ComputeMemory"/>.
         /// </summary>
-        /// <value> The <see cref="ComputeContext"/> of the <see cref="ComputeMemory"/>. </value>
-        public ComputeContext Context { get; private set; }
+        /// <value> The context of the <see cref="ComputeMemory"/>. </value>
+        public IComputeContext Context { get; private set; }
 
         /// <summary>
         /// Gets the <see cref="ComputeMemoryFlags"/> of the <see cref="ComputeMemory"/>.
@@ -41,7 +42,7 @@ namespace Cloo
         /// </summary>
         /// <param name="context"></param>
         /// <param name="flags"></param>
-        protected ComputeMemory(ComputeContext context, ComputeMemoryFlags flags)
+        protected ComputeMemory(IComputeContext context, ComputeMemoryFlags flags)
         {
             Context = context;
             Flags = flags;

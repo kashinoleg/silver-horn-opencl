@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Cloo.Bindings;
+using SilverHorn.Cloo.Context;
 
 namespace Cloo
 {
@@ -64,7 +65,7 @@ namespace Cloo
         /// <param name="height"> The height of the <see cref="ComputeImage2D"/> in pixels. </param>
         /// <param name="rowPitch"> The size in bytes of each row of elements of the <see cref="ComputeImage2D"/>. If <paramref name="rowPitch"/> is zero, OpenCL will compute the proper value based on <see cref="ComputeImage.Width"/> and <see cref="ComputeImage.ElementSize"/>. </param>
         /// <param name="data"> The data to initialize the <see cref="ComputeImage2D"/>. Can be <c>IntPtr.Zero</c>. </param>
-        public ComputeImage2D(ComputeContext context, ComputeMemoryFlags flags, ComputeImageFormat format, int width, int height, long rowPitch, IntPtr data)
+        public ComputeImage2D(IComputeContext context, ComputeMemoryFlags flags, ComputeImageFormat format, int width, int height, long rowPitch, IntPtr data)
             : base(context, flags)
         {
             ComputeErrorCode error = ComputeErrorCode.Success;
@@ -74,7 +75,7 @@ namespace Cloo
             Init();
         }
 
-        private ComputeImage2D(CLMemoryHandle handle, ComputeContext context, ComputeMemoryFlags flags)
+        private ComputeImage2D(CLMemoryHandle handle, IComputeContext context, ComputeMemoryFlags flags)
             : base(context, flags)
         {
             Handle = handle;
@@ -89,11 +90,11 @@ namespace Cloo
         /// <summary>
         /// Creates a new <see cref="ComputeImage2D"/> from an OpenGL renderbuffer object.
         /// </summary>
-        /// <param name="context"> A <see cref="ComputeContext"/> with enabled CL/GL sharing. </param>
+        /// <param name="context"> A context with enabled CL/GL sharing. </param>
         /// <param name="flags"> A bit-field that is used to specify usage information about the <see cref="ComputeImage2D"/>. Only <c>ComputeMemoryFlags.ReadOnly</c>, <c>ComputeMemoryFlags.WriteOnly</c> and <c>ComputeMemoryFlags.ReadWrite</c> are allowed. </param>
         /// <param name="renderbufferId"> The OpenGL renderbuffer object id to use. </param>
         /// <returns> The created <see cref="ComputeImage2D"/>. </returns>
-        public static ComputeImage2D CreateFromGLRenderbuffer(ComputeContext context, ComputeMemoryFlags flags, int renderbufferId)
+        public static ComputeImage2D CreateFromGLRenderbuffer(IComputeContext context, ComputeMemoryFlags flags, int renderbufferId)
         {
             ComputeErrorCode error = ComputeErrorCode.Success;
             CLMemoryHandle image = CL10.CreateFromGLRenderbuffer(context.Handle, flags, renderbufferId, out error);
@@ -105,13 +106,13 @@ namespace Cloo
         /// <summary>
         /// Creates a new <see cref="ComputeImage2D"/> from an OpenGL 2D texture object.
         /// </summary>
-        /// <param name="context"> A <see cref="ComputeContext"/> with enabled CL/GL sharing. </param>
+        /// <param name="context"> A context with enabled CL/GL sharing. </param>
         /// <param name="flags"> A bit-field that is used to specify usage information about the <see cref="ComputeImage2D"/>. Only <c>ComputeMemoryFlags.ReadOnly</c>, <c>ComputeMemoryFlags.WriteOnly</c> and <c>ComputeMemoryFlags.ReadWrite</c> are allowed. </param>
         /// <param name="textureTarget"> One of the following values: GL_TEXTURE_2D, GL_TEXTURE_CUBE_MAP_POSITIVE_X, GL_TEXTURE_CUBE_MAP_POSITIVE_Y, GL_TEXTURE_CUBE_MAP_POSITIVE_Z, GL_TEXTURE_CUBE_MAP_NEGATIVE_X, GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, or GL_TEXTURE_RECTANGLE. Using GL_TEXTURE_RECTANGLE for texture_target requires OpenGL 3.1. Alternatively, GL_TEXTURE_RECTANGLE_ARB may be specified if the OpenGL extension GL_ARB_texture_rectangle is supported. </param>
         /// <param name="mipLevel"> The mipmap level of the OpenGL 2D texture object to be used. </param>
         /// <param name="textureId"> The OpenGL 2D texture object id to use. </param>
         /// <returns> The created <see cref="ComputeImage2D"/>. </returns>
-        public static ComputeImage2D CreateFromGLTexture2D(ComputeContext context, ComputeMemoryFlags flags, int textureTarget, int mipLevel, int textureId)
+        public static ComputeImage2D CreateFromGLTexture2D(IComputeContext context, ComputeMemoryFlags flags, int textureTarget, int mipLevel, int textureId)
         {
             ComputeErrorCode error = ComputeErrorCode.Success;
             CLMemoryHandle image = CL10.CreateFromGLTexture2D(context.Handle, flags, textureTarget, mipLevel, textureId, out error);
@@ -121,12 +122,12 @@ namespace Cloo
         }
 
         /// <summary>
-        /// Gets a collection of supported <see cref="ComputeImage2D"/> <see cref="ComputeImageFormat"/>s in a <see cref="ComputeContext"/>.
+        /// Gets a collection of supported <see cref="ComputeImage2D"/> <see cref="ComputeImageFormat"/>s in a context.
         /// </summary>
-        /// <param name="context"> The <see cref="ComputeContext"/> for which the collection of <see cref="ComputeImageFormat"/>s is queried. </param>
+        /// <param name="context"> The context for which the collection of <see cref="ComputeImageFormat"/>s is queried. </param>
         /// <param name="flags"> The <c>ComputeMemoryFlags</c> for which the collection of <see cref="ComputeImageFormat"/>s is queried. </param>
         /// <returns> The collection of the required <see cref="ComputeImageFormat"/>s. </returns>
-        public static ICollection<ComputeImageFormat> GetSupportedFormats(ComputeContext context, ComputeMemoryFlags flags)
+        public static ICollection<ComputeImageFormat> GetSupportedFormats(IComputeContext context, ComputeMemoryFlags flags)
         {
             return GetSupportedFormats(context, flags, ComputeMemoryType.Image2D);
         }

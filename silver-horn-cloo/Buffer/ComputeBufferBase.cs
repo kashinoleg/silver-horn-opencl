@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using Cloo.Bindings;
 using NLog;
+using SilverHorn.Cloo.Context;
 
 namespace Cloo
 {
@@ -27,7 +28,7 @@ namespace Cloo
         /// </summary>
         /// <param name="context"></param>
         /// <param name="flags"></param>
-        protected ComputeBufferBase(ComputeContext context, ComputeMemoryFlags flags)
+        protected ComputeBufferBase(IComputeContext context, ComputeMemoryFlags flags)
             : base(context, flags)
         { }
 

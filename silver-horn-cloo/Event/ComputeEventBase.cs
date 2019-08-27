@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Threading;
 using Cloo.Bindings;
+using SilverHorn.Cloo.Context;
 
 namespace Cloo
 {
@@ -77,10 +78,10 @@ namespace Cloo
         }
 
         /// <summary>
-        /// Gets the <see cref="ComputeContext"/> associated with the <see cref="ComputeEventBase"/>.
+        /// Gets the context associated with the <see cref="ComputeEventBase"/>.
         /// </summary>
-        /// <value> The <see cref="ComputeContext"/> associated with the <see cref="ComputeEventBase"/>. </value>
-        public ComputeContext Context { get; protected set; }
+        /// <value> The context associated with the <see cref="ComputeEventBase"/>. </value>
+        public IComputeContext Context { get; protected set; }
 
         /// <summary>
         /// Gets the <see cref="ComputeDevice"/> time counter in nanoseconds when the associated command has finished execution.

@@ -3,6 +3,7 @@ using System.Threading;
 using Cloo;
 using Cloo.Bindings;
 using NLog;
+using SilverHorn.Cloo.Context;
 
 namespace SilverHorn.Cloo.Sampler
 {
@@ -49,11 +50,11 @@ namespace SilverHorn.Cloo.Sampler
         /// <summary>
         /// Creates a new sampler.
         /// </summary>
-        /// <param name="context"> A <see cref="ComputeContext"/>. </param>
+        /// <param name="context"> A context. </param>
         /// <param name="normalizedCoords"> The usage state of normalized coordinates when accessing a <see cref="ComputeImage"/> in a kernel. </param>
         /// <param name="addressing"> The <see cref="ComputeImageAddressing"/> mode of the sampler. Specifies how out-of-range image coordinates are handled while reading. </param>
         /// <param name="filtering"> The <see cref="ComputeImageFiltering"/> mode of the sampler. Specifies the type of filter that must be applied when reading data from an image. </param>
-        public ComputeSampler(ComputeContext context, bool normalizedCoords, ComputeImageAddressing addressing, ComputeImageFiltering filtering)
+        public ComputeSampler(IComputeContext context, bool normalizedCoords, ComputeImageAddressing addressing, ComputeImageFiltering filtering)
         {
             Handle = CL10.CreateSampler(context.Handle, normalizedCoords, addressing, filtering, out ComputeErrorCode error);
             ComputeException.ThrowOnError(error);

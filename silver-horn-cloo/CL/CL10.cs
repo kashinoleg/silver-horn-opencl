@@ -1,4 +1,5 @@
 ﻿using NLog;
+using SilverHorn.Cloo.Context;
 using SilverHorn.Cloo.Device;
 using SilverHorn.Cloo.Platform;
 using SilverHorn.Cloo.Sampler;
@@ -738,12 +739,12 @@ namespace Cloo.Bindings
     }
 
     /// <summary>
-    /// A callback function that can be registered by the application to report information on errors that occur in the <see cref="ComputeContext"/>.
+    /// A callback function that can be registered by the application to report information on errors that occur in the context.
     /// </summary>
     /// <param name="errorInfo"> An error string. </param>
     /// <param name="clDataPtr"> A pointer to binary data that is returned by the OpenCL implementation that can be used to log additional information helpful in debugging the error.</param>
     /// <param name="clDataSize"> The size of the binary data that is returned by the OpenCL. </param>
-    /// <param name="userDataPtr"> The pointer to the optional user data specified in <paramref name="userDataPtr"/> argument of <see cref="ComputeContext"/> constructor. </param>
+    /// <param name="userDataPtr"> The pointer to the optional user data specified in <paramref name="userDataPtr"/> argument of context constructor. </param>
     /// <remarks> This callback function may be called asynchronously by the OpenCL implementation. It is the application's responsibility to ensure that the callback function is thread-safe. </remarks>
     public delegate void ComputeContextNotifier(String errorInfo, IntPtr clDataPtr, IntPtr clDataSize, IntPtr userDataPtr);
 

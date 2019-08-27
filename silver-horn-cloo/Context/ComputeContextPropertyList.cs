@@ -4,13 +4,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace Cloo
+namespace SilverHorn.Cloo.Context
 {
     /// <summary>
     /// Represents a list of <see cref="ComputeContextProperty"/>s.
     /// </summary>
-    /// <remarks> A <see cref="ComputeContextPropertyList"/> is used to specify the properties of a <see cref="ComputeContext"/>. </remarks>
-    /// <seealso cref="ComputeContext"/>
+    /// <remarks> A <see cref="ComputeContextPropertyList"/> is used to specify the properties of a context. </remarks>
     /// <seealso cref="ComputeContextProperty"/>
     public class ComputeContextPropertyList : ICollection<ComputeContextProperty>
     {

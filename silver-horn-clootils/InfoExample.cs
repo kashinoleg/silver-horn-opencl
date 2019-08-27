@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using Cloo;
+using SilverHorn.Cloo.Context;
 
 namespace Clootils
 {
@@ -10,7 +11,7 @@ namespace Clootils
 
         public string Description => "Prints some information about the current platform and its devices.";
 
-        public void Run(ComputeContext context, TextWriter log)
+        public void Run(IComputeContext context, TextWriter log)
         {
             log.WriteLine("[HOST]");
             log.WriteLine(Environment.OSVersion);

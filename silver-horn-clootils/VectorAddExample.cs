@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using Cloo;
+using SilverHorn.Cloo.Context;
 using SilverHorn.Cloo.Kernel;
 using SilverHorn.Cloo.Program;
 
@@ -31,7 +32,7 @@ kernel void VectorAdd(
             get { return "Demonstrates how to add two vectors using the GPU"; }
         }
 
-        public void Run(ComputeContext context, TextWriter log)
+        public void Run(IComputeContext context, TextWriter log)
         {
             try
             {

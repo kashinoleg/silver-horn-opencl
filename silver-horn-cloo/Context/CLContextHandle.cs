@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
 
-namespace Cloo.Bindings
+namespace SilverHorn.Cloo.Context
 {
     /// <summary>
-    /// Represents the <see cref="ComputeContext"/> ID.
+    /// Represents the context ID.
     /// </summary>
     public struct CLContextHandle
     {

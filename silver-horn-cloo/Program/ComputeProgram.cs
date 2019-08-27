@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using Cloo.Bindings;
 using NLog;
+using SilverHorn.Cloo.Context;
 using SilverHorn.Cloo.Device;
 using SilverHorn.Cloo.Kernel;
 using SilverHorn.Cloo.Program;
@@ -39,7 +40,7 @@ namespace Cloo
         /// <param name="context"> A program. </param>
         /// <param name="source"> The source code for the program. </param>
         /// <remarks> The created program is associated with the devices. </remarks>
-        public ComputeProgram(ComputeContext context, string source)
+        public ComputeProgram(IComputeContext context, string source)
         {
             Handle = CL10.CreateProgramWithSource(
                 context.Handle,
@@ -56,10 +57,10 @@ namespace Cloo
         /// <summary>
         /// Creates a new program from an array of source code strings.
         /// </summary>
-        /// <param name="context"> A <see cref="ComputeContext"/>. </param>
+        /// <param name="context"> A context. </param>
         /// <param name="source"> The source code lines for the program. </param>
         /// <remarks> The created program is associated with the devices. </remarks>
-        public ComputeProgram(ComputeContext context, string[] source)
+        public ComputeProgram(IComputeContext context, string[] source)
         {
             Handle = CL10.CreateProgramWithSource(
                 context.Handle,
@@ -77,7 +78,7 @@ namespace Cloo
         /// <param name="context"> A context. </param>
         /// <param name="binaries"> A list of binaries, one for each item in <paramref name="devices"/>. </param>
         /// <param name="devices"> A subset of the context devices. If <paramref name="devices"/> is <c>null</c>, OpenCL will associate every binary from binaries with a corresponding device from devices. </param>
-        public ComputeProgram(ComputeContext context, IList<byte[]> binaries, IList<IComputeDevice> devices)
+        public ComputeProgram(IComputeContext context, IList<byte[]> binaries, IList<IComputeDevice> devices)
         {
             int count;
             CLDeviceHandle[] deviceHandles;

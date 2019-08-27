@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Threading;
 using Cloo.Bindings;
+using SilverHorn.Cloo.Context;
 
 namespace Cloo
 {
@@ -61,7 +62,7 @@ namespace Cloo
         /// </summary>
         /// <param name="context"></param>
         /// <param name="flags"></param>
-        protected ComputeImage(ComputeContext context, ComputeMemoryFlags flags)
+        protected ComputeImage(IComputeContext context, ComputeMemoryFlags flags)
             : base(context, flags)
         { }
 
@@ -76,7 +77,7 @@ namespace Cloo
         /// <param name="flags"></param>
         /// <param name="type"></param>
         /// <returns></returns>
-        protected static ICollection<ComputeImageFormat> GetSupportedFormats(ComputeContext context, ComputeMemoryFlags flags, ComputeMemoryType type)
+        protected static ICollection<ComputeImageFormat> GetSupportedFormats(IComputeContext context, ComputeMemoryFlags flags, ComputeMemoryType type)
         {
             int formatCountRet = 0;
             ComputeErrorCode error = CL10.GetSupportedImageFormats(context.Handle, flags, type, 0, null, out formatCountRet);

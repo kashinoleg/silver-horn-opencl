@@ -32,6 +32,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 using System;
 using System.IO;
 using Cloo;
+using SilverHorn.Cloo.Context;
 
 namespace Clootils
 {
@@ -47,7 +48,7 @@ namespace Clootils
             get { return "Demonstrates some of the new features of OpenCL 1.1."; }
         }
 
-        public void Run(ComputeContext context, TextWriter log)
+        public void Run(IComputeContext context, TextWriter log)
         {
             try
             {

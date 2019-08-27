@@ -7,6 +7,7 @@ using SilverHorn.Cloo.Kernel;
 using SilverHorn.Cloo.Program;
 using SilverHorn.Cloo.Platform;
 using SilverHorn.Cloo.Device;
+using SilverHorn.Cloo.Context;
 
 namespace OpenCLTemplate
 {
@@ -83,7 +84,7 @@ namespace OpenCLTemplate
         }
 
         /// <summary>Initializes OpenCL and reads devices. Uses previously created context and command queue if supplied. In that case DevicesToUse is ignored.</summary>
-        public static void InitCL(ComputeDeviceTypes DevicesToUse, ComputeContext PrevCtx, ComputeCommandQueue PrevCQ, int PlatformToUse)
+        public static void InitCL(ComputeDeviceTypes DevicesToUse, IComputeContext PrevCtx, ComputeCommandQueue PrevCQ, int PlatformToUse)
         {
             if (CLAcceleration != CLAccelerationType.UsingCL)
             {
@@ -97,7 +98,7 @@ namespace OpenCLTemplate
                     CLPlatforms = new List<ComputePlatform>();
                     foreach (ComputePlatform pp in ComputePlatform.Platforms) CLPlatforms.Add(pp);
 
-                    ComputeContextPropertyList Properties = new ComputeContextPropertyList(ComputePlatform.Platforms[PlatformToUse]);
+                    var Properties = new ComputeContextPropertyList(ComputePlatform.Platforms[PlatformToUse]);
 
                     if (PrevCtx == null)
                     {
@@ -176,7 +177,7 @@ namespace OpenCLTemplate
             //public static List<ComputeEventBase> Event;
 
             /// <summary>OpenCL context. Devices depend on how InitCL() was used.</summary>
-            public static ComputeContext Context;
+            public static IComputeContext Context;
 
             /// <summary>Synchronous command queues that are executed in call order</summary>
             public static List<ComputeCommandQueue> CommQueues;
