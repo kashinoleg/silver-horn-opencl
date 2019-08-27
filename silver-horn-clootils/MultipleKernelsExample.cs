@@ -32,6 +32,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 using System;
 using System.IO;
 using Cloo;
+using SilverHorn.Cloo.Builders;
 using SilverHorn.Cloo.Context;
 
 namespace Clootils
@@ -59,12 +60,13 @@ namespace Clootils
 
         public void Run(IComputeContext context, TextWriter log)
         {
+            var builder = new OpenCL100Builder();
             try
             {
-                var program = new ComputeProgram(context, kernelSources);
+                var program = builder.BuildComputeProgram(context, kernelSources);
                 program.Build(null, null, null, IntPtr.Zero);
                 log.WriteLine("Program successfully built.");
-                program.CreateAllKernels();
+                builder.ProgramCreateAllKernels(program);
                 log.WriteLine("Kernels successfully created.");
             }
             catch (Exception e)

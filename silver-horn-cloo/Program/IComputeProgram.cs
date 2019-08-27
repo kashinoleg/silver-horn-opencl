@@ -28,19 +28,6 @@ namespace SilverHorn.Cloo.Program
             ComputeProgramBuildNotifier notify, IntPtr notifyDataPtr);
 
         /// <summary>
-        /// Creates a kernel for every <c>kernel</c> function in program.
-        /// </summary>
-        /// <returns> The collection of created kernels. </returns>
-        /// <remarks> kernels are not created for any <c>kernel</c> functions in program that do not have the same function definition across all devices for which a program executable has been successfully built. </remarks>
-        ICollection<IComputeKernel> CreateAllKernels();
-
-        /// <summary>
-        /// Creates a kernel for a kernel function of a specified name.
-        /// </summary>
-        /// <returns> The created kernel. </returns>
-        IComputeKernel CreateKernel(string functionName);
-
-        /// <summary>
         /// Gets the build log of the program for a specified device.
         /// </summary>
         /// <param name="device"> The device building the program. Must be one of devices. </param>

@@ -14,6 +14,7 @@ using SilverHorn.Cloo.Platform;
 using SilverHorn.Cloo.Device;
 using SilverHorn.Cloo.Context;
 using SilverHorn.Cloo.Command;
+using SilverHorn.Cloo.Builders;
 
 namespace OpenCLTemplate.CLGLInterop
 {
@@ -751,15 +752,16 @@ namespace OpenCLTemplate.CLGLInterop
         /// <summary>Initializes OpenCL kernels to calculate displacement and hide objects</summary>
         private void InitCLDisp()
         {
+            var builder = new OpenCL100Builder();
             //Kernels
-            OpenCLDispSrc src = new OpenCLDispSrc();
-            var prog = new ComputeProgram(this.CLGLCtx, src.src);
+            var src = new OpenCLDispSrc();
+            var prog = builder.BuildComputeProgram(this.CLGLCtx, src.src);
             prog.Build(CLGLCtx.Devices, "", null, IntPtr.Zero);
 
-            kernelHide = prog.CreateKernel("HideElems");
-            kernelShowAll = prog.CreateKernel("ShowAllElems");
-            kernelDisplace = prog.CreateKernel("DisplaceElems");
-            kernelHideLines = prog.CreateKernel("HideLineElems");
+            kernelHide = builder.ProgramCreateKernel(prog, "HideElems");
+            kernelShowAll = builder.ProgramCreateKernel(prog, "ShowAllElems");
+            kernelDisplace = builder.ProgramCreateKernel(prog, "DisplaceElems");
+            kernelHideLines = builder.ProgramCreateKernel(prog, "HideLineElems");
 
             //Mouse arguments
             CLMousePos = new ComputeBuffer<float>(CLGLCtx, ComputeMemoryFlags.ReadWrite, 3);

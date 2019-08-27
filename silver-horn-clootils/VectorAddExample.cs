@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using Cloo;
+using SilverHorn.Cloo.Builders;
 using SilverHorn.Cloo.Command;
 using SilverHorn.Cloo.Context;
 using SilverHorn.Cloo.Kernel;
@@ -35,6 +36,7 @@ kernel void VectorAdd(
 
         public void Run(IComputeContext context, TextWriter log)
         {
+            var builder = new OpenCL100Builder();
             try
             {
                 // Create the arrays and fill them with random data.
@@ -60,11 +62,11 @@ kernel void VectorAdd(
                 var c = new ComputeBuffer<float>(context, ComputeMemoryFlags.WriteOnly, arrC.Length);
 
                 // Create and build the opencl program.
-                program = new ComputeProgram(context, clProgramSource);
+                program = builder.BuildComputeProgram(context, clProgramSource);
                 program.Build(null, null, null, IntPtr.Zero);
 
                 // Create the kernel function and set its arguments.
-                IComputeKernel kernel = program.CreateKernel("VectorAdd");
+                IComputeKernel kernel = builder.ProgramCreateKernel(program, "VectorAdd");
                 kernel.SetMemoryArgument(0, a);
                 kernel.SetMemoryArgument(1, b);
                 kernel.SetMemoryArgument(2, c);

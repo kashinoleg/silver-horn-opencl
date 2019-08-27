@@ -33,6 +33,7 @@ using System;
 using System.IO;
 using Cloo;
 using Cloo.Bindings;
+using SilverHorn.Cloo.Builders;
 using SilverHorn.Cloo.Context;
 using SilverHorn.Cloo.Program;
 
@@ -54,10 +55,10 @@ namespace Clootils
         public void Run(IComputeContext context, TextWriter log)
         {
             this.log = log;
-
+            var builder = new OpenCL100Builder();
             try
             {
-                program = new ComputeProgram(context, clSource);
+                program = builder.BuildComputeProgram(context, clSource);
                 program.Build(null, null, notify, IntPtr.Zero);
             }
             catch (Exception e)

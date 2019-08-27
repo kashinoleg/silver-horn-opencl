@@ -29,101 +29,11 @@ namespace Cloo
         /// <summary>
         /// The handle of the program.
         /// </summary>
-        public CLProgramHandle Handle { get; private set; }
+        public CLProgramHandle Handle { get; set; }
         #endregion
 
         #region Constructors
-
-        /// <summary>
-        /// Creates a new program from a source code string.
-        /// </summary>
-        /// <param name="context"> A program. </param>
-        /// <param name="source"> The source code for the program. </param>
-        /// <remarks> The created program is associated with the devices. </remarks>
-        public ComputeProgram(IComputeContext context, string source)
-        {
-            Handle = CL10.CreateProgramWithSource(
-                context.Handle,
-                1,
-                new string[] { source },
-                null,
-                out ComputeErrorCode error);
-            ComputeException.ThrowOnError(error);
-
-            SetID(Handle.Value);
-            logger.Info("Create " + this + " in Thread(" + Thread.CurrentThread.ManagedThreadId + ").", "Information");
-        }
-
-        /// <summary>
-        /// Creates a new program from an array of source code strings.
-        /// </summary>
-        /// <param name="context"> A context. </param>
-        /// <param name="source"> The source code lines for the program. </param>
-        /// <remarks> The created program is associated with the devices. </remarks>
-        public ComputeProgram(IComputeContext context, string[] source)
-        {
-            Handle = CL10.CreateProgramWithSource(
-                context.Handle,
-                source.Length,
-                source,
-                null,
-                out ComputeErrorCode error);
-            ComputeException.ThrowOnError(error);
-            logger.Info("Create " + this + " in Thread(" + Thread.CurrentThread.ManagedThreadId + ").", "Information");
-        }
-
-        /// <summary>
-        /// Creates a new program from a specified list of binaries.
-        /// </summary>
-        /// <param name="context"> A context. </param>
-        /// <param name="binaries"> A list of binaries, one for each item in <paramref name="devices"/>. </param>
-        /// <param name="devices"> A subset of the context devices. If <paramref name="devices"/> is <c>null</c>, OpenCL will associate every binary from binaries with a corresponding device from devices. </param>
-        public ComputeProgram(IComputeContext context, IList<byte[]> binaries, IList<IComputeDevice> devices)
-        {
-            int count;
-            CLDeviceHandle[] deviceHandles;
-            if (devices != null)
-            {
-                deviceHandles = ComputeTools.ExtractHandles(devices, out count);
-            }
-            else
-            {
-                deviceHandles = ComputeTools.ExtractHandles(context.Devices, out count);
-            }
-
-            IntPtr[] binariesPtrs = new IntPtr[count];
-            IntPtr[] binariesLengths = new IntPtr[count];
-            int[] binariesStats = new int[count];
-            GCHandle[] binariesGCHandles = new GCHandle[count];
-
-            try
-            {
-                for (int i = 0; i < count; i++)
-                {
-                    binariesGCHandles[i] = GCHandle.Alloc(binaries[i], GCHandleType.Pinned);
-                    binariesPtrs[i] = binariesGCHandles[i].AddrOfPinnedObject();
-                    binariesLengths[i] = new IntPtr(binaries[i].Length);
-                }
-
-                Handle = CL10.CreateProgramWithBinary(
-                    context.Handle,
-                    count,
-                    deviceHandles,
-                    binariesLengths,
-                    binariesPtrs,
-                    binariesStats,
-                    out ComputeErrorCode error);
-                ComputeException.ThrowOnError(error);
-            }
-            finally
-            {
-                for (int i = 0; i < count; i++)
-                {
-                    binariesGCHandles[i].Free();
-                }
-            }
-            logger.Info("Create " + this + " in Thread(" + Thread.CurrentThread.ManagedThreadId + ").", "Information");
-        }
+        internal ComputeProgram() {}
         #endregion
 
         #region Public methods
@@ -147,45 +57,6 @@ namespace Cloo
                 notify,
                 notifyDataPtr);
             ComputeException.ThrowOnError(error);
-        }
-
-        /// <summary>
-        /// Creates a kernel for every <c>kernel</c> function in program.
-        /// </summary>
-        /// <returns> The collection of created kernels. </returns>
-        /// <remarks> kernels are not created for any <c>kernel</c> functions in program that do not have the same function definition across all devices for which a program executable has been successfully built. </remarks>
-        public ICollection<IComputeKernel> CreateAllKernels()
-        {
-            var kernels = new Collection<IComputeKernel>();
-            var error = CL10.CreateKernelsInProgram(
-                Handle,
-                0,
-                null,
-                out int kernelsCount);
-            ComputeException.ThrowOnError(error);
-
-            var kernelHandles = new CLKernelHandle[kernelsCount];
-            error = CL10.CreateKernelsInProgram(
-                Handle,
-                kernelsCount,
-                kernelHandles,
-                out kernelsCount);
-            ComputeException.ThrowOnError(error);
-
-            for (int i = 0; i < kernelsCount; i++)
-            {
-                kernels.Add(new ComputeKernel(kernelHandles[i]));
-            }
-            return kernels;
-        }
-
-        /// <summary>
-        /// Creates a kernel for a kernel function of a specified name.
-        /// </summary>
-        /// <returns> The created kernel. </returns>
-        public IComputeKernel CreateKernel(string functionName)
-        {
-            return new ComputeKernel(functionName, this);
         }
 
         /// <summary>
@@ -245,7 +116,6 @@ namespace Cloo
                     binariesGCHandles[i].Free();
                 binariesPtrsGCHandle.Free();
             }
-
             return binaries;
         }
         #endregion
@@ -266,7 +136,7 @@ namespace Cloo
                 if (Handle.IsValid)
                 {
                     logger.Info("Dispose " + this + " in Thread(" + Thread.CurrentThread.ManagedThreadId + ").", "Information");
-                    CL10.ReleaseProgram(Handle);
+                    OpenCL100.ReleaseProgram(Handle);
                     Handle.Invalidate();
                 }
                 disposedValue = true;

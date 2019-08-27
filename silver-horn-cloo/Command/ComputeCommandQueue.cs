@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
 using Cloo;
@@ -22,7 +21,7 @@ namespace SilverHorn.Cloo.Command
         /// <summary>
         /// The handle of the command queue.
         /// </summary>
-        public CLCommandQueueHandle Handle { get; protected set; }
+        public CLCommandQueueHandle Handle { get; private set; }
 
         /// <summary>
         /// Gets the context of the command queue.

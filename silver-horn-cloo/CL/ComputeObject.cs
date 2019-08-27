@@ -264,7 +264,7 @@ namespace Cloo
         /// 
         /// </summary>
         /// <param name="id"></param>
-        protected void SetID(IntPtr id)
+        public void SetID(IntPtr id)
         {
             handle = id;
         }

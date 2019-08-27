@@ -112,5 +112,46 @@ namespace Cloo.Bindings
             out IntPtr param_value_size_ret);
         #endregion
 
+        #region Program Objects - Create Program Objects
+        /// <summary>
+        /// See the OpenCL specification.
+        /// </summary>
+        [DllImport(libName, EntryPoint = "clCreateProgramWithSource")]
+        public extern static CLProgramHandle CreateProgramWithSource(
+            CLContextHandle context,
+            Int32 count,
+            String[] strings,
+            [MarshalAs(UnmanagedType.LPArray)] IntPtr[] lengths,
+            out ComputeErrorCode errcode_ret);
+
+        /// <summary>
+        /// See the OpenCL specification.
+        /// </summary>
+        [DllImport(libName, EntryPoint = "clCreateProgramWithBinary")]
+        public extern static CLProgramHandle CreateProgramWithBinary(
+            CLContextHandle context,
+            Int32 num_devices,
+            [MarshalAs(UnmanagedType.LPArray)] CLDeviceHandle[] device_list,
+            [MarshalAs(UnmanagedType.LPArray)] IntPtr[] lengths,
+            [MarshalAs(UnmanagedType.LPArray)] IntPtr[] binaries,
+            [MarshalAs(UnmanagedType.LPArray)] Int32[] binary_status,
+            out ComputeErrorCode errcode_ret);
+
+        /// <summary>
+        /// See the OpenCL specification.
+        /// </summary>
+        [DllImport(libName, EntryPoint = "clRetainProgram")]
+        public extern static ComputeErrorCode RetainProgram(
+            CLProgramHandle program);
+
+        /// <summary>
+        /// See the OpenCL specification.
+        /// </summary>
+        [DllImport(libName, EntryPoint = "clReleaseProgram")]
+        public extern static ComputeErrorCode ReleaseProgram(
+            CLProgramHandle program);
+        #endregion
+
+
     }
 }
