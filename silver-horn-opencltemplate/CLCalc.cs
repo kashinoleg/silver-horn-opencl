@@ -5,6 +5,8 @@ using System.Runtime.InteropServices;
 using Cloo;
 using SilverHorn.Cloo.Kernel;
 using SilverHorn.Cloo.Program;
+using SilverHorn.Cloo.Platform;
+using SilverHorn.Cloo.Device;
 
 namespace OpenCLTemplate
 {
@@ -58,7 +60,7 @@ namespace OpenCLTemplate
         /// <summary>Initializes OpenCL and reads devices</summary>
         public static void InitCL()
         {
-            int n = Cloo.ComputePlatform.Platforms.Count, i = 0;
+            int n = ComputePlatform.Platforms.Count, i = 0;
             InitCL(ComputeDeviceTypes.Gpu, i);
 
             while (i < n && (CLCalc.CLDevices == null || CLCalc.CLDevices.Count == 0))
@@ -103,7 +105,7 @@ namespace OpenCLTemplate
                     }
                     else Program.Context = PrevCtx;
 
-                    CLDevices = new List<ComputeDevice>();
+                    CLDevices = new List<IComputeDevice>();
                     for (int i = 0; i < Program.Context.Devices.Count; i++)
                     {
                         CLDevices.Add(Program.Context.Devices[i]);
@@ -162,7 +164,7 @@ namespace OpenCLTemplate
         public static List<ComputePlatform> CLPlatforms;
 
         /// <summary>List of available devices</summary>
-        public static List<ComputeDevice> CLDevices;
+        public static List<IComputeDevice> CLDevices;
 
 
         #endregion

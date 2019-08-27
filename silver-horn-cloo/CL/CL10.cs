@@ -1,4 +1,6 @@
 ﻿using NLog;
+using SilverHorn.Cloo.Device;
+using SilverHorn.Cloo.Platform;
 using SilverHorn.Cloo.Sampler;
 using System;
 using System.Runtime.InteropServices;

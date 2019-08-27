@@ -1,4 +1,4 @@
-﻿namespace Cloo
+﻿namespace SilverHorn.Cloo.Platform
 {
     /// <summary>
     /// The platform info query symbols.

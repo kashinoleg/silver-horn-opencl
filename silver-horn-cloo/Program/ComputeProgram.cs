@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using Cloo.Bindings;
 using NLog;
+using SilverHorn.Cloo.Device;
 using SilverHorn.Cloo.Kernel;
 using SilverHorn.Cloo.Program;
 
@@ -73,10 +74,10 @@ namespace Cloo
         /// <summary>
         /// Creates a new program from a specified list of binaries.
         /// </summary>
-        /// <param name="context"> A <see cref="ComputeContext"/>. </param>
+        /// <param name="context"> A context. </param>
         /// <param name="binaries"> A list of binaries, one for each item in <paramref name="devices"/>. </param>
-        /// <param name="devices"> A subset of the <see cref="ComputeContext.Devices"/>. If <paramref name="devices"/> is <c>null</c>, OpenCL will associate every binary from binaries with a corresponding <see cref="ComputeDevice"/> from <see cref="ComputeContext.Devices"/>. </param>
-        public ComputeProgram(ComputeContext context, IList<byte[]> binaries, IList<ComputeDevice> devices)
+        /// <param name="devices"> A subset of the context devices. If <paramref name="devices"/> is <c>null</c>, OpenCL will associate every binary from binaries with a corresponding device from devices. </param>
+        public ComputeProgram(ComputeContext context, IList<byte[]> binaries, IList<IComputeDevice> devices)
         {
             int count;
             CLDeviceHandle[] deviceHandles;
@@ -132,7 +133,7 @@ namespace Cloo
         /// <param name="options"> A set of options for the OpenCL compiler. </param>
         /// <param name="notify"> A delegate instance that represents a reference to a notification routine. This routine is a callback function that an application can register and which will be called when the program executable has been built (successfully or unsuccessfully). If <paramref name="notify"/> is not <c>null</c>, build does not need to wait for the build to complete and can return immediately. If <paramref name="notify"/> is <c>null</c>, build does not return until the build has completed. The callback function may be called asynchronously by the OpenCL implementation. It is the application's responsibility to ensure that the callback function is thread-safe and that the delegate instance doesn't get collected by the Garbage Collector until the build operation triggers the callback. </param>
         /// <param name="notifyDataPtr"> Optional user data that will be passed to <paramref name="notify"/>. </param>
-        public void Build(ICollection<ComputeDevice> devices, string options,
+        public void Build(ICollection<IComputeDevice> devices, string options,
             ComputeProgramBuildNotifier notify, IntPtr notifyDataPtr)
         {
             var deviceHandles = ComputeTools.ExtractHandles(devices, out int handleCount);
@@ -187,22 +188,22 @@ namespace Cloo
         }
 
         /// <summary>
-        /// Gets the build log of the program for a specified <see cref="ComputeDevice"/>.
+        /// Gets the build log of the program for a specified device.
         /// </summary>
-        /// <param name="device"> The <see cref="ComputeDevice"/> building the program. Must be one of devices. </param>
+        /// <param name="device"> The device building the program. Must be one of devices. </param>
         /// <returns> The build log of the program for device. </returns>
-        public string GetBuildLog(ComputeDevice device)
+        public string GetBuildLog(IComputeDevice device)
         {
             return GetStringInfo<CLProgramHandle, CLDeviceHandle, ComputeProgramBuildInfo>(Handle, device.Handle,
                 ComputeProgramBuildInfo.BuildLog, CL10.GetProgramBuildInfo);
         }
 
         /// <summary>
-        /// Gets the <see cref="ComputeProgramBuildStatus"/> of the program for a specified <see cref="ComputeDevice"/>.
+        /// Gets the <see cref="ComputeProgramBuildStatus"/> of the program for a specified device.
         /// </summary>
-        /// <param name="device"> The <see cref="ComputeDevice"/> building the program. Must be one of devices. </param>
+        /// <param name="device"> The device building the program. Must be one of devices. </param>
         /// <returns> The <see cref="ComputeProgramBuildStatus"/> of the program for device. </returns>
-        public ComputeProgramBuildStatus GetBuildStatus(ComputeDevice device)
+        public ComputeProgramBuildStatus GetBuildStatus(IComputeDevice device)
         {
             return (ComputeProgramBuildStatus)GetInfo<CLProgramHandle, CLDeviceHandle, ComputeProgramBuildInfo, uint>(Handle,
                 device.Handle, ComputeProgramBuildInfo.Status, CL10.GetProgramBuildInfo);

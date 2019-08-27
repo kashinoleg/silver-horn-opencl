@@ -10,6 +10,8 @@ using System.Drawing;
 using Cloo;
 using System.Runtime.InteropServices;
 using SilverHorn.Cloo.Kernel;
+using SilverHorn.Cloo.Platform;
+using SilverHorn.Cloo.Device;
 
 namespace OpenCLTemplate.CLGLInterop
 {
@@ -47,10 +49,10 @@ namespace OpenCLTemplate.CLGLInterop
 
             ComputeContextPropertyList Properties = new ComputeContextPropertyList(props);
 
-            List<ComputeDevice> GLDevices = null;
+            List<IComputeDevice> GLDevices = null;
             if (DeviceNumber >= 0 && ComputePlatform.Platforms[0].Devices.Count > 1)
             {
-                GLDevices = new List<ComputeDevice>() { ComputePlatform.Platforms[0].Devices[1] };
+                GLDevices = new List<IComputeDevice>() { ComputePlatform.Platforms[0].Devices[1] };
                 CLGLCtx = new ComputeContext(GLDevices, Properties, null, IntPtr.Zero);
                 CQ = new ComputeCommandQueue(CLGLCtx, GLDevices[0], ComputeCommandQueueFlags.None);
             }
@@ -114,7 +116,7 @@ namespace OpenCLTemplate.CLGLInterop
             if (CreateCLGLCtx)
             {
                 CreateCLGLContext(deviceNumber);
-                CLCalc.InitCL(ComputeDeviceTypes.Gpu, CLGLCtx, CQ, Cloo.ComputePlatform.Platforms.IndexOf(CLGLCtx.Platform));
+                CLCalc.InitCL(ComputeDeviceTypes.Gpu, CLGLCtx, CQ, ComputePlatform.Platforms.IndexOf(CLGLCtx.Platform));
             }
 
 

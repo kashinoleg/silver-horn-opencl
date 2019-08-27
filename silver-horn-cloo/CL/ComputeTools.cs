@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using Cloo.Bindings;
+using SilverHorn.Cloo.Device;
 
 namespace Cloo
 {
@@ -76,7 +77,7 @@ namespace Cloo
             return result;
         }
 
-        internal static CLDeviceHandle[] ExtractHandles(ICollection<ComputeDevice> computeObjects, out int handleCount)
+        internal static CLDeviceHandle[] ExtractHandles(ICollection<IComputeDevice> computeObjects, out int handleCount)
         {
             if (computeObjects == null || computeObjects.Count == 0)
             {
@@ -86,7 +87,7 @@ namespace Cloo
 
             CLDeviceHandle[] result = new CLDeviceHandle[computeObjects.Count];
             int i = 0;
-            foreach (ComputeDevice computeObj in computeObjects)
+            foreach (var computeObj in computeObjects)
             {
                 result[i] = computeObj.Handle;
                 i++;

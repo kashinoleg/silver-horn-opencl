@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SilverHorn.Cloo.Platform;
+using System;
 using System.Runtime.InteropServices;
 
 namespace Cloo.Bindings

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 
-namespace Cloo.Bindings
+namespace SilverHorn.Cloo.Platform
 {
     /// <summary>
     /// Represents the platform ID.

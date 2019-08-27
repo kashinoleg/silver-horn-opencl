@@ -1,5 +1,6 @@
 ﻿using Cloo;
 using Cloo.Bindings;
+using SilverHorn.Cloo.Device;
 using SilverHorn.Cloo.Sampler;
 using System;
 using System.Collections.Generic;
@@ -28,14 +29,14 @@ namespace SilverHorn.Cloo.Kernel
         /// </summary>
         /// <param name="device"> One of the device. </param>
         /// <returns> The amount of local memory in bytes used by the kernel. </returns>
-        long GetLocalMemorySize(ComputeDevice device);
+        long GetLocalMemorySize(IComputeDevice device);
 
         /// <summary>
         /// Gets the compile work-group size specified by the <c>__attribute__((reqd_work_group_size(X, Y, Z)))</c> qualifier.
         /// </summary>
         /// <param name="device"> One of the device. </param>
         /// <returns> The compile work-group size specified by the <c>__attribute__((reqd_work_group_size(X, Y, Z)))</c> qualifier. If no such qualifier is specified, (0, 0, 0) is returned. </returns>
-        long[] GetCompileWorkGroupSize(ComputeDevice device);
+        long[] GetCompileWorkGroupSize(IComputeDevice device);
 
         /// <summary>
         /// Gets the preferred multiple of workgroup size for launch. 
@@ -44,7 +45,7 @@ namespace SilverHorn.Cloo.Kernel
         /// <returns> The preferred multiple of workgroup size for launch. </returns>
         /// <remarks> The returned value is a performance hint. Specifying a workgroup size that is not a multiple of the value returned by this query as the value of the local work size argument to ComputeCommandQueue.Execute will not fail to enqueue the kernel for execution unless the work-group size specified is larger than the device maximum. </remarks>
         /// <remarks> Requires OpenCL 1.1. </remarks>
-        long GetPreferredWorkGroupSizeMultiple(ComputeDevice device);
+        long GetPreferredWorkGroupSizeMultiple(IComputeDevice device);
 
         /// <summary>
         /// Gets the minimum amount of memory, in bytes, used by each work-item in the kernel.
@@ -52,14 +53,14 @@ namespace SilverHorn.Cloo.Kernel
         /// <param name="device"> One of the device. </param>
         /// <returns> The minimum amount of memory, in bytes, used by each work-item in the kernel. </returns>
         /// <remarks> The returned value may include any private memory needed by an implementation to execute the kernel, including that used by the language built-ins and variable declared inside the kernel with the <c>__private</c> or <c>private</c> qualifier. </remarks>
-        long GetPrivateMemorySize(ComputeDevice device);
+        long GetPrivateMemorySize(IComputeDevice device);
 
         /// <summary>
-        /// Gets the maximum work-group size that can be used to execute the kernel on a <see cref="ComputeDevice"/>.
+        /// Gets the maximum work-group size that can be used to execute the kernel on a device.
         /// </summary>
         /// <param name="device"> One of the device. </param>
         /// <returns> The maximum work-group size that can be used to execute the kernel on device. </returns>
-        long GetWorkGroupSize(ComputeDevice device);
+        long GetWorkGroupSize(IComputeDevice device);
 
         /// <summary>
         /// Sets an argument of the kernel (no argument tracking).
@@ -96,7 +97,7 @@ namespace SilverHorn.Cloo.Kernel
         /// <param name="index"> The argument index. </param>
         /// <param name="sampler"> The sampler that is passed as the argument. </param>
         /// <remarks> This method will automatically track <paramref name="sampler"/> to prevent it from being collected by the GC.<br/> Arguments to the kernel are referred by indices that go from 0 for the leftmost argument to n-1, where n is the total number of arguments declared by the kernel. </remarks>
-        void SetSamplerArgument(int index, ComputeSampler sampler);
+        void SetSamplerArgument(int index, IComputeSampler sampler);
 
         /// <summary>
         /// Sets a value argument of the kernel.

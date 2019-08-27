@@ -37,13 +37,15 @@ using System.Text;
 using System.Windows.Forms;
 using Cloo;
 using Clootils.Properties;
+using SilverHorn.Cloo.Device;
+using SilverHorn.Cloo.Platform;
 
 namespace Clootils
 {
     public partial class MainForm : Form
     {
         ComputePlatform platform;
-        IList<ComputeDevice> devices;
+        IList<IComputeDevice> devices;
         IList<IExample> exampleList;
 
         public MainForm()
@@ -58,7 +60,7 @@ namespace Clootils
 [Run] - Runs the selected examples.
 [Copy Log] - Copies the content of this box.";
 
-            devices = new List<ComputeDevice>();
+            devices = new List<IComputeDevice>();
 
             checkedListDevices.CheckOnClick = true;
             checkedListDevices.ItemCheck += new ItemCheckEventHandler(checkedListDevices_ItemCheck);

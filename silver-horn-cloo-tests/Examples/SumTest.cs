@@ -1,6 +1,8 @@
 ﻿using Cloo;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SilverHorn.Cloo.Device;
 using SilverHorn.Cloo.Kernel;
+using SilverHorn.Cloo.Platform;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,7 +12,7 @@ namespace SilverHorn.Cloo.Tests.Examples
     [TestClass]
     public class SumTest
     {
-        ComputeDevice Device { get; set; }
+        IComputeDevice Device { get; set; }
 
         [TestInitialize]
         public void TestInitialize()
@@ -26,6 +28,12 @@ namespace SilverHorn.Cloo.Tests.Examples
             }
             Device = ComputePlatform.Platforms[0].Devices[0];
             Console.WriteLine("Device: {0}", Device.Name);
+        }
+
+        [TestCleanup]
+        public void TestCleanup()
+        {
+            Console.WriteLine("TestCleanup");
         }
 
         [TestMethod]
@@ -46,7 +54,7 @@ namespace SilverHorn.Cloo.Tests.Examples
             {
                 using (var Program = new ComputeProgram(Context, text))
                 {
-                    var Devs = new List<ComputeDevice>() { Device };
+                    var Devs = new List<IComputeDevice>() { Device };
                     Program.Build(Devs, "", null, IntPtr.Zero);
                     IComputeKernel kernel = Program.CreateKernel("floatVectorSum");
                     using (ComputeBuffer<float>
@@ -87,7 +95,7 @@ namespace SilverHorn.Cloo.Tests.Examples
             {
                 using (var Program = new ComputeProgram(Context, text))
                 {
-                    var Devs = new List<ComputeDevice>() { Device };
+                    var Devs = new List<IComputeDevice>() { Device };
                     Program.Build(Devs, "", null, IntPtr.Zero);
                     IComputeKernel kernel = Program.CreateKernel("doubleVectorSum");
                     using (ComputeBuffer<double>

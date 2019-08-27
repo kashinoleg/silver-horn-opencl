@@ -1,4 +1,5 @@
 ﻿using NLog;
+using SilverHorn.Cloo.Device;
 using System;
 using System.Runtime.InteropServices;
 using System.Security;

@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using Cloo.Bindings;
 using NLog;
+using SilverHorn.Cloo.Device;
 using SilverHorn.Cloo.Kernel;
 using SilverHorn.Cloo.Program;
 using SilverHorn.Cloo.Sampler;
@@ -66,7 +67,7 @@ namespace Cloo
         /// </summary>
         /// <param name="device"> One of the device. </param>
         /// <returns> The amount of local memory in bytes used by the kernel. </returns>
-        public long GetLocalMemorySize(ComputeDevice device)
+        public long GetLocalMemorySize(IComputeDevice device)
         {
             return GetInfo<CLKernelHandle, CLDeviceHandle, ComputeKernelWorkGroupInfo, long>(
                 Handle, device.Handle, ComputeKernelWorkGroupInfo.LocalMemorySize, CL10.GetKernelWorkGroupInfo);
@@ -77,7 +78,7 @@ namespace Cloo
         /// </summary>
         /// <param name="device"> One of the device. </param>
         /// <returns> The compile work-group size specified by the <c>__attribute__((reqd_work_group_size(X, Y, Z)))</c> qualifier. If no such qualifier is specified, (0, 0, 0) is returned. </returns>
-        public long[] GetCompileWorkGroupSize(ComputeDevice device)
+        public long[] GetCompileWorkGroupSize(IComputeDevice device)
         {
             return ComputeTools.ConvertArray(
                 GetArrayInfo<CLKernelHandle, CLDeviceHandle, ComputeKernelWorkGroupInfo, IntPtr>(
@@ -91,7 +92,7 @@ namespace Cloo
         /// <returns> The preferred multiple of workgroup size for launch. </returns>
         /// <remarks> The returned value is a performance hint. Specifying a workgroup size that is not a multiple of the value returned by this query as the value of the local work size argument to ComputeCommandQueue.Execute will not fail to enqueue the kernel for execution unless the work-group size specified is larger than the device maximum. </remarks>
         /// <remarks> Requires OpenCL 1.1. </remarks>
-        public long GetPreferredWorkGroupSizeMultiple(ComputeDevice device)
+        public long GetPreferredWorkGroupSizeMultiple(IComputeDevice device)
         {
             return (long)GetInfo<CLKernelHandle, CLDeviceHandle, ComputeKernelWorkGroupInfo, IntPtr>(
                 Handle, device.Handle, ComputeKernelWorkGroupInfo.PreferredWorkGroupSizeMultiple, CL10.GetKernelWorkGroupInfo);
@@ -103,7 +104,7 @@ namespace Cloo
         /// <param name="device"> One of the device. </param>
         /// <returns> The minimum amount of memory, in bytes, used by each work-item in the kernel. </returns>
         /// <remarks> The returned value may include any private memory needed by an implementation to execute the kernel, including that used by the language built-ins and variable declared inside the kernel with the <c>__private</c> or <c>private</c> qualifier. </remarks>
-        public long GetPrivateMemorySize(ComputeDevice device)
+        public long GetPrivateMemorySize(IComputeDevice device)
         {
             return GetInfo<CLKernelHandle, CLDeviceHandle, ComputeKernelWorkGroupInfo, long>(
                 Handle, device.Handle, ComputeKernelWorkGroupInfo.PrivateMemorySize, CL10.GetKernelWorkGroupInfo);
@@ -114,7 +115,7 @@ namespace Cloo
         /// </summary>
         /// <param name="device"> One of the device. </param>
         /// <returns> The maximum work-group size that can be used to execute the kernel on device. </returns>
-        public long GetWorkGroupSize(ComputeDevice device)
+        public long GetWorkGroupSize(IComputeDevice device)
         {
             return (long)GetInfo<CLKernelHandle, CLDeviceHandle, ComputeKernelWorkGroupInfo, IntPtr>(
                     Handle, device.Handle, ComputeKernelWorkGroupInfo.WorkGroupSize, CL10.GetKernelWorkGroupInfo);
@@ -169,7 +170,7 @@ namespace Cloo
         /// <param name="index"> The argument index. </param>
         /// <param name="sampler"> The sampler that is passed as the argument. </param>
         /// <remarks> This method will automatically track sampler to prevent it from being collected by the GC.<br/> Arguments to the kernel are referred by indices that go from 0 for the leftmost argument to n-1, where n is the total number of arguments declared by the kernel. </remarks>
-        public void SetSamplerArgument(int index, ComputeSampler sampler)
+        public void SetSamplerArgument(int index, IComputeSampler sampler)
         {
             SetValueArgument<CLSamplerHandle>(index, sampler.Handle);
         }

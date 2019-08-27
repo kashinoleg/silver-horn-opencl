@@ -1,18 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Threading;
+using Cloo;
 using Cloo.Bindings;
+using NLog;
+using SilverHorn.Cloo.Device;
 
-namespace Cloo
+namespace SilverHorn.Cloo.Platform
 {
     /// <summary>
     /// Represents an OpenCL platform.
     /// </summary>
     /// <remarks> The host plus a collection of devices managed by the OpenCL framework that allow an application to share resources and execute kernels on devices in the platform. </remarks>
-    /// <seealso cref="ComputeDevice"/>
     /// <seealso cref="ComputeResource"/>
-    public sealed class ComputePlatform : ComputeObject
+    public sealed class ComputePlatform : ComputeObject, IComputePlatform
     {
+        #region Services
+        /// <summary>
+        /// Logger
+        /// </summary>
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+        #endregion
+
         #region Properties
         /// <summary>
         /// The handle of the platform.
@@ -20,10 +30,10 @@ namespace Cloo
         public CLPlatformHandle Handle { get; private set; }
 
         /// <summary>
-        /// Gets a read-only collection of <see cref="ComputeDevice"/>s available on the platform.
+        /// Gets a read-only collection of devices available on the platform.
         /// </summary>
-        /// <value> A read-only collection of <see cref="ComputeDevice"/>s available on the platform. </value>
-        public ReadOnlyCollection<ComputeDevice> Devices { get; private set; }
+        /// <value> A read-only collection of devices available on the platform. </value>
+        public ReadOnlyCollection<IComputeDevice> Devices { get; private set; }
 
         /// <summary>
         /// Gets a read-only collection of extension names supported by the platform.
@@ -169,11 +179,11 @@ namespace Cloo
         }
 
         /// <summary>
-        /// Gets a read-only collection of available <see cref="ComputeDevice"/>s on the platform.
+        /// Gets a read-only collection of available devices on the platform.
         /// </summary>
-        /// <returns> A read-only collection of the available <see cref="ComputeDevice"/>s on the platform. </returns>
-        /// <remarks> This method resets the <c>ComputePlatform.Devices</c>. This is useful if one or more of them become unavailable (<c>ComputeDevice.Available</c> is <c>false</c>) after a <see cref="ComputeContext"/> and command queues that use the <see cref="ComputeDevice"/> have been created and commands have been queued to them. Further calls will trigger an <c>OutOfResourcesComputeException</c> until this method is executed. You will also need to recreate any <see cref="ComputeResource"/> that was created on the no longer available <see cref="ComputeDevice"/>. </remarks>
-        public ReadOnlyCollection<ComputeDevice> QueryDevices()
+        /// <returns> A read-only collection of the available devices on the platform. </returns>
+        /// <remarks> This method resets the <c>ComputePlatform.Devices</c>. This is useful if one or more of them become unavailable (<c>ComputeDevice.Available</c> is <c>false</c>) after a device and command queues that use the device have been created and commands have been queued to them. Further calls will trigger an <c>OutOfResourcesComputeException</c> until this method is executed. You will also need to recreate any <see cref="ComputeResource"/> that was created on the no longer available device. </remarks>
+        public ReadOnlyCollection<IComputeDevice> QueryDevices()
         {
             var error = CL10.GetDeviceIDs(Handle, ComputeDeviceTypes.All, 0, null, out int handlesLength);
             ComputeException.ThrowOnError(error);
@@ -187,8 +197,48 @@ namespace Cloo
             {
                 devices[i] = new ComputeDevice(this, handles[i]);
             }
-            Devices = new ReadOnlyCollection<ComputeDevice>(devices);
+            Devices = new ReadOnlyCollection<IComputeDevice>(devices);
             return Devices;
+        }
+        #endregion
+
+        #region IDisposable Support
+        private bool disposedValue = false; // Для определения избыточных вызовов
+
+        public void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    // TODO: освободить управляемое состояние (управляемые объекты).
+                }
+                // TODO: освободить неуправляемые ресурсы (неуправляемые объекты) и переопределить ниже метод завершения.
+                // TODO: задать большим полям значение NULL.
+                if (Handle.IsValid)
+                {
+                    logger.Info("Dispose " + this + " in Thread(" + Thread.CurrentThread.ManagedThreadId + ").", "Information");
+                    //CL10.ReleaseProgram(Handle);
+                    Handle.Invalidate();
+                }
+                disposedValue = true;
+            }
+        }
+
+        // TODO: переопределить метод завершения, только если Dispose(bool disposing) выше включает код для освобождения неуправляемых ресурсов.
+        ~ComputePlatform()
+        {
+            // Не изменяйте этот код. Разместите код очистки выше, в методе Dispose(bool disposing).
+            Dispose(false);
+        }
+
+        // Этот код добавлен для правильной реализации шаблона высвобождаемого класса.
+        public void Dispose()
+        {
+            // Не изменяйте этот код. Разместите код очистки выше, в методе Dispose(bool disposing).
+            Dispose(true);
+            // TODO: раскомментировать следующую строку, если метод завершения переопределен выше.
+            GC.SuppressFinalize(this);
         }
         #endregion
     }

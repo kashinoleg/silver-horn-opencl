@@ -1,9 +1,9 @@
 ﻿using Cloo;
 using Cloo.Bindings;
+using SilverHorn.Cloo.Device;
 using SilverHorn.Cloo.Kernel;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace SilverHorn.Cloo.Program
 {
@@ -24,7 +24,7 @@ namespace SilverHorn.Cloo.Program
         /// <param name="options"> A set of options for the OpenCL compiler. </param>
         /// <param name="notify"> A delegate instance that represents a reference to a notification routine. This routine is a callback function that an application can register and which will be called when the program executable has been built (successfully or unsuccessfully). If <paramref name="notify"/> is not <c>null</c>, build does not need to wait for the build to complete and can return immediately. If <paramref name="notify"/> is <c>null</c>, build does not return until the build has completed. The callback function may be called asynchronously by the OpenCL implementation. It is the application's responsibility to ensure that the callback function is thread-safe and that the delegate instance doesn't get collected by the Garbage Collector until the build operation triggers the callback. </param>
         /// <param name="notifyDataPtr"> Optional user data that will be passed to <paramref name="notify"/>. </param>
-        void Build(ICollection<ComputeDevice> devices, string options,
+        void Build(ICollection<IComputeDevice> devices, string options,
             ComputeProgramBuildNotifier notify, IntPtr notifyDataPtr);
 
         /// <summary>
@@ -41,18 +41,18 @@ namespace SilverHorn.Cloo.Program
         IComputeKernel CreateKernel(string functionName);
 
         /// <summary>
-        /// Gets the build log of the program for a specified <see cref="ComputeDevice"/>.
+        /// Gets the build log of the program for a specified device.
         /// </summary>
-        /// <param name="device"> The <see cref="ComputeDevice"/> building the program. Must be one of devices. </param>
+        /// <param name="device"> The device building the program. Must be one of devices. </param>
         /// <returns> The build log of the program for device. </returns>
-        string GetBuildLog(ComputeDevice device);
+        string GetBuildLog(IComputeDevice device);
 
         /// <summary>
-        /// Gets the <see cref="ComputeProgramBuildStatus"/> of the program for a specified <see cref="ComputeDevice"/>.
+        /// Gets the <see cref="ComputeProgramBuildStatus"/> of the program for a specified device.
         /// </summary>
-        /// <param name="device"> The <see cref="ComputeDevice"/> building the program. Must be one of devices. </param>
+        /// <param name="device"> The device building the program. Must be one of devices. </param>
         /// <returns> The <see cref="ComputeProgramBuildStatus"/> of the program for device. </returns>
-        ComputeProgramBuildStatus GetBuildStatus(ComputeDevice device);
+        ComputeProgramBuildStatus GetBuildStatus(IComputeDevice device);
 
         List<byte[]> GetBinaries();
         #endregion

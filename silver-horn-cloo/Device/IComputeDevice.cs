@@ -1,294 +1,288 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using Cloo;
-using Cloo.Bindings;
+﻿using Cloo;
 using SilverHorn.Cloo.Platform;
+using System;
+using System.Collections.ObjectModel;
 
 namespace SilverHorn.Cloo.Device
 {
-    /// <summary>
-    /// Represents an OpenCL device.
-    /// </summary>
-    /// <value> A device is a collection of compute units. A command queue is used to queue commands to a device. Examples of commands include executing kernels, or reading and writing memory objects. OpenCL devices typically correspond to a GPU, a multi-core CPU, and other processors such as DSPs and the Cell/B.E. processor. </value>
-    /// <seealso cref="ComputeMemory"/>
-    public class ComputeDevice : ComputeObject, IComputeDevice
+    public interface IComputeDevice
     {
         #region Properties
         /// <summary>
         /// The handle of the device.
         /// </summary>
-        public CLDeviceHandle Handle { get; protected set; }
+        CLDeviceHandle Handle { get; }
 
         /// <summary>
         /// Gets the default device address space size in bits.
         /// </summary>
         /// <value> Currently supported values are 32 or 64 bits. </value>
-        public long AddressBits { get; private set; }
+        long AddressBits { get; }
 
         /// <summary>
         /// Gets the availability state of the device.
         /// </summary>
         /// <value> Is <c>true</c> if the device is available and <c>false</c> otherwise. </value>
-        public bool Available { get; private set; }
+        bool Available { get; }
 
         /// <summary>
         /// Gets the <see cref="ComputeCommandQueueFlags"/> supported by the device.
         /// </summary>
         /// <value> The <see cref="ComputeCommandQueueFlags"/> supported by the device. </value>
-        public ComputeCommandQueueFlags CommandQueueFlags { get; private set; }
+        ComputeCommandQueueFlags CommandQueueFlags { get; }
 
         /// <summary>
         /// Gets the availability state of the OpenCL compiler of the platform.
         /// </summary>
         /// <value> Is <c>true</c> if the implementation has a compiler available to compile the program source and <c>false</c> otherwise. This can be <c>false</c> for the embededed platform profile only. </value>
-        public bool CompilerAvailable { get; private set; }
+        bool CompilerAvailable { get; }
 
         /// <summary>
         /// Gets the OpenCL software driver version string of the device.
         /// </summary>
         /// <value> The version string in the form <c>major_number.minor_number</c>. </value>
-        public string DriverVersion { get; private set; }
+        string DriverVersion { get; }
 
         /// <summary>
         /// Gets the endianness of the device.
         /// </summary>
         /// <value> Is <c>true</c> if the device is a little endian device and <c>false</c> otherwise. </value>
-        public bool EndianLittle { get; private set; }
+        bool EndianLittle { get; }
 
         /// <summary>
         /// Gets the error correction support state of the device.
         /// </summary>
         /// <value> Is <c>true</c> if the device implements error correction for the memories, caches, registers etc. Is <c>false</c> if the device does not implement error correction. This can be a requirement for certain clients of OpenCL. </value>
-        public bool ErrorCorrectionSupport { get; private set; }
+        bool ErrorCorrectionSupport { get; }
 
         /// <summary>
         /// Gets the <see cref="ComputeDeviceExecutionCapabilities"/> of the device.
         /// </summary>
         /// <value> The <see cref="ComputeDeviceExecutionCapabilities"/> of the device. </value>
-        public ComputeDeviceExecutionCapabilities ExecutionCapabilities { get; private set; }
+        ComputeDeviceExecutionCapabilities ExecutionCapabilities { get; }
 
         /// <summary>
         /// Gets a read-only collection of names of extensions that the device supports.
         /// </summary>
         /// <value> A read-only collection of names of extensions that the device supports. </value>
-        public ReadOnlyCollection<string> Extensions { get; private set; }
+        ReadOnlyCollection<string> Extensions { get; }
 
         /// <summary>
         /// Gets the size of the global device memory cache line in bytes.
         /// </summary>
         /// <value> The size of the global device memory cache line in bytes. </value>
-        public long GlobalMemoryCacheLineSize { get; private set; }
+        long GlobalMemoryCacheLineSize { get; }
 
         /// <summary>
         /// Gets the size of the global device memory cache in bytes.
         /// </summary>
         /// <value> The size of the global device memory cache in bytes. </value>
-        public long GlobalMemoryCacheSize { get; private set; }
+        long GlobalMemoryCacheSize { get; }
 
         /// <summary>
         /// Gets the <see cref="ComputeDeviceMemoryCacheType"/> of the device.
         /// </summary>
         /// <value> The <see cref="ComputeDeviceMemoryCacheType"/> of the device. </value>
-        public ComputeDeviceMemoryCacheType GlobalMemoryCacheType { get; private set; }
+        ComputeDeviceMemoryCacheType GlobalMemoryCacheType { get; }
 
         /// <summary>
         /// Gets the size of the global device memory in bytes.
         /// </summary>
         /// <value> The size of the global device memory in bytes. </value>
-        public long GlobalMemorySize { get; private set; }
+        long GlobalMemorySize { get; }
 
         /// <summary>
         /// Gets the maximum <see cref="ComputeImage2D.Height"/> value that the device supports in pixels.
         /// </summary>
         /// <value> The minimum value is 8192 if device image support is <c>true</c>. </value>
-        public long Image2DMaxHeight { get; private set; }
+        long Image2DMaxHeight { get; }
 
         /// <summary>
         /// Gets the maximum <see cref="ComputeImage2D.Width"/> value that the device supports in pixels.
         /// </summary>
         /// <value> The minimum value is 8192 if device image support is <c>true</c>. </value>
-        public long Image2DMaxWidth { get; private set; }
+        long Image2DMaxWidth { get; }
 
         /// <summary>
         /// Gets the maximum <see cref="ComputeImage3D.Depth"/> value that the device supports in pixels.
         /// </summary>
         /// <value> The minimum value is 2048 if device image support is <c>true</c>. </value>
-        public long Image3DMaxDepth { get; private set; }
+        long Image3DMaxDepth { get; }
 
         /// <summary>
         /// Gets the maximum <see cref="ComputeImage3D.Height"/> value that the device supports in pixels.
         /// </summary>
         /// <value> The minimum value is 2048 if device image support is <c>true</c>. </value>
-        public long Image3DMaxHeight { get; private set; }
+        long Image3DMaxHeight { get; }
 
         /// <summary>
         /// Gets the maximum <see cref="ComputeImage3D.Width"/> value that the device supports in pixels.
         /// </summary>
         /// <value> The minimum value is 2048 if device image support is <c>true</c>. </value>
-        public long Image3DMaxWidth { get; private set; }
+        long Image3DMaxWidth { get; }
 
         /// <summary>
         /// Gets the state of image support of the device.
         /// </summary>
         /// <value> Is <c>true</c> if <see cref="ComputeImage"/>s are supported by the device and <c>false</c> otherwise. </value>
-        public bool ImageSupport { get; private set; }
+        bool ImageSupport { get; }
 
         /// <summary>
         /// Gets the size of local memory are of the device in bytes.
         /// </summary>
         /// <value> The minimum value is 16 KB (OpenCL 1.0) or 32 KB (OpenCL 1.1). </value>
-        public long LocalMemorySize { get; private set; }
+        long LocalMemorySize { get; }
 
         /// <summary>
         /// Gets the <see cref="ComputeDeviceLocalMemoryType"/> that is supported on the device.
         /// </summary>
         /// <value> The <see cref="ComputeDeviceLocalMemoryType"/> that is supported on the device. </value>
-        public ComputeDeviceLocalMemoryType LocalMemoryType { get; private set; }
+        ComputeDeviceLocalMemoryType LocalMemoryType { get; }
 
         /// <summary>
         /// Gets the maximum configured clock frequency of the device in MHz.
         /// </summary>
         /// <value> The maximum configured clock frequency of the device in MHz. </value>
-        public long MaxClockFrequency { get; private set; }
+        long MaxClockFrequency { get; }
 
         /// <summary>
         /// Gets the number of parallel compute cores on the device.
         /// </summary>
         /// <value> The minimum value is 1. </value>
-        public long MaxComputeUnits { get; private set; }
+        long MaxComputeUnits { get; }
 
         /// <summary>
         /// Gets the maximum number of arguments declared with the <c>__constant</c> or <c>constant</c> qualifier in a kernel executing in the device.
         /// </summary>
         /// <value> The minimum value is 8. </value>
-        public long MaxConstantArguments { get; private set; }
+        long MaxConstantArguments { get; }
 
         /// <summary>
         /// Gets the maximum size in bytes of a constant buffer allocation in the device memory.
         /// </summary>
         /// <value> The minimum value is 64 KB. </value>
-        public long MaxConstantBufferSize { get; private set; }
+        long MaxConstantBufferSize { get; }
 
         /// <summary>
         /// Gets the maximum size of memory object allocation in the device memory in bytes.
         /// </summary>
         /// <value> The minimum value is <c>max device global memory size /4, 128*1024*1024)</c>. </value>
-        public long MaxMemoryAllocationSize { get; private set; }
+        long MaxMemoryAllocationSize { get; }
 
         /// <summary>
         /// Gets the maximum size in bytes of the arguments that can be passed to a kernel executing in the device.
         /// </summary>
         /// <value> The minimum value is 256 (OpenCL 1.0) or 1024 (OpenCL 1.1). </value>
-        public long MaxParameterSize { get; private set; }
+        long MaxParameterSize { get; }
 
         /// <summary>
         /// Gets the maximum number of simultaneous <see cref="ComputeImage"/>s that can be read by a kernel executing in the device.
         /// </summary>
         /// <value> The minimum value is 128 if device image support is <c>true</c>. </value>
-        public long MaxReadImageArguments { get; private set; }
+        long MaxReadImageArguments { get; }
 
         /// <summary>
         /// Gets the maximum number of samplers that can be used in a kernel.
         /// </summary>
         /// <value> The minimum value is 16 if device image support is <c>true</c>. </value>
-        public long MaxSamplers { get; private set; }
+        long MaxSamplers { get; }
 
         /// <summary>
         /// Gets the maximum number of work-items in a work-group executing a kernel in a device using the data parallel execution model.
         /// </summary>
         /// <value> The minimum value is 1. </value>
-        public long MaxWorkGroupSize { get; private set; }
+        long MaxWorkGroupSize { get; }
 
         /// <summary>
         /// Gets the maximum number of dimensions that specify the global and local work-item IDs used by the data parallel execution model.
         /// </summary>
         /// <value> The minimum value is 3. </value>
-        public long MaxWorkItemDimensions { get; private set; }
+        long MaxWorkItemDimensions { get; }
 
         /// <summary>
         /// Gets the maximum number of work-items that can be specified in each dimension of the <paramref name="globalWorkSize"/> argument of execute.
         /// </summary>
         /// <value> The maximum number of work-items that can be specified in each dimension of the <paramref name="globalWorkSize"/> argument of execute. </value>
-        public ReadOnlyCollection<long> MaxWorkItemSizes { get; private set; }
+        ReadOnlyCollection<long> MaxWorkItemSizes { get; }
 
         /// <summary>
         /// Gets the maximum number of simultaneous devices that can be written to by a kernel executing in the device.
         /// </summary>
         /// <value> The minimum value is 8 if device image support is <c>true</c>. </value>
-        public long MaxWriteImageArguments { get; private set; }
+        long MaxWriteImageArguments { get; }
 
         /// <summary>
         /// Gets the alignment in bits of the base address of any <see cref="ComputeMemory"/> allocated in the device memory.
         /// </summary>
         /// <value> The alignment in bits of the base address of any <see cref="ComputeMemory"/> allocated in the device memory. </value>
-        public long MemoryBaseAddressAlignment { get; private set; }
+        long MemoryBaseAddressAlignment { get; }
 
         /// <summary>
         /// Gets the smallest alignment in bytes which can be used for any data type allocated in the device memory.
         /// </summary>
         /// <value> The smallest alignment in bytes which can be used for any data type allocated in the device memory. </value>
-        public long MinDataTypeAlignmentSize { get; private set; }
+        long MinDataTypeAlignmentSize { get; }
 
         /// <summary>
         /// Gets the name of the device.
         /// </summary>
         /// <value> The name of the device. </value>
-        public string Name { get; private set; }
+        string Name { get; }
 
         /// <summary>
         /// Gets the platform associated with the device.
         /// </summary>
         /// <value> The platform associated with the device. </value>
-        public ComputePlatform Platform { get; private set; }
+        ComputePlatform Platform { get; }
 
         /// <summary>
         /// Gets the device's preferred native vector width size for vector of <c>char</c>s.
         /// </summary>
         /// <value> The device's preferred native vector width size for vector of <c>char</c>s. </value>
         /// <remarks> The vector width is defined as the number of scalar elements that can be stored in the vector. </remarks>
-        public long PreferredVectorWidthChar { get; private set; }
+        long PreferredVectorWidthChar { get; }
 
         /// <summary>
         /// Gets the device's preferred native vector width size for vector of <c>double</c>s or 0 if the <c>cl_khr_fp64</c> format is not supported.
         /// </summary>
         /// <value> The device's preferred native vector width size for vector of <c>double</c>s or 0 if the <c>cl_khr_fp64</c> format is not supported. </value>
         /// <remarks> The vector width is defined as the number of scalar elements that can be stored in the vector. </remarks>
-        public long PreferredVectorWidthDouble { get; private set; }
+        long PreferredVectorWidthDouble { get; }
 
         /// <summary>
         /// Gets the device's preferred native vector width size for vector of <c>float</c>s.
         /// </summary>
         /// <value> The device's preferred native vector width size for vector of <c>float</c>s. </value>
         /// <remarks> The vector width is defined as the number of scalar elements that can be stored in the vector. </remarks>
-        public long PreferredVectorWidthFloat { get; private set; }
+        long PreferredVectorWidthFloat { get; }
 
         /// <summary>
         /// Gets the device's preferred native vector width size for vector of <c>half</c>s or 0 if the <c>cl_khr_fp16</c> format is not supported.
         /// </summary>
         /// <value> The device's preferred native vector width size for vector of <c>half</c>s or 0 if the <c>cl_khr_fp16</c> format is not supported. </value>
         /// <remarks> The vector width is defined as the number of scalar elements that can be stored in the vector. </remarks>
-        public long PreferredVectorWidthHalf { get; private set; }
+        long PreferredVectorWidthHalf { get; }
 
         /// <summary>
         /// Gets the device's preferred native vector width size for vector of <c>int</c>s.
         /// </summary>
         /// <value> The device's preferred native vector width size for vector of <c>int</c>s. </value>
         /// <remarks> The vector width is defined as the number of scalar elements that can be stored in the vector. </remarks>
-        public long PreferredVectorWidthInt { get; private set; }
+        long PreferredVectorWidthInt { get; }
 
         /// <summary>
         /// Gets the device's preferred native vector width size for vector of <c>long</c>s.
         /// </summary>
         /// <value> The device's preferred native vector width size for vector of <c>long</c>s. </value>
         /// <remarks> The vector width is defined as the number of scalar elements that can be stored in the vector. </remarks>
-        public long PreferredVectorWidthLong { get; private set; }
+        long PreferredVectorWidthLong { get; }
 
         /// <summary>
         /// Gets the device's preferred native vector width size for vector of <c>short</c>s.
         /// </summary>
         /// <value> The device's preferred native vector width size for vector of <c>short</c>s. </value>
         /// <remarks> The vector width is defined as the number of scalar elements that can be stored in the vector. </remarks>
-        public long PreferredVectorWidthShort { get; private set; }
+        long PreferredVectorWidthShort { get; }
 
         /// <summary>
         /// Gets the OpenCL profile name supported by the device.
@@ -306,50 +300,50 @@ namespace SilverHorn.Cloo.Device
         /// </item>
         /// </list>
         /// </value>
-        public string Profile { get; private set; }
+        string Profile { get; }
 
         /// <summary>
         /// Gets the resolution of the device timer in nanoseconds.
         /// </summary>
         /// <value> The resolution of the device timer in nanoseconds. </value>
-        public long ProfilingTimerResolution { get; private set; }
+        long ProfilingTimerResolution { get; }
 
         /// <summary>
         /// Gets the <see cref="ComputeDeviceSingleCapabilities"/> of the device.
         /// </summary>
         /// <value> The <see cref="ComputeDeviceSingleCapabilities"/> of the device. </value>
-        public ComputeDeviceSingleCapabilities SingleCapabilities { get; private set; }
+        ComputeDeviceSingleCapabilities SingleCapabilities { get; }
 
         /// <summary>
         /// Gets the <see cref="ComputeDeviceTypes"/> of the device.
         /// </summary>
         /// <value> The <see cref="ComputeDeviceTypes"/> of the device. </value>
-        public ComputeDeviceTypes Type { get; private set; }
+        ComputeDeviceTypes Type { get; }
 
         /// <summary>
         /// Gets the device vendor name string.
         /// </summary>
         /// <value> The device vendor name string. </value>
-        public string Vendor { get; private set; }
+        string Vendor { get; }
 
         /// <summary>
         /// Gets a unique device vendor identifier.
         /// </summary>
         /// <value> A unique device vendor identifier. </value>
         /// <remarks> An example of a unique device identifier could be the PCIe ID. </remarks>
-        public long VendorId { get; private set; }
+        long VendorId { get; }
 
         /// <summary>
         /// Gets the OpenCL version supported by the device.
         /// </summary>
         /// <value> The OpenCL version supported by the device. </value>
-        public Version Version { get; private set; }
+        Version Version { get; }
 
         /// <summary>
         /// Gets the OpenCL version string supported by the device.
         /// </summary>
         /// <value> The version string has the following format: <c>OpenCL[space][major_version].[minor_version][space][vendor-specific information]</c>. </value>
-        public string VersionString { get; private set; }
+        string VersionString { get; }
 
         //////////////////////////////////
         // OpenCL 1.1 device properties //
@@ -360,7 +354,7 @@ namespace SilverHorn.Cloo.Device
         /// </summary>
         /// <value> Is <c>true</c> if the device and the host have a unified memory subsystem and <c>false</c> otherwise. </value>
         /// <remarks> Requires OpenCL 1.1 </remarks>
-        public bool HostUnifiedMemory { get { return GetBoolInfo(ComputeDeviceInfo.HostUnifiedMemory); } }
+        bool HostUnifiedMemory { get; }
 
         /// <summary>
         /// Gets the native ISA vector width size for vector of <c>char</c>s.
@@ -370,7 +364,7 @@ namespace SilverHorn.Cloo.Device
         ///     <para> The vector width is defined as the number of scalar elements that can be stored in the vector. </para>
         ///     <para> Requires OpenCL 1.1 </para>
         /// </remarks>
-        public long NativeVectorWidthChar { get { return GetInfo<long>(ComputeDeviceInfo.NativeVectorWidthChar); } }
+        long NativeVectorWidthChar { get; }
 
         /// <summary>
         /// Gets the native ISA vector width size for vector of <c>double</c>s or 0 if the <c>cl_khr_fp64</c> format is not supported.
@@ -380,7 +374,7 @@ namespace SilverHorn.Cloo.Device
         ///     <para> The vector width is defined as the number of scalar elements that can be stored in the vector. </para>
         ///     <para> Requires OpenCL 1.1 </para>
         /// </remarks>
-        public long NativeVectorWidthDouble { get { return GetInfo<long>(ComputeDeviceInfo.NativeVectorWidthDouble); } }
+        long NativeVectorWidthDouble { get; }
 
         /// <summary>
         /// Gets the native ISA vector width size for vector of <c>float</c>s.
@@ -390,7 +384,7 @@ namespace SilverHorn.Cloo.Device
         ///     <para> The vector width is defined as the number of scalar elements that can be stored in the vector. </para>
         ///     <para> Requires OpenCL 1.1 </para>
         /// </remarks>
-        public long NativeVectorWidthFloat { get { return GetInfo<long>(ComputeDeviceInfo.NativeVectorWidthFloat); } }
+        long NativeVectorWidthFloat { get; }
 
         /// <summary>
         /// Gets the native ISA vector width size for vector of <c>half</c>s or 0 if the <c>cl_khr_fp16</c> format is not supported.
@@ -400,7 +394,7 @@ namespace SilverHorn.Cloo.Device
         ///     <para> The vector width is defined as the number of scalar elements that can be stored in the vector. </para>
         ///     <para> Requires OpenCL 1.1 </para>
         /// </remarks>
-        public long NativeVectorWidthHalf { get { return GetInfo<long>(ComputeDeviceInfo.NativeVectorWidthHalf); } }
+        long NativeVectorWidthHalf { get; }
 
         /// <summary>
         /// Gets the native ISA vector width size for vector of <c>int</c>s.
@@ -410,7 +404,7 @@ namespace SilverHorn.Cloo.Device
         ///     <para> The vector width is defined as the number of scalar elements that can be stored in the vector. </para>
         ///     <para> Requires OpenCL 1.1 </para>
         /// </remarks>
-        public long NativeVectorWidthInt { get { return GetInfo<long>(ComputeDeviceInfo.NativeVectorWidthInt); } }
+        long NativeVectorWidthInt { get; }
 
         /// <summary>
         /// Gets the native ISA vector width size for vector of <c>long</c>s.
@@ -420,7 +414,7 @@ namespace SilverHorn.Cloo.Device
         ///     <para> The vector width is defined as the number of scalar elements that can be stored in the vector. </para>
         ///     <para> Requires OpenCL 1.1 </para>
         /// </remarks>
-        public long NativeVectorWidthLong { get { return GetInfo<long>(ComputeDeviceInfo.NativeVectorWidthLong); } }
+        long NativeVectorWidthLong { get; }
 
         /// <summary>
         /// Gets the native ISA vector width size for vector of <c>short</c>s.
@@ -430,106 +424,22 @@ namespace SilverHorn.Cloo.Device
         ///     <para> The vector width is defined as the number of scalar elements that can be stored in the vector. </para>
         ///     <para> Requires OpenCL 1.1 </para>
         /// </remarks>
-        public long NativeVectorWidthShort { get { return GetInfo<long>(ComputeDeviceInfo.NativeVectorWidthShort); } }
+        long NativeVectorWidthShort { get; }
 
         /// <summary>
         /// Gets the OpenCL C version supported by the device.
         /// </summary>
         /// <value> Is <c>1.1</c> if device version is <c>1.1</c>. Is <c>1.0</c> or <c>1.1</c> if device version is <c>1.0</c>. </value>
         /// <remarks> Requires OpenCL 1.1. </remarks>
-        public Version OpenCLCVersion { get { return ComputeTools.ParseVersionString(OpenCLCVersionString, 2); } }
+        Version OpenCLCVersion { get; }
 
         /// <summary>
         /// Gets the OpenCL C version string supported by the device.
         /// </summary>
         /// <value> The OpenCL C version string supported by the device. The version string has the following format: <c>OpenCL[space]C[space][major_version].[minor_version][space][vendor-specific information]</c>. </value>
         /// <remarks> Requires OpenCL 1.1. </remarks>
-        public string OpenCLCVersionString { get { return GetStringInfo(ComputeDeviceInfo.OpenCLCVersion); } }
+        string OpenCLCVersionString { get; }
 
-        #endregion
-
-        #region Constructors
-
-        internal ComputeDevice(ComputePlatform platform, CLDeviceHandle handle)
-        {
-            Handle = handle;
-            SetID(Handle.Value);
-
-            AddressBits = GetInfo<uint>(ComputeDeviceInfo.AddressBits);
-            Available = GetBoolInfo(ComputeDeviceInfo.Available);
-            CompilerAvailable = GetBoolInfo(ComputeDeviceInfo.CompilerAvailable);
-            DriverVersion = GetStringInfo(ComputeDeviceInfo.DriverVersion);
-            EndianLittle = GetBoolInfo(ComputeDeviceInfo.EndianLittle);
-            ErrorCorrectionSupport = GetBoolInfo(ComputeDeviceInfo.ErrorCorrectionSupport);
-            ExecutionCapabilities = (ComputeDeviceExecutionCapabilities)GetInfo<long>(ComputeDeviceInfo.ExecutionCapabilities);
-
-            string extensionString = GetStringInfo(ComputeDeviceInfo.Extensions);
-            Extensions = new ReadOnlyCollection<string>(extensionString.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries));
-
-            GlobalMemoryCacheLineSize = GetInfo<uint>(ComputeDeviceInfo.GlobalMemoryCachelineSize);
-            GlobalMemoryCacheSize = (long)GetInfo<ulong>(ComputeDeviceInfo.GlobalMemoryCacheSize);
-            GlobalMemoryCacheType = (ComputeDeviceMemoryCacheType)GetInfo<long>(ComputeDeviceInfo.GlobalMemoryCacheType);
-            GlobalMemorySize = (long)GetInfo<ulong>(ComputeDeviceInfo.GlobalMemorySize);
-            Image2DMaxHeight = (long)GetInfo<IntPtr>(ComputeDeviceInfo.Image2DMaxHeight);
-            Image2DMaxWidth = (long)GetInfo<IntPtr>(ComputeDeviceInfo.Image2DMaxWidth);
-            Image3DMaxDepth = (long)GetInfo<IntPtr>(ComputeDeviceInfo.Image3DMaxDepth);
-            Image3DMaxHeight = (long)GetInfo<IntPtr>(ComputeDeviceInfo.Image3DMaxHeight);
-            Image3DMaxWidth = (long)GetInfo<IntPtr>(ComputeDeviceInfo.Image3DMaxWidth);
-            ImageSupport = GetBoolInfo(ComputeDeviceInfo.ImageSupport);
-            LocalMemorySize = (long)GetInfo<ulong>(ComputeDeviceInfo.LocalMemorySize);
-            LocalMemoryType = (ComputeDeviceLocalMemoryType)GetInfo<long>(ComputeDeviceInfo.LocalMemoryType);
-            MaxClockFrequency = GetInfo<uint>(ComputeDeviceInfo.MaxClockFrequency);
-            MaxComputeUnits = GetInfo<uint>(ComputeDeviceInfo.MaxComputeUnits);
-            MaxConstantArguments = GetInfo<uint>(ComputeDeviceInfo.MaxConstantArguments);
-            MaxConstantBufferSize = (long)GetInfo<ulong>(ComputeDeviceInfo.MaxConstantBufferSize);
-            MaxMemoryAllocationSize = (long)GetInfo<ulong>(ComputeDeviceInfo.MaxMemoryAllocationSize);
-            MaxParameterSize = (long)GetInfo<IntPtr>(ComputeDeviceInfo.MaxParameterSize);
-            MaxReadImageArguments = GetInfo<uint>(ComputeDeviceInfo.MaxReadImageArguments);
-            MaxSamplers = GetInfo<uint>(ComputeDeviceInfo.MaxSamplers);
-            MaxWorkGroupSize = (long)GetInfo<IntPtr>(ComputeDeviceInfo.MaxWorkGroupSize);
-            MaxWorkItemDimensions = GetInfo<uint>(ComputeDeviceInfo.MaxWorkItemDimensions);
-            MaxWorkItemSizes = new ReadOnlyCollection<long>(ComputeTools.ConvertArray(GetArrayInfo<CLDeviceHandle, ComputeDeviceInfo, IntPtr>(Handle, ComputeDeviceInfo.MaxWorkItemSizes, CL10.GetDeviceInfo)));
-            MaxWriteImageArguments = GetInfo<uint>(ComputeDeviceInfo.MaxWriteImageArguments);
-            MemoryBaseAddressAlignment = GetInfo<uint>(ComputeDeviceInfo.MemoryBaseAddressAlignment);
-            MinDataTypeAlignmentSize = GetInfo<uint>(ComputeDeviceInfo.MinDataTypeAlignmentSize);
-            Name = GetStringInfo(ComputeDeviceInfo.Name);
-            Platform = platform;
-            PreferredVectorWidthChar = GetInfo<uint>(ComputeDeviceInfo.PreferredVectorWidthChar);
-            PreferredVectorWidthDouble = GetInfo<uint>(ComputeDeviceInfo.PreferredVectorWidthDouble);
-            PreferredVectorWidthFloat = GetInfo<uint>(ComputeDeviceInfo.PreferredVectorWidthFloat);
-            PreferredVectorWidthHalf = GetInfo<uint>(ComputeDeviceInfo.PreferredVectorWidthHalf);
-            PreferredVectorWidthInt = GetInfo<uint>(ComputeDeviceInfo.PreferredVectorWidthInt);
-            PreferredVectorWidthLong = GetInfo<uint>(ComputeDeviceInfo.PreferredVectorWidthLong);
-            PreferredVectorWidthShort = GetInfo<uint>(ComputeDeviceInfo.PreferredVectorWidthShort);
-            Profile = GetStringInfo(ComputeDeviceInfo.Profile);
-            ProfilingTimerResolution = (long)GetInfo<IntPtr>(ComputeDeviceInfo.ProfilingTimerResolution);
-            CommandQueueFlags = (ComputeCommandQueueFlags)GetInfo<long>(ComputeDeviceInfo.CommandQueueProperties);
-            SingleCapabilities = (ComputeDeviceSingleCapabilities)GetInfo<long>(ComputeDeviceInfo.SingleFPConfig);
-            Type = (ComputeDeviceTypes)GetInfo<long>(ComputeDeviceInfo.Type);
-            Vendor = GetStringInfo(ComputeDeviceInfo.Vendor);
-            VendorId = GetInfo<uint>(ComputeDeviceInfo.VendorId);
-            VersionString = GetStringInfo(ComputeDeviceInfo.Version);
-            Version = ComputeTools.ParseVersionString(VersionString, 1);
-        }
-
-        #endregion
-
-        #region Private methods
-
-        private bool GetBoolInfo(ComputeDeviceInfo paramName)
-        {
-            return GetBoolInfo<CLDeviceHandle, ComputeDeviceInfo>(Handle, paramName, CL10.GetDeviceInfo);
-        }
-
-        private NativeType GetInfo<NativeType>(ComputeDeviceInfo paramName) where NativeType : struct
-        {
-            return GetInfo<CLDeviceHandle, ComputeDeviceInfo, NativeType>(Handle, paramName, CL10.GetDeviceInfo);
-        }
-
-        private string GetStringInfo(ComputeDeviceInfo paramName)
-        {
-            return GetStringInfo<CLDeviceHandle, ComputeDeviceInfo>(Handle, paramName, CL10.GetDeviceInfo);
-        }
         #endregion
     }
 }

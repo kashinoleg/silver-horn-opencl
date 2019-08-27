@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
 using Cloo.Bindings;
+using SilverHorn.Cloo.Device;
 using SilverHorn.Cloo.Kernel;
 
 namespace Cloo
@@ -13,7 +14,6 @@ namespace Cloo
     /// </summary>
     /// <remarks> A command queue is an object that holds commands that will be executed on a specific device. The command queue is created on a specific device in a context. Commands to a command queue are queued in-order but may be executed in-order or out-of-order. </remarks>
     /// <seealso cref="ComputeContext"/>
-    /// <seealso cref="ComputeDevice"/>
     public partial class ComputeCommandQueue : ComputeResource
     {
         #region Properties
@@ -30,10 +30,10 @@ namespace Cloo
         public ComputeContext Context { get; private set; }
 
         /// <summary>
-        /// Gets the <see cref="ComputeDevice"/> of the command queue.
+        /// Gets the device of the command queue.
         /// </summary>
-        /// <value> The <see cref="ComputeDevice"/> of the command queue. </value>
-        public ComputeDevice Device { get; private set; }
+        /// <value> The device of the command queue. </value>
+        public IComputeDevice Device { get; private set; }
 
         /// <summary>
         /// Gets the out-of-order execution mode of the commands in the command queue.
@@ -56,9 +56,9 @@ namespace Cloo
         /// Creates a new command queue.
         /// </summary>
         /// <param name="context"> A <see cref="ComputeContext"/>. </param>
-        /// <param name="device"> A <see cref="ComputeDevice"/> associated with the <paramref name="context"/>. It can either be one of <see cref="ComputeContext.Devices"/> or have the same <see cref="ComputeDeviceTypes"/> as the <paramref name="device"/> specified when the <paramref name="context"/> is created. </param>
+        /// <param name="device"> A device associated with the <paramref name="context"/>. It can either be one of <see cref="ComputeContext.Devices"/> or have the same <see cref="ComputeDeviceTypes"/> as the <paramref name="device"/> specified when the <paramref name="context"/> is created. </param>
         /// <param name="properties"> The properties for the command queue. </param>
-        public ComputeCommandQueue(ComputeContext context, ComputeDevice device, ComputeCommandQueueFlags properties)
+        public ComputeCommandQueue(ComputeContext context, IComputeDevice device, ComputeCommandQueueFlags properties)
         {
             Handle = OpenCL100.CreateCommandQueue(context.Handle, device.Handle, properties, out ComputeErrorCode error);
             ComputeException.ThrowOnError(error);

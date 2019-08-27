@@ -1,6 +1,8 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using Cloo;
 using Cloo.Bindings;
+using NLog;
 
 namespace SilverHorn.Cloo.Sampler
 {
@@ -9,8 +11,15 @@ namespace SilverHorn.Cloo.Sampler
     /// </summary>
     /// <remarks> An object that describes how to sample an image when the image is read in the kernel. The image read functions take a sampler as an argument. The sampler specifies the image addressing-mode i.e. how out-of-range image coordinates are handled, the filtering mode, and whether the input image coordinate is a normalized or unnormalized value. </remarks>
     /// <seealso cref="ComputeImage"/>
-    public sealed class ComputeSampler : ComputeResource
+    public sealed class ComputeSampler : ComputeObject, IComputeSampler
     {
+        #region Services
+        /// <summary>
+        /// Logger
+        /// </summary>
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+        #endregion
+
         #region Properties
         /// <summary>
         /// The handle of the sampler.
@@ -59,20 +68,43 @@ namespace SilverHorn.Cloo.Sampler
         }
         #endregion
 
-        #region Protected methods
-        /// <summary>
-        /// Releases the associated OpenCL object.
-        /// </summary>
-        /// <param name="manual"> Specifies the operation mode of this method. </param>
-        /// <remarks> <paramref name="manual"/> must be <c>true</c> if this method is invoked directly by the application. </remarks>
-        protected override void Dispose(bool manual)
+        #region IDisposable Support
+        private bool disposedValue = false; // Для определения избыточных вызовов
+
+        public void Dispose(bool disposing)
         {
-            if (Handle.IsValid)
+            if (!disposedValue)
             {
-                logger.Info("Dispose " + this + " in Thread(" + Thread.CurrentThread.ManagedThreadId + ").", "Information");
-                CL10.ReleaseSampler(Handle);
-                Handle.Invalidate();
+                if (disposing)
+                {
+                    // TODO: освободить управляемое состояние (управляемые объекты).
+                }
+                // TODO: освободить неуправляемые ресурсы (неуправляемые объекты) и переопределить ниже метод завершения.
+                // TODO: задать большим полям значение NULL.
+                if (Handle.IsValid)
+                {
+                    logger.Info("Dispose " + this + " in Thread(" + Thread.CurrentThread.ManagedThreadId + ").", "Information");
+                    CL10.ReleaseSampler(Handle);
+                    Handle.Invalidate();
+                }
+                disposedValue = true;
             }
+        }
+
+        // TODO: переопределить метод завершения, только если Dispose(bool disposing) выше включает код для освобождения неуправляемых ресурсов.
+        ~ComputeSampler()
+        {
+            // Не изменяйте этот код. Разместите код очистки выше, в методе Dispose(bool disposing).
+            Dispose(false);
+        }
+
+        // Этот код добавлен для правильной реализации шаблона высвобождаемого класса.
+        public void Dispose()
+        {
+            // Не изменяйте этот код. Разместите код очистки выше, в методе Dispose(bool disposing).
+            Dispose(true);
+            // TODO: раскомментировать следующую строку, если метод завершения переопределен выше.
+            GC.SuppressFinalize(this);
         }
         #endregion
     }

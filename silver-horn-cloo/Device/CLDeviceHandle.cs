@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
 
-namespace Cloo.Bindings
+namespace SilverHorn.Cloo.Device
 {
     /// <summary>
-    /// Represents the <see cref="ComputeDevice"/> ID.
+    /// Represents the device ID.
     /// </summary>
     public struct CLDeviceHandle
     {

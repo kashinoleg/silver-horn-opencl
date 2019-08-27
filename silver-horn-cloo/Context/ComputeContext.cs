@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Threading;
 using Cloo.Bindings;
+using SilverHorn.Cloo.Device;
+using SilverHorn.Cloo.Platform;
 
 namespace Cloo
 {
@@ -50,7 +51,6 @@ namespace Cloo
     /// 2) Make it available to OpenCL through the <see cref="ComputeCommandQueue.AcquireGLObjects"/> method.<br/>
     /// When finished, you should wait until <c>clglBuffer</c> isn't used any longer by OpenCL. After that, call <see cref="ComputeCommandQueue.ReleaseGLObjects"/> to make the buffer available to OpenGL again.
     /// </example>
-    /// <seealso cref="ComputeDevice"/>
     public sealed class ComputeContext : ComputeResource, IComputeContext
     {
         #region Properties
@@ -60,10 +60,10 @@ namespace Cloo
         public CLContextHandle Handle { get; private set; }
 
         /// <summary>
-        /// Gets a read-only collection of the <see cref="ComputeDevice"/>s of the <see cref="ComputeContext"/>.
+        /// Gets a read-only collection of the devices of the <see cref="ComputeContext"/>.
         /// </summary>
-        /// <value> A read-only collection of the <see cref="ComputeDevice"/>s of the <see cref="ComputeContext"/>. </value>
-        public ReadOnlyCollection<ComputeDevice> Devices { get; private set; }
+        /// <value> A read-only collection of the devices of the <see cref="ComputeContext"/>. </value>
+        public ReadOnlyCollection<IComputeDevice> Devices { get; private set; }
 
         /// <summary>
         /// Gets the platform of the <see cref="ComputeContext"/>.
@@ -84,13 +84,13 @@ namespace Cloo
         #region Constructors
 
         /// <summary>
-        /// Creates a new <see cref="ComputeContext"/> on a collection of <see cref="ComputeDevice"/>s.
+        /// Creates a new <see cref="ComputeContext"/> on a collection of devices.
         /// </summary>
-        /// <param name="devices"> A collection of <see cref="ComputeDevice"/>s to associate with the <see cref="ComputeContext"/>. </param>
+        /// <param name="devices"> A collection of devices to associate with the <see cref="ComputeContext"/>. </param>
         /// <param name="properties"> A <see cref="ComputeContextPropertyList"/> of the <see cref="ComputeContext"/>. </param>
         /// <param name="notify"> A delegate instance that refers to a notification routine. This routine is a callback function that will be used by the OpenCL implementation to report information on errors that occur in the <see cref="ComputeContext"/>. The callback function may be called asynchronously by the OpenCL implementation. It is the application's responsibility to ensure that the callback function is thread-safe and that the delegate instance doesn't get collected by the Garbage Collector until <see cref="ComputeContext"/> is disposed. If <paramref name="notify"/> is <c>null</c>, no callback function is registered. </param>
         /// <param name="notifyDataPtr"> Optional user data that will be passed to <paramref name="notify"/>. </param>
-        public ComputeContext(ICollection<ComputeDevice> devices, ComputeContextPropertyList properties,
+        public ComputeContext(ICollection<IComputeDevice> devices, ComputeContextPropertyList properties,
             ComputeContextNotifier notify, IntPtr notifyDataPtr)
         {
             var deviceHandles = ComputeTools.ExtractHandles(devices, out int handleCount);
@@ -112,9 +112,9 @@ namespace Cloo
         }
 
         /// <summary>
-        /// Creates a new <see cref="ComputeContext"/> on all the <see cref="ComputeDevice"/>s that match the specified <see cref="ComputeDeviceTypes"/>.
+        /// Creates a new <see cref="ComputeContext"/> on all the devices that match the specified <see cref="ComputeDeviceTypes"/>.
         /// </summary>
-        /// <param name="deviceType"> A bit-field that identifies the type of <see cref="ComputeDevice"/> to associate with the <see cref="ComputeContext"/>. </param>
+        /// <param name="deviceType"> A bit-field that identifies the type of device to associate with the <see cref="ComputeContext"/>. </param>
         /// <param name="properties"> A <see cref="ComputeContextPropertyList"/> of the <see cref="ComputeContext"/>. </param>
         /// <param name="notify"> A delegate instance that refers to a notification routine. This routine is a callback function that will be used by the OpenCL implementation to report information on errors that occur in the <see cref="ComputeContext"/>. The callback function may be called asynchronously by the OpenCL implementation. It is the application's responsibility to ensure that the callback function is thread-safe and that the delegate instance doesn't get collected by the Garbage Collector until <see cref="ComputeContext"/> is disposed. If <paramref name="notify"/> is <c>null</c>, no callback function is registered. </param>
         /// <param name="userDataPtr"> Optional user data that will be passed to <paramref name="notify"/>. </param>
@@ -160,15 +160,15 @@ namespace Cloo
 
         #region Private methods
 
-        private ReadOnlyCollection<ComputeDevice> GetDevices()
+        private ReadOnlyCollection<IComputeDevice> GetDevices()
         {
             var arrayDevices = GetArrayInfo<CLContextHandle, ComputeContextInfo, CLDeviceHandle>(Handle,
                 ComputeContextInfo.Devices, OpenCL100.GetContextInfo);
-            List<CLDeviceHandle> deviceHandles = new List<CLDeviceHandle>(arrayDevices);
-            List<ComputeDevice> devices = new List<ComputeDevice>();
-            foreach (ComputePlatform platform in ComputePlatform.Platforms)
+            var deviceHandles = new List<CLDeviceHandle>(arrayDevices);
+            var devices = new List<IComputeDevice>();
+            foreach (var platform in ComputePlatform.Platforms)
             {
-                foreach (ComputeDevice device in platform.Devices)
+                foreach (var device in platform.Devices)
                 {
                     if (deviceHandles.Contains(device.Handle))
                     {
@@ -176,7 +176,7 @@ namespace Cloo
                     }
                 }
             }
-            return new ReadOnlyCollection<ComputeDevice>(devices);
+            return new ReadOnlyCollection<IComputeDevice>(devices);
         }
         #endregion
     }
