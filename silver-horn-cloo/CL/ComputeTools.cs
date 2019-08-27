@@ -125,7 +125,7 @@ namespace Cloo
 
             CLMemoryHandle[] result = new CLMemoryHandle[computeObjects.Count];
             int i = 0;
-            foreach (ComputeMemory computeObj in computeObjects)
+            foreach (var computeObj in computeObjects)
             {
                 result[i] = computeObj.Handle;
                 i++;

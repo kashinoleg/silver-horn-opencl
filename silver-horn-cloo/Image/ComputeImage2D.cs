@@ -8,7 +8,6 @@ namespace Cloo
     /// <summary>
     /// Represents an OpenCL 2D image.
     /// </summary>
-    /// <seealso cref="ComputeImage"/>
     public class ComputeImage2D : ComputeImage
     {
         #region Constructors

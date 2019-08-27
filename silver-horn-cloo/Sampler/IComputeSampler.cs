@@ -24,9 +24,9 @@ namespace SilverHorn.Cloo.Sampler
         ComputeImageFiltering Filtering { get; }
 
         /// <summary>
-        /// Gets the state of usage of normalized x, y and z coordinates when accessing a <see cref="ComputeImage"/> in a kernel through the sampler.
+        /// Gets the state of usage of normalized x, y and z coordinates when accessing a image in a kernel through the sampler.
         /// </summary>
-        /// <value> The state of usage of normalized x, y and z coordinates when accessing a <see cref="ComputeImage"/> in a kernel through the sampler. </value>
+        /// <value> The state of usage of normalized x, y and z coordinates when accessing a image in a kernel through the sampler. </value>
         bool NormalizedCoords { get; }
         #endregion
     }

@@ -1,4 +1,5 @@
 ﻿using Cloo;
+using SilverHorn.Cloo.Command;
 using SilverHorn.Cloo.Platform;
 using System;
 using System.Collections.ObjectModel;
@@ -124,7 +125,7 @@ namespace SilverHorn.Cloo.Device
         /// <summary>
         /// Gets the state of image support of the device.
         /// </summary>
-        /// <value> Is <c>true</c> if <see cref="ComputeImage"/>s are supported by the device and <c>false</c> otherwise. </value>
+        /// <value> Is <c>true</c> if images are supported by the device and <c>false</c> otherwise. </value>
         bool ImageSupport { get; }
 
         /// <summary>
@@ -176,7 +177,7 @@ namespace SilverHorn.Cloo.Device
         long MaxParameterSize { get; }
 
         /// <summary>
-        /// Gets the maximum number of simultaneous <see cref="ComputeImage"/>s that can be read by a kernel executing in the device.
+        /// Gets the maximum number of simultaneous images that can be read by a kernel executing in the device.
         /// </summary>
         /// <value> The minimum value is 128 if device image support is <c>true</c>. </value>
         long MaxReadImageArguments { get; }
@@ -212,9 +213,9 @@ namespace SilverHorn.Cloo.Device
         long MaxWriteImageArguments { get; }
 
         /// <summary>
-        /// Gets the alignment in bits of the base address of any <see cref="ComputeMemory"/> allocated in the device memory.
+        /// Gets the alignment in bits of the base address of any memory allocated in the device memory.
         /// </summary>
-        /// <value> The alignment in bits of the base address of any <see cref="ComputeMemory"/> allocated in the device memory. </value>
+        /// <value> The alignment in bits of the base address of any memory allocated in the device memory. </value>
         long MemoryBaseAddressAlignment { get; }
 
         /// <summary>

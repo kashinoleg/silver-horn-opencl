@@ -11,7 +11,6 @@ namespace SilverHorn.Cloo.Sampler
     /// Represents an OpenCL sampler.
     /// </summary>
     /// <remarks> An object that describes how to sample an image when the image is read in the kernel. The image read functions take a sampler as an argument. The sampler specifies the image addressing-mode i.e. how out-of-range image coordinates are handled, the filtering mode, and whether the input image coordinate is a normalized or unnormalized value. </remarks>
-    /// <seealso cref="ComputeImage"/>
     public sealed class ComputeSampler : ComputeObject, IComputeSampler
     {
         #region Services
@@ -40,9 +39,9 @@ namespace SilverHorn.Cloo.Sampler
         public ComputeImageFiltering Filtering { get; private set; }
 
         /// <summary>
-        /// Gets the state of usage of normalized x, y and z coordinates when accessing a <see cref="ComputeImage"/> in a kernel through the sampler.
+        /// Gets the state of usage of normalized x, y and z coordinates when accessing a image in a kernel through the sampler.
         /// </summary>
-        /// <value> The state of usage of normalized x, y and z coordinates when accessing a <see cref="ComputeImage"/> in a kernel through the sampler. </value>
+        /// <value> The state of usage of normalized x, y and z coordinates when accessing a image in a kernel through the sampler. </value>
         public bool NormalizedCoords { get; private set; }
         #endregion
 
@@ -51,7 +50,7 @@ namespace SilverHorn.Cloo.Sampler
         /// Creates a new sampler.
         /// </summary>
         /// <param name="context"> A context. </param>
-        /// <param name="normalizedCoords"> The usage state of normalized coordinates when accessing a <see cref="ComputeImage"/> in a kernel. </param>
+        /// <param name="normalizedCoords"> The usage state of normalized coordinates when accessing a image in a kernel. </param>
         /// <param name="addressing"> The <see cref="ComputeImageAddressing"/> mode of the sampler. Specifies how out-of-range image coordinates are handled while reading. </param>
         /// <param name="filtering"> The <see cref="ComputeImageFiltering"/> mode of the sampler. Specifies the type of filter that must be applied when reading data from an image. </param>
         public ComputeSampler(IComputeContext context, bool normalizedCoords, ComputeImageAddressing addressing, ComputeImageFiltering filtering)

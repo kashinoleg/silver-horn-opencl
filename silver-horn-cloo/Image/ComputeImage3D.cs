@@ -8,7 +8,6 @@ namespace Cloo
     /// <summary>
     /// Represents an OpenCL 3D image.
     /// </summary>
-    /// <seealso cref="ComputeImage"/>
     public class ComputeImage3D : ComputeImage
     {
         #region Constructors
@@ -22,8 +21,8 @@ namespace Cloo
         /// <param name="width"> The width of the <see cref="ComputeImage3D"/> in pixels. </param>
         /// <param name="height"> The height of the <see cref="ComputeImage3D"/> in pixels. </param>
         /// <param name="depth"> The depth of the <see cref="ComputeImage3D"/> in pixels. </param>
-        /// <param name="rowPitch"> The size in bytes of each row of elements of the <see cref="ComputeImage3D"/>. If <paramref name="rowPitch"/> is zero, OpenCL will compute the proper value based on <see cref="ComputeImage.Width"/> and <see cref="ComputeImage.ElementSize"/>. </param>
-        /// <param name="slicePitch"> The size in bytes of each 2D slice in the <see cref="ComputeImage3D"/>. If <paramref name="slicePitch"/> is zero, OpenCL will compute the proper value based on <see cref="ComputeImage.RowPitch"/> and <see cref="ComputeImage.Height"/>. </param>
+        /// <param name="rowPitch"> The size in bytes of each row of elements of the <see cref="ComputeImage3D"/>. If <paramref name="rowPitch"/> is zero, OpenCL will compute the proper value based on image width and image element size. </param>
+        /// <param name="slicePitch"> The size in bytes of each 2D slice in the <see cref="ComputeImage3D"/>. If <paramref name="slicePitch"/> is zero, OpenCL will compute the proper value based on image row pitch and image height. </param>
         /// <param name="data"> The data to initialize the <see cref="ComputeImage3D"/>. Can be <c>IntPtr.Zero</c>. </param>
         public ComputeImage3D(IComputeContext context, ComputeMemoryFlags flags, ComputeImageFormat format,
             int width, int height, int depth, long rowPitch, long slicePitch, IntPtr data)

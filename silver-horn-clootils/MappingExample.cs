@@ -33,6 +33,7 @@ using System;
 using System.IO;
 using System.Runtime.InteropServices;
 using Cloo;
+using SilverHorn.Cloo.Command;
 using SilverHorn.Cloo.Context;
 
 namespace Clootils

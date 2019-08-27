@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 
-namespace Cloo.Bindings
+namespace SilverHorn.Cloo.Command
 {
     /// <summary>
     /// Represents the command queue ID.

@@ -1,4 +1,4 @@
-﻿namespace Cloo
+﻿namespace SilverHorn.Cloo.Kernel
 {
     /// <summary>
     /// The kernel work-group info query symbols.

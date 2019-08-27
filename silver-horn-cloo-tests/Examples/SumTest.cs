@@ -1,5 +1,6 @@
 ﻿using Cloo;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SilverHorn.Cloo.Command;
 using SilverHorn.Cloo.Context;
 using SilverHorn.Cloo.Device;
 using SilverHorn.Cloo.Kernel;

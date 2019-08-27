@@ -1,4 +1,5 @@
 ﻿using NLog;
+using SilverHorn.Cloo.Command;
 using SilverHorn.Cloo.Context;
 using SilverHorn.Cloo.Device;
 using System;

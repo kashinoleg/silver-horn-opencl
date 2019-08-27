@@ -12,33 +12,32 @@ namespace Cloo
     /// Represents an OpenCL image.
     /// </summary>
     /// <remarks> A memory object that stores a two- or three- dimensional structured array. Image data can only be accessed with read and write functions. The read functions use a sampler. </remarks>
-    /// <seealso cref="ComputeMemory"/>
     public abstract class ComputeImage : ComputeMemory
     {
         #region Properties
 
         /// <summary>
-        /// Gets or sets (protected) the depth in pixels of the <see cref="ComputeImage"/>.
+        /// Gets or sets (protected) the depth in pixels of the image.
         /// </summary>
-        /// <value> The depth in pixels of the <see cref="ComputeImage"/>. </value>
+        /// <value> The depth in pixels of the image. </value>
         public int Depth { get; protected set; }
 
         /// <summary>
-        /// Gets or sets (protected) the size of the elements (pixels) of the <see cref="ComputeImage"/>.
+        /// Gets or sets (protected) the size of the elements (pixels) of the image.
         /// </summary>
-        /// <value> The size of the elements (pixels) of the <see cref="ComputeImage"/>. </value>
+        /// <value> The size of the elements (pixels) of the image. </value>
         public int ElementSize { get; protected set; }
 
         /// <summary>
-        /// Gets or sets (protected) the height in pixels of the <see cref="ComputeImage"/>.
+        /// Gets or sets (protected) the height in pixels of the image.
         /// </summary>
-        /// <value> The height in pixels of the <see cref="ComputeImage"/>. </value>
+        /// <value> The height in pixels of the image. </value>
         public int Height { get; protected set; }
 
         /// <summary>
-        /// Gets or sets (protected) the size in bytes of a row of elements of the <see cref="ComputeImage"/>.
+        /// Gets or sets (protected) the size in bytes of a row of elements of the image.
         /// </summary>
-        /// <value> The size in bytes of a row of elements of the <see cref="ComputeImage"/>. </value>
+        /// <value> The size in bytes of a row of elements of the image. </value>
         public long RowPitch { get; protected set; }
 
         /// <summary>
@@ -48,9 +47,9 @@ namespace Cloo
         public long SlicePitch { get; protected set; }
 
         /// <summary>
-        /// Gets or sets (protected) the width in pixels of the <see cref="ComputeImage"/>.
+        /// Gets or sets (protected) the width in pixels of the image.
         /// </summary>
-        /// <value> The width in pixels of the <see cref="ComputeImage"/>. </value>
+        /// <value> The width in pixels of the image. </value>
         public int Width { get; protected set; }
 
         #endregion

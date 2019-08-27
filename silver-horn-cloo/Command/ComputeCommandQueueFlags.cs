@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Cloo
+namespace SilverHorn.Cloo.Command
 {
     /// <summary>
     /// 

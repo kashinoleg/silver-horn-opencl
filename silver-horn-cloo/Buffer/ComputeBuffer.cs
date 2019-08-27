@@ -10,8 +10,6 @@ namespace Cloo
     /// </summary>
     /// <typeparam name="T"> The type of the elements of the buffer. T is restricted to value types and <c>struct</c>s containing such types. </typeparam>
     /// <remarks> A memory object that stores a linear collection of bytes. Buffer objects are accessible using a pointer in a kernel executing on a device. </remarks>
-    /// <seealso cref="ComputeDevice"/>
-    /// <seealso cref="ComputeMemory"/>
     public class ComputeBuffer<T> : ComputeBufferBase<T> where T : struct
     {
         #region Constructors

@@ -3,8 +3,6 @@ using Cloo.Bindings;
 using SilverHorn.Cloo.Device;
 using SilverHorn.Cloo.Sampler;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace SilverHorn.Cloo.Kernel
 {
@@ -87,7 +85,7 @@ namespace SilverHorn.Cloo.Kernel
         /// Sets a <c>T*</c>, <c>image2d_t</c> or <c>image3d_t</c> argument of the kernel.
         /// </summary>
         /// <param name="index"> The argument index. </param>
-        /// <param name="memObj"> The <see cref="ComputeMemory"/> that is passed as the argument. </param>
+        /// <param name="memObj"> The memory that is passed as the argument. </param>
         /// <remarks> This method will automatically track <paramref name="memObj"/> to prevent it from being collected by the GC.<br/> Arguments to the kernel are referred by indices that go from 0 for the leftmost argument to n-1, where n is the total number of arguments declared by the kernel. </remarks>
         void SetMemoryArgument(int index, ComputeMemory memObj);
 

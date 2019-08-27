@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Threading;
 using Cloo.Bindings;
+using SilverHorn.Cloo.Command;
 using SilverHorn.Cloo.Context;
 
 namespace Cloo

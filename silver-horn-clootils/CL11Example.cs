@@ -32,6 +32,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 using System;
 using System.IO;
 using Cloo;
+using SilverHorn.Cloo.Command;
 using SilverHorn.Cloo.Context;
 
 namespace Clootils

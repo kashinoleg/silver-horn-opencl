@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using Cloo;
 using Cloo.Bindings;
+using SilverHorn.Cloo.Command;
 using SilverHorn.Cloo.Platform;
 
 namespace SilverHorn.Cloo.Device
@@ -10,7 +11,6 @@ namespace SilverHorn.Cloo.Device
     /// Represents an OpenCL device.
     /// </summary>
     /// <value> A device is a collection of compute units. A command queue is used to queue commands to a device. Examples of commands include executing kernels, or reading and writing memory objects. OpenCL devices typically correspond to a GPU, a multi-core CPU, and other processors such as DSPs and the Cell/B.E. processor. </value>
-    /// <seealso cref="ComputeMemory"/>
     public class ComputeDevice : ComputeObject, IComputeDevice
     {
         #region Properties
@@ -130,7 +130,7 @@ namespace SilverHorn.Cloo.Device
         /// <summary>
         /// Gets the state of image support of the device.
         /// </summary>
-        /// <value> Is <c>true</c> if <see cref="ComputeImage"/>s are supported by the device and <c>false</c> otherwise. </value>
+        /// <value> Is <c>true</c> if images are supported by the device and <c>false</c> otherwise. </value>
         public bool ImageSupport { get; private set; }
 
         /// <summary>
@@ -182,7 +182,7 @@ namespace SilverHorn.Cloo.Device
         public long MaxParameterSize { get; private set; }
 
         /// <summary>
-        /// Gets the maximum number of simultaneous <see cref="ComputeImage"/>s that can be read by a kernel executing in the device.
+        /// Gets the maximum number of simultaneous images that can be read by a kernel executing in the device.
         /// </summary>
         /// <value> The minimum value is 128 if device image support is <c>true</c>. </value>
         public long MaxReadImageArguments { get; private set; }
@@ -218,9 +218,9 @@ namespace SilverHorn.Cloo.Device
         public long MaxWriteImageArguments { get; private set; }
 
         /// <summary>
-        /// Gets the alignment in bits of the base address of any <see cref="ComputeMemory"/> allocated in the device memory.
+        /// Gets the alignment in bits of the base address of any memory allocated in the device memory.
         /// </summary>
-        /// <value> The alignment in bits of the base address of any <see cref="ComputeMemory"/> allocated in the device memory. </value>
+        /// <value> The alignment in bits of the base address of any memory allocated in the device memory. </value>
         public long MemoryBaseAddressAlignment { get; private set; }
 
         /// <summary>

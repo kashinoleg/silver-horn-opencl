@@ -13,6 +13,7 @@ using SilverHorn.Cloo.Kernel;
 using SilverHorn.Cloo.Platform;
 using SilverHorn.Cloo.Device;
 using SilverHorn.Cloo.Context;
+using SilverHorn.Cloo.Command;
 
 namespace OpenCLTemplate.CLGLInterop
 {
@@ -811,7 +812,7 @@ namespace OpenCLTemplate.CLGLInterop
                         var CLGLElems = ComputeBuffer<int>.CreateFromGLBuffer<int>(CLGLCtx, ComputeMemoryFlags.ReadWrite, model.GLElemBuffer);
 
                         //Acquire
-                        List<ComputeMemory> c = new List<ComputeMemory>() { CLGLElems };
+                        var c = new List<ComputeMemory>() { CLGLElems };
                         CQ.AcquireGLObjects(c, null);
 
 
@@ -851,7 +852,7 @@ namespace OpenCLTemplate.CLGLInterop
                         var CLGLVertexes = ComputeBuffer<float>.CreateFromGLBuffer<float>(CLGLCtx, ComputeMemoryFlags.ReadWrite, model.GLVertexBuffer);
 
                         //Acquire
-                        List<ComputeMemory> c = new List<ComputeMemory>() { CLGLElems, CLGLVertexes };
+                        var c = new List<ComputeMemory>() { CLGLElems, CLGLVertexes };
                         CQ.AcquireGLObjects(c, null);
 
                         if (model.DrawMode == BeginMode.Triangles)
@@ -905,7 +906,7 @@ namespace OpenCLTemplate.CLGLInterop
                             var CLGLVertexes = ComputeBuffer<float>.CreateFromGLBuffer<float>(CLGLCtx, ComputeMemoryFlags.ReadWrite, model.GLVertexBuffer);
 
                             //Acquire
-                            List<ComputeMemory> c = new List<ComputeMemory>() { CLGLVertexes };
+                            var c = new List<ComputeMemory>() { CLGLVertexes };
                             CQ.AcquireGLObjects(c, null);
 
 
@@ -4387,7 +4388,7 @@ __kernel void f(__global float* vertex,
         {
             GL.Finish();
 
-            List<ComputeMemory> ClooCLGLBuffers = new List<ComputeMemory>();
+            var ClooCLGLBuffers = new List<ComputeMemory>();
             foreach (CLCalc.Program.MemoryObject var in CLGLVars)
             {
                 if (var.CreatedFromGLBuffer && (!var.AcquiredInOpenCL))
@@ -4413,7 +4414,7 @@ __kernel void f(__global float* vertex,
         {
             GL.Finish();
 
-            List<ComputeMemory> ClooCLGLBuffers = new List<ComputeMemory>();
+            var ClooCLGLBuffers = new List<ComputeMemory>();
             foreach (CLCalc.Program.MemoryObject var in CLGLVars)
             {
                 if (var.CreatedFromGLBuffer && var.AcquiredInOpenCL)

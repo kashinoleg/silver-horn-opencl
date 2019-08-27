@@ -8,6 +8,7 @@ using SilverHorn.Cloo.Program;
 using SilverHorn.Cloo.Platform;
 using SilverHorn.Cloo.Device;
 using SilverHorn.Cloo.Context;
+using SilverHorn.Cloo.Command;
 
 namespace OpenCLTemplate
 {

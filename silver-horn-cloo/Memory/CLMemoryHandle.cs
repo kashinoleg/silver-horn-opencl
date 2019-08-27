@@ -4,7 +4,7 @@ using System.Diagnostics;
 namespace Cloo.Bindings
 {
     /// <summary>
-    /// Represents the <see cref="ComputeMemory"/> ID.
+    /// Represents the memory ID.
     /// </summary>
     public struct CLMemoryHandle
     {

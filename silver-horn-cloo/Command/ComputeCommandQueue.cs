@@ -3,18 +3,19 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
+using Cloo;
 using Cloo.Bindings;
 using SilverHorn.Cloo.Context;
 using SilverHorn.Cloo.Device;
 using SilverHorn.Cloo.Kernel;
 
-namespace Cloo
+namespace SilverHorn.Cloo.Command
 {
     /// <summary>
     /// Represents an OpenCL command queue.
     /// </summary>
     /// <remarks> A command queue is an object that holds commands that will be executed on a specific device. The command queue is created on a specific device in a context. Commands to a command queue are queued in-order but may be executed in-order or out-of-order. </remarks>
-    public partial class ComputeCommandQueue : ComputeResource
+    public sealed class ComputeCommandQueue : ComputeResource
     {
         #region Properties
 
@@ -81,7 +82,7 @@ namespace Cloo
         #region Public methods
 
         /// <summary>
-        /// Enqueues a command to acquire a collection of <see cref="ComputeMemory"/>s that have been previously created from OpenGL objects.
+        /// Enqueues a command to acquire a collection of memorys that have been previously created from OpenGL objects.
         /// </summary>
         /// <param name="memObjs"> A collection of OpenCL memory objects that correspond to OpenGL objects. </param>
         /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> or read-only a new <see cref="ComputeEvent"/> identifying this command is created and attached to the end of the collection. </param>
@@ -188,9 +189,9 @@ namespace Cloo
         }
 
         /// <summary>
-        /// Enqueues a command to copy data from buffer to <see cref="ComputeImage"/>.
+        /// Enqueues a command to copy data from buffer to image.
         /// </summary>
-        /// <typeparam name="T"> The type of data in <paramref name="source"/>. </typeparam>
+        /// <typeparam name="T"> The type of data in source. </typeparam>
         /// <param name="source"> The buffer to copy from. </param>
         /// <param name="destination"> The image to copy to. </param>
         /// <param name="sourceOffset"> The <paramref name="source"/> element position where reading starts. </param>
@@ -215,7 +216,7 @@ namespace Cloo
         }
 
         /// <summary>
-        /// Enqueues a command to copy data from <see cref="ComputeImage"/> to buffer.
+        /// Enqueues a command to copy data from image to buffer.
         /// </summary>
         /// <param name="source"> The image to copy from. </param>
         /// <param name="destination"> The buffer to copy to. </param>
@@ -250,10 +251,10 @@ namespace Cloo
         }
 
         /// <summary>
-        /// Enqueues a command to copy data between <see cref="ComputeImage"/>s.
+        /// Enqueues a command to copy data between images.
         /// </summary>
-        /// <param name="source"> The <see cref="ComputeImage"/> to copy from. </param>
-        /// <param name="destination"> The <see cref="ComputeImage"/> to copy to. </param>
+        /// <param name="source"> The image to copy from. </param>
+        /// <param name="destination"> The image to copy to. </param>
         /// <param name="sourceOffset"> The <paramref name="source"/> element position where reading starts. </param>
         /// <param name="destinationOffset"> The <paramref name="destination"/> element position where writing starts. </param>
         /// <param name="region"> The region of elements to copy. </param>
@@ -382,9 +383,9 @@ namespace Cloo
         }
 
         /// <summary>
-        /// Enqueues a command to map a part of a <see cref="ComputeImage"/> into the host address space.
+        /// Enqueues a command to map a part of a image into the host address space.
         /// </summary>
-        /// <param name="image"> The <see cref="ComputeImage"/> to map. </param>
+        /// <param name="image"> The image to map. </param>
         /// <param name="blocking"> The mode of operation of this command. If <c>true</c> this call will not return until the command has finished execution. </param>
         /// <param name="flags"> A list of properties for the mapping mode. </param>
         /// <param name="offset"> The <paramref name="image"/> element position where mapping starts. </param>
@@ -512,14 +513,14 @@ namespace Cloo
         }
 
         /// <summary>
-        /// Enqueues a command to read data from a <see cref="ComputeImage"/>.
+        /// Enqueues a command to read data from a image.
         /// </summary>
-        /// <param name="source"> The <see cref="ComputeImage"/> to read from. </param>
+        /// <param name="source"> The image to read from. </param>
         /// <param name="blocking"> The mode of operation of this command. If <c>true</c> this call will not return until the command has finished execution. </param>
         /// <param name="offset"> The <paramref name="source"/> element position where reading starts. </param>
         /// <param name="region"> The region of elements to read. </param>
-        /// <param name="rowPitch"> The <see cref="ComputeImage.RowPitch"/> of <paramref name="source"/> or 0. </param>
-        /// <param name="slicePitch"> The <see cref="ComputeImage.SlicePitch"/> of <paramref name="source"/> or 0. </param>
+        /// <param name="rowPitch"> The image row pitch of source or 0. </param>
+        /// <param name="slicePitch"> The image slice pitch of source or 0. </param>
         /// <param name="destination"> A pointer to a preallocated memory area to read the data into. </param>
         /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> or read-only a new <see cref="ComputeEvent"/> identifying this command is created and attached to the end of the collection. </param>
         /// <remarks> If <paramref name="blocking"/> is <c>true</c> this method will not return until the command completes. If <paramref name="blocking"/> is <c>false</c> this method will return immediately after the command is enqueued. </remarks>
@@ -539,9 +540,9 @@ namespace Cloo
         }
 
         /// <summary>
-        /// Enqueues a command to release <see cref="ComputeMemory"/>s that have been created from OpenGL objects.
+        /// Enqueues a command to release memorys that have been created from OpenGL objects.
         /// </summary>
-        /// <param name="memObjs"> A collection of <see cref="ComputeMemory"/>s that correspond to OpenGL memory objects. </param>
+        /// <param name="memObjs"> A collection of memorys that correspond to OpenGL memory objects. </param>
         /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> or read-only a new <see cref="ComputeEvent"/> identifying this command is created and attached to the end of the collection. </param>
         public void ReleaseGLObjects(ICollection<ComputeMemory> memObjs, ICollection<ComputeEventBase> events)
         {
@@ -559,9 +560,9 @@ namespace Cloo
         }
 
         /// <summary>
-        /// Enqueues a command to unmap a buffer or a <see cref="ComputeImage"/> from the host address space.
+        /// Enqueues a command to unmap a buffer or a image from the host address space.
         /// </summary>
-        /// <param name="memory"> The <see cref="ComputeMemory"/>. </param>
+        /// <param name="memory"> The memory. </param>
         /// <param name="mappedPtr"> The host address returned by a previous call to map. This pointer is <c>IntPtr.Zero</c> after this method returns. </param>
         /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> or read-only a new <see cref="ComputeEvent"/> identifying this command is created and attached to the end of the collection. </param>
         public void Unmap(ComputeMemory memory, ref IntPtr mappedPtr, ICollection<ComputeEventBase> events)
@@ -656,15 +657,15 @@ namespace Cloo
         }
 
         /// <summary>
-        /// Enqueues a command to write data to a <see cref="ComputeImage"/>.
+        /// Enqueues a command to write data to a image.
         /// </summary>
-        /// <param name="destination"> The <see cref="ComputeImage"/> to write to. </param>
+        /// <param name="destination"> The image to write to. </param>
         /// <param name="blocking"> The mode of operation of this command. If <c>true</c> this call will not return until the command has finished execution. </param>
         /// <param name="destinationOffset"> The <paramref name="destination"/> element position where writing starts. </param>
         /// <param name="region"> The region of elements to write. </param>
-        /// <param name="rowPitch"> The <see cref="ComputeImage.RowPitch"/> of <paramref name="destination"/> or 0. </param>
-        /// <param name="slicePitch"> The <see cref="ComputeImage.SlicePitch"/> of <paramref name="destination"/> or 0. </param>
-        /// <param name="source"> The content written to the <see cref="ComputeImage"/>. </param>
+        /// <param name="rowPitch"> The image row pitch of <paramref name="destination"/> or 0. </param>
+        /// <param name="slicePitch"> The image slice pitch of <paramref name="destination"/> or 0. </param>
+        /// <param name="source"> The content written to the image. </param>
         /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> or read-only a new <see cref="ComputeEvent"/> identifying this command is created and attached to the end of the collection. </param>
         /// <remarks> If <paramref name="blocking"/> is <c>true</c> this method will not return until the command completes. If <paramref name="blocking"/> is <c>false</c> this method will return immediately after the command is enqueued. </remarks>
         public void Write(ComputeImage destination, bool blocking, SysIntX3 destinationOffset, SysIntX3 region, long rowPitch, long slicePitch, IntPtr source, ICollection<ComputeEventBase> events)

@@ -8,31 +8,30 @@ namespace Cloo
     /// Represents an OpenCL memory object.
     /// </summary>
     /// <remarks> A memory object is a handle to a region of global memory. </remarks>
-    /// <seealso cref="ComputeImage"/>
     public abstract class ComputeMemory : ComputeResource
     {
         #region Properties
         /// <summary>
-        /// The handle of the <see cref="ComputeMemory"/>.
+        /// The handle of the memory.
         /// </summary>
         public CLMemoryHandle Handle { get; protected set; }
 
         /// <summary>
-        /// Gets the context of the <see cref="ComputeMemory"/>.
+        /// Gets the context of the memory.
         /// </summary>
-        /// <value> The context of the <see cref="ComputeMemory"/>. </value>
+        /// <value> The context of the memory. </value>
         public IComputeContext Context { get; private set; }
 
         /// <summary>
-        /// Gets the <see cref="ComputeMemoryFlags"/> of the <see cref="ComputeMemory"/>.
+        /// Gets the <see cref="ComputeMemoryFlags"/> of the memory.
         /// </summary>
-        /// <value> The <see cref="ComputeMemoryFlags"/> of the <see cref="ComputeMemory"/>. </value>
+        /// <value> The <see cref="ComputeMemoryFlags"/> of the memory. </value>
         public ComputeMemoryFlags Flags { get; private set; }
 
         /// <summary>
-        /// Gets or sets (protected) the size in bytes of the <see cref="ComputeMemory"/>.
+        /// Gets or sets (protected) the size in bytes of the memory.
         /// </summary>
-        /// <value> The size in bytes of the <see cref="ComputeMemory"/>. </value>
+        /// <value> The size in bytes of the memory. </value>
         public long Size { get; protected set; }
         #endregion
 

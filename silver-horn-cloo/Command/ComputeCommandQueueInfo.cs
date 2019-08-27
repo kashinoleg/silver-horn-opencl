@@ -1,4 +1,4 @@
-﻿namespace Cloo
+﻿namespace SilverHorn.Cloo.Command
 {
     /// <summary>
     /// The command queue info query symbols.

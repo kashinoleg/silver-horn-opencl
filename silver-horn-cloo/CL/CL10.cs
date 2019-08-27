@@ -1,6 +1,8 @@
 ﻿using NLog;
+using SilverHorn.Cloo.Command;
 using SilverHorn.Cloo.Context;
 using SilverHorn.Cloo.Device;
+using SilverHorn.Cloo.Kernel;
 using SilverHorn.Cloo.Platform;
 using SilverHorn.Cloo.Sampler;
 using System;
