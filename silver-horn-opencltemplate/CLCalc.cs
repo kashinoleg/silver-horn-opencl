@@ -1511,7 +1511,7 @@ namespace OpenCLTemplate
                 public Kernel(string KernelName)
                 {
                     var builder = new OpenCL100Factory();
-                    kernel = Prog.CreateKernel(KernelName);
+                    kernel = builder.CreateKernel(Prog, KernelName);
                 }
 
                 /// <summary>"Remember" variables</summary>

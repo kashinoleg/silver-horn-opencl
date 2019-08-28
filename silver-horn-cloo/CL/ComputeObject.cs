@@ -89,7 +89,7 @@ namespace Cloo
         /// <param name="paramName"></param>
         /// <param name="getInfoDelegate"></param>
         /// <returns></returns>
-        protected QueriedType[] GetArrayInfo<HandleType, InfoType, QueriedType>
+        internal QueriedType[] GetArrayInfo<HandleType, InfoType, QueriedType>
             (HandleType handle, InfoType paramName, GetInfoDelegate<HandleType, InfoType> getInfoDelegate)
         {
             ComputeErrorCode error;
@@ -154,7 +154,7 @@ namespace Cloo
         /// <param name="paramName"></param>
         /// <param name="getInfoDelegate"></param>
         /// <returns></returns>
-        protected bool GetBoolInfo<HandleType, InfoType>
+        internal bool GetBoolInfo<HandleType, InfoType>
             (HandleType handle, InfoType paramName, GetInfoDelegate<HandleType, InfoType> getInfoDelegate)
         {
             int result = GetInfo<HandleType, InfoType, int>(handle, paramName, getInfoDelegate);
@@ -171,7 +171,7 @@ namespace Cloo
         /// <param name="paramName"></param>
         /// <param name="getInfoDelegate"></param>
         /// <returns></returns>
-        protected QueriedType GetInfo<HandleType, InfoType, QueriedType>
+        internal QueriedType GetInfo<HandleType, InfoType, QueriedType>
             (HandleType handle, InfoType paramName, GetInfoDelegate<HandleType, InfoType> getInfoDelegate)
             where QueriedType : struct
         {
@@ -233,7 +233,7 @@ namespace Cloo
         /// <param name="paramName"></param>
         /// <param name="getInfoDelegate"></param>
         /// <returns></returns>
-        protected string GetStringInfo<HandleType, InfoType>
+        internal string GetStringInfo<HandleType, InfoType>
             (HandleType handle, InfoType paramName, GetInfoDelegate<HandleType, InfoType> getInfoDelegate)
         {
             byte[] buffer = GetArrayInfo<HandleType, InfoType, byte>(handle, paramName, getInfoDelegate);
@@ -284,7 +284,7 @@ namespace Cloo
         /// <param name="paramValue"></param>
         /// <param name="paramValueSizeRet"></param>
         /// <returns></returns>
-        protected delegate ComputeErrorCode GetInfoDelegate<HandleType, InfoType>
+        internal delegate ComputeErrorCode GetInfoDelegate<HandleType, InfoType>
             (
                 HandleType objectHandle,
                 InfoType paramName,

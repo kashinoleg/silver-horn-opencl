@@ -34,7 +34,7 @@ namespace Clootils
                 var program = builder.BuildComputeProgram(context, kernelSources);
                 program.Build(null, null, null, IntPtr.Zero);
                 log.WriteLine("Program successfully built.");
-                program.CreateAllKernels();
+                builder.CreateAllKernels(program);
                 log.WriteLine("Kernels successfully created.");
             }
             catch (Exception e)

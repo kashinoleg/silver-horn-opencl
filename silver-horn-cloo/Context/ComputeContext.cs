@@ -81,9 +81,9 @@ namespace SilverHorn.Cloo.Context
         public ComputePlatform Platform { get; private set; }
 
         /// <summary>
-        /// Gets a collection of <see cref="ComputeContextProperty"/>s of the context.
+        /// Gets a collection of context properties of the context.
         /// </summary>
-        /// <value> A collection of <see cref="ComputeContextProperty"/>s of the context. </value>
+        /// <value> A collection of context properties of the context. </value>
         private ComputeContextPropertyList Properties { get; set; }
 
 
@@ -150,7 +150,6 @@ namespace SilverHorn.Cloo.Context
         #endregion
 
         #region Private methods
-
         private ReadOnlyCollection<IComputeDevice> GetDevices()
         {
             var arrayDevices = GetArrayInfo<CLContextHandle, ComputeContextInfo, CLDeviceHandle>(Handle,

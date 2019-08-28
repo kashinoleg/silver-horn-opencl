@@ -3,9 +3,11 @@ using Cloo.Bindings;
 using NLog;
 using SilverHorn.Cloo.Context;
 using SilverHorn.Cloo.Device;
+using SilverHorn.Cloo.Kernel;
 using SilverHorn.Cloo.Program;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
@@ -120,7 +122,68 @@ namespace SilverHorn.Cloo.Factories
         }
         #endregion
 
+        #region Kernel Constructors
+        /// <summary>
+        /// Creates a kernel for every <c>kernel</c> function in program.
+        /// </summary>
+        /// <returns> The collection of created kernels. </returns>
+        /// <remarks> kernels are not created for any <c>kernel</c> functions in program that do not have the same function definition across all devices for which a program executable has been successfully built. </remarks>
+        public ICollection<IComputeKernel> CreateAllKernels(IComputeProgram program)
+        {
+            var kernels = new Collection<IComputeKernel>();
+            var error = OpenCL110.CreateKernelsInProgram(
+                program.Handle,
+                0,
+                null,
+                out int kernelsCount);
+            ComputeException.ThrowOnError(error);
 
+            var kernelHandles = new CLKernelHandle[kernelsCount];
+            error = OpenCL110.CreateKernelsInProgram(
+                program.Handle,
+                kernelsCount,
+                kernelHandles,
+                out kernelsCount);
+            ComputeException.ThrowOnError(error);
+
+            for (int i = 0; i < kernelsCount; i++)
+            {
+                kernels.Add(CreateKernel(kernelHandles[i]));
+            }
+            return kernels;
+        }
+
+        internal IComputeKernel CreateKernel(CLKernelHandle handle)
+        {
+            var kernel = new ComputeKernel200();
+            kernel.Handle = handle;
+            kernel.SetID(kernel.Handle.Value);
+
+            kernel.FunctionName = kernel.GetStringInfo<CLKernelHandle, ComputeKernelInfo>(kernel.Handle,
+                ComputeKernelInfo.FunctionName, OpenCL200.GetKernelInfo);
+            logger.Info("Create " + this + " in Thread(" + Thread.CurrentThread.ManagedThreadId + ").", "Information");
+            return kernel;
+        }
+
+        /// <summary>
+        /// Creates a kernel for a kernel function of a specified name.
+        /// </summary>
+        /// <returns> The created kernel. </returns>
+        public IComputeKernel CreateKernel(IComputeProgram program, string functionName)
+        {
+            var kernel = new ComputeKernel200();
+            kernel.Handle = OpenCL200.CreateKernel(
+                program.Handle,
+                functionName,
+                out ComputeErrorCode error);
+            ComputeException.ThrowOnError(error);
+
+            kernel.SetID(kernel.Handle.Value);
+            kernel.FunctionName = functionName;
+            logger.Info("Create " + this + " in Thread(" + Thread.CurrentThread.ManagedThreadId + ").", "Information");
+            return kernel;
+        }
+        #endregion
 
 
 

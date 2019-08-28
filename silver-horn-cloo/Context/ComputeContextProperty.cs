@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 
 namespace SilverHorn.Cloo.Context
 {
@@ -7,60 +6,44 @@ namespace SilverHorn.Cloo.Context
     /// Represents an OpenCL context property.
     /// </summary>
     /// <remarks> An OpenCL context property is a (name, value) data pair. </remarks>
-    public class ComputeContextProperty
+    public sealed class ComputeContextProperty
     {
-        #region Fields
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private readonly ComputeContextPropertyName name;
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private readonly IntPtr value;
-
-        #endregion
-
         #region Properties
+        /// <summary>
+        /// Gets the <see cref="ComputeContextPropertyName"/> of the context property.
+        /// </summary>
+        /// <value> The <see cref="ComputeContextPropertyName"/> of the context property. </value>
+        public ComputeContextPropertyName Name { get; private set; }
 
         /// <summary>
-        /// Gets the <see cref="ComputeContextPropertyName"/> of the <see cref="ComputeContextProperty"/>.
+        /// Gets the value of the context property.
         /// </summary>
-        /// <value> The <see cref="ComputeContextPropertyName"/> of the <see cref="ComputeContextProperty"/>. </value>
-        public ComputeContextPropertyName Name { get { return name; } }
-
-        /// <summary>
-        /// Gets the value of the <see cref="ComputeContextProperty"/>.
-        /// </summary>
-        /// <value> The value of the <see cref="ComputeContextProperty"/>. </value>
-        public IntPtr Value { get { return value; } }
-
+        /// <value> The value of the context property. </value>
+        public IntPtr Value { get; private set; }
         #endregion
 
         #region Constructors
-
         /// <summary>
-        /// Creates a new <see cref="ComputeContextProperty"/>.
+        /// Creates a new context property.
         /// </summary>
-        /// <param name="name"> The name of the <see cref="ComputeContextProperty"/>. </param>
-        /// <param name="value"> The value of the created <see cref="ComputeContextProperty"/>. </param>
+        /// <param name="name"> The name of the context property. </param>
+        /// <param name="value"> The value of the created context property. </param>
         public ComputeContextProperty(ComputeContextPropertyName name, IntPtr value)
         {
-            this.name = name;
-            this.value = value;
+            Name = name;
+            Value = value;
         }
-
         #endregion
 
         #region Public methods
-
         /// <summary>
-        /// Gets the string representation of the <see cref="ComputeContextProperty"/>.
+        /// Gets the string representation of the context property.
         /// </summary>
-        /// <returns> The string representation of the <see cref="ComputeContextProperty"/>. </returns>
+        /// <returns> The string representation of the context property. </returns>
         public override string ToString()
         {
-            return GetType().Name + "(" + name + ", " + value + ")";
+            return GetType().Name + "(" + Name + ", " + Value + ")";
         }
-
         #endregion
     }
 }

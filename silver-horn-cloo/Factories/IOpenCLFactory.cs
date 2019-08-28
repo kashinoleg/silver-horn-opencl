@@ -1,6 +1,7 @@
 ﻿using Cloo;
 using SilverHorn.Cloo.Context;
 using SilverHorn.Cloo.Device;
+using SilverHorn.Cloo.Kernel;
 using SilverHorn.Cloo.Program;
 using System;
 using System.Collections.Generic;
@@ -35,6 +36,24 @@ namespace SilverHorn.Cloo.Factories
         /// <param name="devices"> A subset of the context devices. If <paramref name="devices"/> is <c>null</c>, OpenCL will associate every binary from binaries with a corresponding device from devices. </param>
         IComputeProgram BuildComputeProgram(IComputeContext context, IList<byte[]> binaries, IList<IComputeDevice> devices);
         #endregion
+
+        #region Kernel Constructors
+        /// <summary>
+        /// Creates a kernel for every <c>kernel</c> function in program.
+        /// </summary>
+        /// <returns> The collection of created kernels. </returns>
+        /// <remarks> kernels are not created for any <c>kernel</c> functions in program that do not have the same function definition across all devices for which a program executable has been successfully built. </remarks>
+        ICollection<IComputeKernel> CreateAllKernels(IComputeProgram program);
+
+        /// <summary>
+        /// Creates a kernel for a kernel function of a specified name.
+        /// </summary>
+        /// <returns> The created kernel. </returns>
+        IComputeKernel CreateKernel(IComputeProgram program, string functionName);
+        #endregion
+
+
+
 
 
 

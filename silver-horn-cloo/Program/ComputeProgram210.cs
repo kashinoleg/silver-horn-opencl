@@ -60,45 +60,6 @@ namespace Cloo
         }
 
         /// <summary>
-        /// Creates a kernel for every <c>kernel</c> function in program.
-        /// </summary>
-        /// <returns> The collection of created kernels. </returns>
-        /// <remarks> kernels are not created for any <c>kernel</c> functions in program that do not have the same function definition across all devices for which a program executable has been successfully built. </remarks>
-        public ICollection<IComputeKernel> CreateAllKernels()
-        {
-            var kernels = new Collection<IComputeKernel>();
-            var error = OpenCL210.CreateKernelsInProgram(
-                Handle,
-                0,
-                null,
-                out int kernelsCount);
-            ComputeException.ThrowOnError(error);
-
-            var kernelHandles = new CLKernelHandle[kernelsCount];
-            error = OpenCL210.CreateKernelsInProgram(
-                Handle,
-                kernelsCount,
-                kernelHandles,
-                out kernelsCount);
-            ComputeException.ThrowOnError(error);
-
-            for (int i = 0; i < kernelsCount; i++)
-            {
-                kernels.Add(new ComputeKernel(kernelHandles[i]));
-            }
-            return kernels;
-        }
-
-        /// <summary>
-        /// Creates a kernel for a kernel function of a specified name.
-        /// </summary>
-        /// <returns> The created kernel. </returns>
-        public IComputeKernel CreateKernel(string functionName)
-        {
-            return new ComputeKernel(functionName, this);
-        }
-
-        /// <summary>
         /// Gets the build log of the program for a specified device.
         /// </summary>
         /// <param name="device"> The device building the program. Must be one of devices. </param>

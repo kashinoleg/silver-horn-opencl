@@ -7,10 +7,9 @@ using System.Diagnostics;
 namespace SilverHorn.Cloo.Context
 {
     /// <summary>
-    /// Represents a list of <see cref="ComputeContextProperty"/>s.
+    /// Represents a list of context properties.
     /// </summary>
     /// <remarks> A <see cref="ComputeContextPropertyList"/> is used to specify the properties of a context. </remarks>
-    /// <seealso cref="ComputeContextProperty"/>
     public class ComputeContextPropertyList : ICollection<ComputeContextProperty>
     {
         #region Fields
@@ -32,9 +31,9 @@ namespace SilverHorn.Cloo.Context
         }
 
         /// <summary>
-        /// Creates a new <see cref="ComputeContextPropertyList"/> which contains the specified <see cref="ComputeContextProperty"/>s.
+        /// Creates a new <see cref="ComputeContextPropertyList"/> which contains the specified context properties.
         /// </summary>
-        /// <param name="properties"> An enumerable of <see cref="ComputeContextProperty"/>'s. </param>
+        /// <param name="properties"> An enumerable of context propert's. </param>
         public ComputeContextPropertyList(IEnumerable<ComputeContextProperty> properties)
         {
             this.properties = new List<ComputeContextProperty>(properties);
@@ -45,13 +44,13 @@ namespace SilverHorn.Cloo.Context
         #region Public methods
 
         /// <summary>
-        /// Gets a <see cref="ComputeContextProperty"/> of a specified <c>ComputeContextPropertyName</c>.
+        /// Gets a context property of a specified <c>ComputeContextPropertyName</c>.
         /// </summary>
-        /// <param name="name"> The <see cref="ComputeContextPropertyName"/> of the <see cref="ComputeContextProperty"/>. </param>
-        /// <returns> The requested <see cref="ComputeContextProperty"/> or <c>null</c> if no such <see cref="ComputeContextProperty"/> exists in the <see cref="ComputeContextPropertyList"/>. </returns>
+        /// <param name="name"> The <see cref="ComputeContextPropertyName"/> of the context property. </param>
+        /// <returns> The requested context property or <c>null</c> if no such context property exists in the <see cref="ComputeContextPropertyList"/>. </returns>
         public ComputeContextProperty GetByName(ComputeContextPropertyName name)
         {
-            foreach (ComputeContextProperty property in properties)
+            foreach (var property in properties)
                 if (property.Name == name)
                     return property;
 

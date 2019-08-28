@@ -206,63 +206,17 @@ namespace Cloo.Bindings
 
         
 
-        /// <summary>
-        /// See the OpenCL specification.
-        /// </summary>
-        [DllImport(libName, EntryPoint = "clCreateKernel")]
-        public extern static CLKernelHandle CreateKernel(
-            CLProgramHandle program,
-            String kernel_name,
-            out ComputeErrorCode errcode_ret);
+        
 
         
 
-        /// <summary>
-        /// See the OpenCL specification.
-        /// </summary>
-        [DllImport(libName, EntryPoint = "clRetainKernel")]
-        public extern static ComputeErrorCode RetainKernel(
-            CLKernelHandle kernel);
+        
 
-        /// <summary>
-        /// See the OpenCL specification.
-        /// </summary>
-        [DllImport(libName, EntryPoint = "clReleaseKernel")]
-        public extern static ComputeErrorCode ReleaseKernel(
-            CLKernelHandle kernel);
+        
 
-        /// <summary>
-        /// See the OpenCL specification.
-        /// </summary>
-        [DllImport(libName, EntryPoint = "clSetKernelArg")]
-        public extern static ComputeErrorCode SetKernelArg(
-            CLKernelHandle kernel,
-            Int32 arg_index,
-            IntPtr arg_size,
-            IntPtr arg_value);
+        
 
-        /// <summary>
-        /// See the OpenCL specification.
-        /// </summary>
-        [DllImport(libName, EntryPoint = "clGetKernelInfo")]
-        public extern static ComputeErrorCode GetKernelInfo(
-            CLKernelHandle kernel,
-            ComputeKernelInfo param_name,
-            IntPtr param_value_size,
-            IntPtr param_value,
-            out IntPtr param_value_size_ret);
-
-        /// <summary>
-        /// See the OpenCL specification.
-        /// </summary>
-        [DllImport(libName, EntryPoint = "clGetKernelWorkGroupInfo")]
-        public extern static ComputeErrorCode GetKernelWorkGroupInfo(
-            CLKernelHandle kernel,
-            CLDeviceHandle device,
-            ComputeKernelWorkGroupInfo param_name,
-            IntPtr param_value_size,
-            IntPtr param_value,
-            out IntPtr param_value_size_ret);
+        
 
         /// <summary>
         /// See the OpenCL specification.

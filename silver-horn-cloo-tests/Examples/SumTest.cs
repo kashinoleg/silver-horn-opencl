@@ -60,7 +60,7 @@ namespace SilverHorn.Cloo.Tests.Examples
                 {
                     var Devs = new List<IComputeDevice>() { Device };
                     Program.Build(Devs, "", null, IntPtr.Zero);
-                    IComputeKernel kernel = Program.CreateKernel("floatVectorSum");
+                    var kernel = builder.CreateKernel(Program, "floatVectorSum");
                     using (ComputeBuffer<float>
                         varA = new ComputeBuffer<float>(Context, ComputeMemoryFlags.ReadWrite | ComputeMemoryFlags.UseHostPointer, a),
                         varB = new ComputeBuffer<float>(Context, ComputeMemoryFlags.ReadOnly | ComputeMemoryFlags.UseHostPointer, b))
@@ -102,7 +102,7 @@ namespace SilverHorn.Cloo.Tests.Examples
                 {
                     var Devs = new List<IComputeDevice>() { Device };
                     Program.Build(Devs, "", null, IntPtr.Zero);
-                    IComputeKernel kernel = Program.CreateKernel("doubleVectorSum");
+                    var kernel = builder.CreateKernel(Program, "doubleVectorSum");
                     using (ComputeBuffer<double>
                         varA = new ComputeBuffer<double>(Context, ComputeMemoryFlags.ReadWrite | ComputeMemoryFlags.UseHostPointer, a),
                         varB = new ComputeBuffer<double>(Context, ComputeMemoryFlags.ReadOnly | ComputeMemoryFlags.UseHostPointer, b))

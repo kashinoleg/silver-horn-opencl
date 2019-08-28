@@ -5,7 +5,6 @@ using Cloo;
 using Cloo.Bindings;
 using NLog;
 using SilverHorn.Cloo.Device;
-using SilverHorn.Cloo.Program;
 using SilverHorn.Cloo.Sampler;
 
 namespace SilverHorn.Cloo.Kernel
@@ -14,7 +13,7 @@ namespace SilverHorn.Cloo.Kernel
     /// Represents an OpenCL kernel.
     /// </summary>
     /// <remarks> A kernel object encapsulates a specific kernel function declared in a program and the argument values to be used when executing this kernel function. </remarks>
-    public sealed class ComputeKernel : ComputeObject, IComputeKernel
+    public sealed class ComputeKernel100 : ComputeObject, IComputeKernel
     {
         #region Services
         /// <summary>
@@ -27,38 +26,17 @@ namespace SilverHorn.Cloo.Kernel
         /// <summary>
         /// The handle of the kernel.
         /// </summary>
-        public CLKernelHandle Handle { get; private set; }
+        public CLKernelHandle Handle { get; internal set; }
 
         /// <summary>
         /// Gets the function name of the kernel.
         /// </summary>
         /// <value> The function name of the kernel. </value>
-        public string FunctionName { get; private set; }
+        public string FunctionName { get; internal set; }
         #endregion
 
         #region Constructors
-        internal ComputeKernel(CLKernelHandle handle)
-        {
-            Handle = handle;
-            SetID(Handle.Value);
-
-            FunctionName = GetStringInfo<CLKernelHandle, ComputeKernelInfo>(Handle, ComputeKernelInfo.FunctionName, CL10.GetKernelInfo);
-            logger.Info("Create " + this + " in Thread(" + Thread.CurrentThread.ManagedThreadId + ").", "Information");
-        }
-
-        internal ComputeKernel(string functionName, IComputeProgram program)
-        {
-            Handle = CL10.CreateKernel(
-                program.Handle,
-                functionName,
-                out ComputeErrorCode error);
-            ComputeException.ThrowOnError(error);
-
-            SetID(Handle.Value);
-            FunctionName = functionName;
-            logger.Info("Create " + this + " in Thread(" + Thread.CurrentThread.ManagedThreadId + ").", "Information");
-        }
-
+        internal ComputeKernel100() { }
         #endregion
 
         #region Public methods
@@ -70,7 +48,7 @@ namespace SilverHorn.Cloo.Kernel
         public long GetLocalMemorySize(IComputeDevice device)
         {
             return GetInfo<CLKernelHandle, CLDeviceHandle, ComputeKernelWorkGroupInfo, long>(
-                Handle, device.Handle, ComputeKernelWorkGroupInfo.LocalMemorySize, CL10.GetKernelWorkGroupInfo);
+                Handle, device.Handle, ComputeKernelWorkGroupInfo.LocalMemorySize, OpenCL100.GetKernelWorkGroupInfo);
         }
 
         /// <summary>
@@ -82,7 +60,7 @@ namespace SilverHorn.Cloo.Kernel
         {
             return ComputeTools.ConvertArray(
                 GetArrayInfo<CLKernelHandle, CLDeviceHandle, ComputeKernelWorkGroupInfo, IntPtr>(
-                    Handle, device.Handle, ComputeKernelWorkGroupInfo.CompileWorkGroupSize, CL10.GetKernelWorkGroupInfo));
+                    Handle, device.Handle, ComputeKernelWorkGroupInfo.CompileWorkGroupSize, OpenCL100.GetKernelWorkGroupInfo));
         }
 
         /// <summary>
@@ -95,7 +73,7 @@ namespace SilverHorn.Cloo.Kernel
         public long GetPreferredWorkGroupSizeMultiple(IComputeDevice device)
         {
             return (long)GetInfo<CLKernelHandle, CLDeviceHandle, ComputeKernelWorkGroupInfo, IntPtr>(
-                Handle, device.Handle, ComputeKernelWorkGroupInfo.PreferredWorkGroupSizeMultiple, CL10.GetKernelWorkGroupInfo);
+                Handle, device.Handle, ComputeKernelWorkGroupInfo.PreferredWorkGroupSizeMultiple, OpenCL100.GetKernelWorkGroupInfo);
         }
 
         /// <summary>
@@ -107,7 +85,7 @@ namespace SilverHorn.Cloo.Kernel
         public long GetPrivateMemorySize(IComputeDevice device)
         {
             return GetInfo<CLKernelHandle, CLDeviceHandle, ComputeKernelWorkGroupInfo, long>(
-                Handle, device.Handle, ComputeKernelWorkGroupInfo.PrivateMemorySize, CL10.GetKernelWorkGroupInfo);
+                Handle, device.Handle, ComputeKernelWorkGroupInfo.PrivateMemorySize, OpenCL100.GetKernelWorkGroupInfo);
         }
 
         /// <summary>
@@ -118,7 +96,7 @@ namespace SilverHorn.Cloo.Kernel
         public long GetWorkGroupSize(IComputeDevice device)
         {
             return (long)GetInfo<CLKernelHandle, CLDeviceHandle, ComputeKernelWorkGroupInfo, IntPtr>(
-                    Handle, device.Handle, ComputeKernelWorkGroupInfo.WorkGroupSize, CL10.GetKernelWorkGroupInfo);
+                    Handle, device.Handle, ComputeKernelWorkGroupInfo.WorkGroupSize, OpenCL100.GetKernelWorkGroupInfo);
         }
 
         /// <summary>
@@ -134,7 +112,7 @@ namespace SilverHorn.Cloo.Kernel
         /// </remarks>
         public void SetArgument(int index, IntPtr dataSize, IntPtr dataAddr)
         {
-            var error = CL10.SetKernelArg(
+            var error = OpenCL100.SetKernelArg(
                 Handle,
                 index,
                 dataSize,
@@ -215,7 +193,7 @@ namespace SilverHorn.Cloo.Kernel
                 if (Handle.IsValid)
                 {
                     logger.Info("Dispose " + this + " in Thread(" + Thread.CurrentThread.ManagedThreadId + ").", "Information");
-                    CL10.ReleaseKernel(Handle);
+                    OpenCL100.ReleaseKernel(Handle);
                     Handle.Invalidate();
                 }
                 disposedValue = true;
@@ -223,7 +201,7 @@ namespace SilverHorn.Cloo.Kernel
         }
 
         // TODO: переопределить метод завершения, только если Dispose(bool disposing) выше включает код для освобождения неуправляемых ресурсов.
-        ~ComputeKernel()
+        ~ComputeKernel100()
         {
             // Не изменяйте этот код. Разместите код очистки выше, в методе Dispose(bool disposing).
             Dispose(false);

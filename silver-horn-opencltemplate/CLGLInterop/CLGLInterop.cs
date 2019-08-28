@@ -44,12 +44,12 @@ namespace OpenCLTemplate.CLGLInterop
 
             IntPtr raw_context_handle = ctx.Context.Handle; //wglGetCurrentContext();
 
-            ComputeContextProperty p1 = new ComputeContextProperty(ComputeContextPropertyName.CL_GL_CONTEXT_KHR, raw_context_handle);
-            ComputeContextProperty p2 = new ComputeContextProperty(ComputeContextPropertyName.CL_WGL_HDC_KHR, curDC);
-            ComputeContextProperty p3 = new ComputeContextProperty(ComputeContextPropertyName.Platform, ComputePlatform.Platforms[0].Handle.Value);
-            List<ComputeContextProperty> props = new List<ComputeContextProperty>() { p1, p2, p3 };
+            var p1 = new ComputeContextProperty(ComputeContextPropertyName.CL_GL_CONTEXT_KHR, raw_context_handle);
+            var p2 = new ComputeContextProperty(ComputeContextPropertyName.CL_WGL_HDC_KHR, curDC);
+            var p3 = new ComputeContextProperty(ComputeContextPropertyName.Platform, ComputePlatform.Platforms[0].Handle.Value);
+            var props = new List<ComputeContextProperty>() { p1, p2, p3 };
 
-            ComputeContextPropertyList Properties = new ComputeContextPropertyList(props);
+            var Properties = new ComputeContextPropertyList(props);
 
             List<IComputeDevice> GLDevices = null;
             if (DeviceNumber >= 0 && ComputePlatform.Platforms[0].Devices.Count > 1)
@@ -757,10 +757,10 @@ namespace OpenCLTemplate.CLGLInterop
             var prog = builder.BuildComputeProgram(this.CLGLCtx, src.src);
             prog.Build(CLGLCtx.Devices, "", null, IntPtr.Zero);
 
-            kernelHide = prog.CreateKernel("HideElems");
-            kernelShowAll = prog.CreateKernel("ShowAllElems");
-            kernelDisplace = prog.CreateKernel("DisplaceElems");
-            kernelHideLines = prog.CreateKernel("HideLineElems");
+            kernelHide = builder.CreateKernel(prog, "HideElems");
+            kernelShowAll = builder.CreateKernel(prog, "ShowAllElems");
+            kernelDisplace = builder.CreateKernel(prog, "DisplaceElems");
+            kernelHideLines = builder.CreateKernel(prog, "HideLineElems");
 
             //Mouse arguments
             CLMousePos = new ComputeBuffer<float>(CLGLCtx, ComputeMemoryFlags.ReadWrite, 3);

@@ -60,7 +60,7 @@ kernel void VectorAdd(
                 program.Build(null, null, null, IntPtr.Zero);
 
                 // Create the kernel function and set its arguments.
-                IComputeKernel kernel = program.CreateKernel("VectorAdd");
+                var kernel = builder.CreateKernel(program, "VectorAdd");
                 kernel.SetMemoryArgument(0, a);
                 kernel.SetMemoryArgument(1, b);
                 kernel.SetMemoryArgument(2, c);
