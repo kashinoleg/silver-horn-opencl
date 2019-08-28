@@ -3,6 +3,7 @@ using SilverHorn.Cloo.Context;
 using SilverHorn.Cloo.Device;
 using SilverHorn.Cloo.Kernel;
 using SilverHorn.Cloo.Program;
+using SilverHorn.Cloo.Sampler;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -52,7 +53,17 @@ namespace SilverHorn.Cloo.Factories
         IComputeKernel CreateKernel(IComputeProgram program, string functionName);
         #endregion
 
-
+        #region Sampler Constructors
+        /// <summary>
+        /// Creates a new sampler.
+        /// </summary>
+        /// <param name="context"> A context. </param>
+        /// <param name="normalizedCoords"> The usage state of normalized coordinates when accessing a image in a kernel. </param>
+        /// <param name="addressing"> The <see cref="ComputeImageAddressing"/> mode of the sampler. Specifies how out-of-range image coordinates are handled while reading. </param>
+        /// <param name="filtering"> The <see cref="ComputeImageFiltering"/> mode of the sampler. Specifies the type of filter that must be applied when reading data from an image. </param>
+        IComputeSampler CreateSampler(IComputeContext context, bool normalizedCoords,
+            ComputeImageAddressing addressing, ComputeImageFiltering filtering);
+        #endregion
 
 
 

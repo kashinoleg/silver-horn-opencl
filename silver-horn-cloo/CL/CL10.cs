@@ -160,41 +160,7 @@ namespace Cloo.Bindings
             IntPtr param_value,
             out IntPtr param_value_size_ret);
 
-        /// <summary>
-        /// See the OpenCL specification.
-        /// </summary>
-        [DllImport(libName, EntryPoint = "clCreateSampler")]
-        public extern static CLSamplerHandle CreateSampler(
-            CLContextHandle context,
-            [MarshalAs(UnmanagedType.Bool)] bool normalized_coords,
-            ComputeImageAddressing addressing_mode,
-            ComputeImageFiltering filter_mode,
-            out ComputeErrorCode errcode_ret);
-
-        /// <summary>
-        /// See the OpenCL specification.
-        /// </summary>
-        [DllImport(libName, EntryPoint = "clRetainSampler")]
-        public extern static ComputeErrorCode RetainSampler(
-            CLSamplerHandle sample);
-
-        /// <summary>
-        /// See the OpenCL specification.
-        /// </summary>
-        [DllImport(libName, EntryPoint = "clReleaseSampler")]
-        public extern static ComputeErrorCode ReleaseSampler(
-            CLSamplerHandle sample);
-
-        /// <summary>
-        /// See the OpenCL specification.
-        /// </summary>
-        [DllImport(libName, EntryPoint = "clGetSamplerInfo")]
-        public extern static ComputeErrorCode GetSamplerInfo(
-            CLSamplerHandle sample,
-            ComputeSamplerInfo param_name,
-            IntPtr param_value_size,
-            IntPtr param_value,
-            out IntPtr param_value_size_ret);
+        
 
         /// <summary>
         /// See the OpenCL specification.

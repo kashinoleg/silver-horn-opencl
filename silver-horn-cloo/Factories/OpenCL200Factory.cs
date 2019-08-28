@@ -5,6 +5,7 @@ using SilverHorn.Cloo.Context;
 using SilverHorn.Cloo.Device;
 using SilverHorn.Cloo.Kernel;
 using SilverHorn.Cloo.Program;
+using SilverHorn.Cloo.Sampler;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -185,7 +186,31 @@ namespace SilverHorn.Cloo.Factories
         }
         #endregion
 
+        #region Sampler Constructors
+        /// <summary>
+        /// Creates a new sampler.
+        /// </summary>
+        /// <param name="context"> A context. </param>
+        /// <param name="normalizedCoords"> The usage state of normalized coordinates when accessing a image in a kernel. </param>
+        /// <param name="addressing"> The <see cref="ComputeImageAddressing"/> mode of the sampler. Specifies how out-of-range image coordinates are handled while reading. </param>
+        /// <param name="filtering"> The <see cref="ComputeImageFiltering"/> mode of the sampler. Specifies the type of filter that must be applied when reading data from an image. </param>
+        public IComputeSampler CreateSampler(IComputeContext context, bool normalizedCoords,
+            ComputeImageAddressing addressing, ComputeImageFiltering filtering)
+        {
+            var sampler = new ComputeSampler200();
+            sampler.Handle = OpenCL200.CreateSampler(context.Handle, normalizedCoords, addressing, filtering, out ComputeErrorCode error);
+            ComputeException.ThrowOnError(error);
 
+            sampler.SetID(sampler.Handle.Value);
+
+            sampler.Addressing = addressing;
+            sampler.Filtering = filtering;
+            sampler.NormalizedCoords = normalizedCoords;
+
+            logger.Info("Create " + this + " in Thread(" + Thread.CurrentThread.ManagedThreadId + ").", "Information");
+            return sampler;
+        }
+        #endregion
 
 
     }
