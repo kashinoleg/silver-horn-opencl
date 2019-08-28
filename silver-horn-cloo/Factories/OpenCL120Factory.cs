@@ -3,15 +3,16 @@ using Cloo.Bindings;
 using NLog;
 using SilverHorn.Cloo.Context;
 using SilverHorn.Cloo.Device;
+using SilverHorn.Cloo.Program;
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 
-namespace SilverHorn.Cloo.Builders
+namespace SilverHorn.Cloo.Factories
 {
-    public sealed class OpenCL210Builder : IOpenCLBuilder
+    public sealed class OpenCL120Factory : IOpenCLFactory
     {
         #region Services
         /// <summary>
@@ -27,10 +28,10 @@ namespace SilverHorn.Cloo.Builders
         /// <param name="context"> A program. </param>
         /// <param name="source"> The source code for the program. </param>
         /// <remarks> The created program is associated with the devices. </remarks>
-        public ComputeProgram BuildComputeProgram(IComputeContext context, string source)
+        public IComputeProgram BuildComputeProgram(IComputeContext context, string source)
         {
-            var program = new ComputeProgram();
-            program.Handle = OpenCL210.CreateProgramWithSource(
+            var program = new ComputeProgram120();
+            program.Handle = OpenCL120.CreateProgramWithSource(
                 context.Handle,
                 1,
                 new string[] { source },
@@ -49,10 +50,10 @@ namespace SilverHorn.Cloo.Builders
         /// <param name="context"> A context. </param>
         /// <param name="source"> The source code lines for the program. </param>
         /// <remarks> The created program is associated with the devices. </remarks>
-        public ComputeProgram BuildComputeProgram(IComputeContext context, string[] source)
+        public IComputeProgram BuildComputeProgram(IComputeContext context, string[] source)
         {
-            var program = new ComputeProgram();
-            program.Handle = OpenCL210.CreateProgramWithSource(
+            var program = new ComputeProgram120();
+            program.Handle = OpenCL120.CreateProgramWithSource(
                 context.Handle,
                 source.Length,
                 source,
@@ -69,9 +70,9 @@ namespace SilverHorn.Cloo.Builders
         /// <param name="context"> A context. </param>
         /// <param name="binaries"> A list of binaries, one for each item in <paramref name="devices"/>. </param>
         /// <param name="devices"> A subset of the context devices. If <paramref name="devices"/> is <c>null</c>, OpenCL will associate every binary from binaries with a corresponding device from devices. </param>
-        public ComputeProgram BuildComputeProgram(IComputeContext context, IList<byte[]> binaries, IList<IComputeDevice> devices)
+        public IComputeProgram BuildComputeProgram(IComputeContext context, IList<byte[]> binaries, IList<IComputeDevice> devices)
         {
-            var program = new ComputeProgram();
+            var program = new ComputeProgram120();
             int count;
             CLDeviceHandle[] deviceHandles;
             if (devices != null)
@@ -97,7 +98,7 @@ namespace SilverHorn.Cloo.Builders
                     binariesLengths[i] = new IntPtr(binaries[i].Length);
                 }
 
-                program.Handle = OpenCL210.CreateProgramWithBinary(
+                program.Handle = OpenCL120.CreateProgramWithBinary(
                     context.Handle,
                     count,
                     deviceHandles,
@@ -118,6 +119,10 @@ namespace SilverHorn.Cloo.Builders
             return program;
         }
         #endregion
+
+
+
+
 
     }
 }

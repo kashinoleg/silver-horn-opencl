@@ -1,9 +1,9 @@
 ﻿using Cloo;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using SilverHorn.Cloo.Builders;
 using SilverHorn.Cloo.Command;
 using SilverHorn.Cloo.Context;
 using SilverHorn.Cloo.Device;
+using SilverHorn.Cloo.Factories;
 using SilverHorn.Cloo.Kernel;
 using SilverHorn.Cloo.Platform;
 using System;
@@ -55,12 +55,12 @@ namespace SilverHorn.Cloo.Tests.Examples
             var Properties = new ComputeContextPropertyList(Device.Platform);
             using (var Context = new ComputeContext(ComputeDeviceTypes.All, Properties, null, IntPtr.Zero))
             {
-                var builder = new OpenCL100Builder();
+                var builder = new OpenCL100Factory();
                 using (var Program = builder.BuildComputeProgram(Context, text))
                 {
                     var Devs = new List<IComputeDevice>() { Device };
                     Program.Build(Devs, "", null, IntPtr.Zero);
-                    IComputeKernel kernel = builder.ProgramCreateKernel(Program, "floatVectorSum");
+                    IComputeKernel kernel = Program.CreateKernel("floatVectorSum");
                     using (ComputeBuffer<float>
                         varA = new ComputeBuffer<float>(Context, ComputeMemoryFlags.ReadWrite | ComputeMemoryFlags.UseHostPointer, a),
                         varB = new ComputeBuffer<float>(Context, ComputeMemoryFlags.ReadOnly | ComputeMemoryFlags.UseHostPointer, b))
@@ -95,14 +95,14 @@ namespace SilverHorn.Cloo.Tests.Examples
                 b[i] = -i / 9.0;
             }
             var Properties = new ComputeContextPropertyList(Device.Platform);
-            var builder = new OpenCL100Builder();
+            var builder = new OpenCL100Factory();
             using (var Context = new ComputeContext(ComputeDeviceTypes.All, Properties, null, IntPtr.Zero))
             {
                 using (var Program = builder.BuildComputeProgram(Context, text))
                 {
                     var Devs = new List<IComputeDevice>() { Device };
                     Program.Build(Devs, "", null, IntPtr.Zero);
-                    IComputeKernel kernel = builder.ProgramCreateKernel(Program, "doubleVectorSum");
+                    IComputeKernel kernel = Program.CreateKernel("doubleVectorSum");
                     using (ComputeBuffer<double>
                         varA = new ComputeBuffer<double>(Context, ComputeMemoryFlags.ReadWrite | ComputeMemoryFlags.UseHostPointer, a),
                         varB = new ComputeBuffer<double>(Context, ComputeMemoryFlags.ReadOnly | ComputeMemoryFlags.UseHostPointer, b))

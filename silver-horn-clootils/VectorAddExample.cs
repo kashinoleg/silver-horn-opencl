@@ -1,9 +1,9 @@
 ﻿using System;
 using System.IO;
 using Cloo;
-using SilverHorn.Cloo.Builders;
 using SilverHorn.Cloo.Command;
 using SilverHorn.Cloo.Context;
+using SilverHorn.Cloo.Factories;
 using SilverHorn.Cloo.Kernel;
 using SilverHorn.Cloo.Program;
 
@@ -24,19 +24,13 @@ kernel void VectorAdd(
 }
 ";
 
-        public string Name
-        {
-            get { return "Vector addition"; }
-        }
+        public string Name => "Vector addition";
 
-        public string Description
-        {
-            get { return "Demonstrates how to add two vectors using the GPU"; }
-        }
+        public string Description => "Demonstrates how to add two vectors using the GPU";
 
         public void Run(IComputeContext context, TextWriter log)
         {
-            var builder = new OpenCL100Builder();
+            var builder = new OpenCL100Factory();
             try
             {
                 // Create the arrays and fill them with random data.
@@ -66,7 +60,7 @@ kernel void VectorAdd(
                 program.Build(null, null, null, IntPtr.Zero);
 
                 // Create the kernel function and set its arguments.
-                IComputeKernel kernel = builder.ProgramCreateKernel(program, "VectorAdd");
+                IComputeKernel kernel = program.CreateKernel("VectorAdd");
                 kernel.SetMemoryArgument(0, a);
                 kernel.SetMemoryArgument(1, b);
                 kernel.SetMemoryArgument(2, c);

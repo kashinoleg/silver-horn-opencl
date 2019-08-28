@@ -16,7 +16,7 @@ namespace Cloo
     /// Represents an OpenCL program.
     /// </summary>
     /// <remarks> An OpenCL program consists of a set of kernels. Programs may also contain auxiliary functions called by the kernel functions and constant data. </remarks>
-    public sealed class ComputeProgram : ComputeObject, IComputeProgram
+    public sealed class ComputeProgram100 : ComputeObject, IComputeProgram
     {
         #region Services
         /// <summary>
@@ -29,11 +29,11 @@ namespace Cloo
         /// <summary>
         /// The handle of the program.
         /// </summary>
-        public CLProgramHandle Handle { get; set; }
+        public CLProgramHandle Handle { get; internal set; }
         #endregion
 
         #region Constructors
-        internal ComputeProgram() {}
+        internal ComputeProgram100() { }
         #endregion
 
         #region Public methods
@@ -49,7 +49,7 @@ namespace Cloo
         {
             var deviceHandles = ComputeTools.ExtractHandles(devices, out int handleCount);
             var BuildOptions = options ?? "";
-            var error = CL10.BuildProgram(
+            var error = OpenCL100.BuildProgram(
                 Handle,
                 handleCount,
                 deviceHandles,
@@ -60,6 +60,45 @@ namespace Cloo
         }
 
         /// <summary>
+        /// Creates a kernel for every <c>kernel</c> function in program.
+        /// </summary>
+        /// <returns> The collection of created kernels. </returns>
+        /// <remarks> kernels are not created for any <c>kernel</c> functions in program that do not have the same function definition across all devices for which a program executable has been successfully built. </remarks>
+        public ICollection<IComputeKernel> CreateAllKernels()
+        {
+            var kernels = new Collection<IComputeKernel>();
+            var error = OpenCL100.CreateKernelsInProgram(
+                Handle,
+                0,
+                null,
+                out int kernelsCount);
+            ComputeException.ThrowOnError(error);
+
+            var kernelHandles = new CLKernelHandle[kernelsCount];
+            error = OpenCL100.CreateKernelsInProgram(
+                Handle,
+                kernelsCount,
+                kernelHandles,
+                out kernelsCount);
+            ComputeException.ThrowOnError(error);
+
+            for (int i = 0; i < kernelsCount; i++)
+            {
+                kernels.Add(new ComputeKernel(kernelHandles[i]));
+            }
+            return kernels;
+        }
+
+        /// <summary>
+        /// Creates a kernel for a kernel function of a specified name.
+        /// </summary>
+        /// <returns> The created kernel. </returns>
+        public IComputeKernel CreateKernel(string functionName)
+        {
+            return new ComputeKernel(functionName, this);
+        }
+
+        /// <summary>
         /// Gets the build log of the program for a specified device.
         /// </summary>
         /// <param name="device"> The device building the program. Must be one of devices. </param>
@@ -67,7 +106,7 @@ namespace Cloo
         public string GetBuildLog(IComputeDevice device)
         {
             return GetStringInfo<CLProgramHandle, CLDeviceHandle, ComputeProgramBuildInfo>(Handle, device.Handle,
-                ComputeProgramBuildInfo.BuildLog, CL10.GetProgramBuildInfo);
+                ComputeProgramBuildInfo.BuildLog, OpenCL100.GetProgramBuildInfo);
         }
 
         /// <summary>
@@ -78,7 +117,7 @@ namespace Cloo
         public ComputeProgramBuildStatus GetBuildStatus(IComputeDevice device)
         {
             return (ComputeProgramBuildStatus)GetInfo<CLProgramHandle, CLDeviceHandle, ComputeProgramBuildInfo, uint>(Handle,
-                device.Handle, ComputeProgramBuildInfo.Status, CL10.GetProgramBuildInfo);
+                device.Handle, ComputeProgramBuildInfo.Status, OpenCL100.GetProgramBuildInfo);
         }
 
         public List<byte[]> GetBinaries()
@@ -86,7 +125,7 @@ namespace Cloo
             var binaryLengths = GetArrayInfo<CLProgramHandle, ComputeProgramInfo, IntPtr>(
                 Handle,
                 ComputeProgramInfo.BinarySizes,
-                CL10.GetProgramInfo);
+                OpenCL100.GetProgramInfo);
 
             var binariesGCHandles = new GCHandle[binaryLengths.Length];
             var binariesPtrs = new IntPtr[binaryLengths.Length];
@@ -102,7 +141,7 @@ namespace Cloo
                     binariesPtrs[i] = binariesGCHandles[i].AddrOfPinnedObject();
                     binaries.Add(binary);
                 }
-                ComputeErrorCode error = CL10.GetProgramInfo(
+                ComputeErrorCode error = OpenCL100.GetProgramInfo(
                     Handle,
                     ComputeProgramInfo.Binaries,
                     new IntPtr(binariesPtrs.Length * IntPtr.Size),
@@ -144,7 +183,7 @@ namespace Cloo
         }
 
         // TODO: переопределить метод завершения, только если Dispose(bool disposing) выше включает код для освобождения неуправляемых ресурсов.
-        ~ComputeProgram()
+        ~ComputeProgram100()
         {
             // Не изменяйте этот код. Разместите код очистки выше, в методе Dispose(bool disposing).
             Dispose(false);

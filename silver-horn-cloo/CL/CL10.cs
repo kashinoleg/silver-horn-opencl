@@ -196,52 +196,15 @@ namespace Cloo.Bindings
             IntPtr param_value,
             out IntPtr param_value_size_ret);
 
-        
-
-        
-
-        
-
-        /// <summary>
-        /// See the OpenCL specification.
-        /// </summary>
-        [DllImport(libName, EntryPoint = "clBuildProgram")]
-        public extern static ComputeErrorCode BuildProgram(
-            CLProgramHandle program,
-            Int32 num_devices,
-            [MarshalAs(UnmanagedType.LPArray)] CLDeviceHandle[] device_list,
-            String options,
-            ComputeProgramBuildNotifier pfn_notify,
-            IntPtr user_data);
-
         /// <summary>
         /// See the OpenCL specification.
         /// </summary>
         [DllImport(libName, EntryPoint = "clUnloadCompiler")]
         public extern static ComputeErrorCode UnloadCompiler();
 
-        /// <summary>
-        /// See the OpenCL specification.
-        /// </summary>
-        [DllImport(libName, EntryPoint = "clGetProgramInfo")]
-        public extern static ComputeErrorCode GetProgramInfo(
-            CLProgramHandle program,
-            ComputeProgramInfo param_name,
-            IntPtr param_value_size,
-            IntPtr param_value,
-            out IntPtr param_value_size_ret);
+        
 
-        /// <summary>
-        /// See the OpenCL specification.
-        /// </summary>
-        [DllImport(libName, EntryPoint = "clGetProgramBuildInfo")]
-        public extern static ComputeErrorCode GetProgramBuildInfo(
-            CLProgramHandle program,
-            CLDeviceHandle device,
-            ComputeProgramBuildInfo param_name,
-            IntPtr param_value_size,
-            IntPtr param_value,
-            out IntPtr param_value_size_ret);
+        
 
         /// <summary>
         /// See the OpenCL specification.
@@ -252,15 +215,7 @@ namespace Cloo.Bindings
             String kernel_name,
             out ComputeErrorCode errcode_ret);
 
-        /// <summary>
-        /// See the OpenCL specification.
-        /// </summary>
-        [DllImport(libName, EntryPoint = "clCreateKernelsInProgram")]
-        public extern static ComputeErrorCode CreateKernelsInProgram(
-            CLProgramHandle program,
-            Int32 num_kernels,
-            [Out, MarshalAs(UnmanagedType.LPArray)] CLKernelHandle[] kernels,
-            out Int32 num_kernels_ret);
+        
 
         /// <summary>
         /// See the OpenCL specification.

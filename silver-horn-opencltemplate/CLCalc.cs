@@ -9,7 +9,7 @@ using SilverHorn.Cloo.Platform;
 using SilverHorn.Cloo.Device;
 using SilverHorn.Cloo.Context;
 using SilverHorn.Cloo.Command;
-using SilverHorn.Cloo.Builders;
+using SilverHorn.Cloo.Factories;
 
 namespace OpenCLTemplate
 {
@@ -261,7 +261,7 @@ namespace OpenCLTemplate
             /// <param name="BuildLogs">Build logs for each device</param>
             public static void Compile(string[] SourceCode, out List<string> BuildLogs)
             {
-                var builder = new OpenCL100Builder();
+                var builder = new OpenCL100Factory();
                 //CLProgram Prog = OpenCLDriver.clCreateProgramWithSource(ContextoGPUs, 1, new string[] { sProgramSource }, null, ref Err);
                 Prog = builder.BuildComputeProgram(Context, SourceCode);
 
@@ -1510,8 +1510,8 @@ namespace OpenCLTemplate
                 /// <param name="KernelName"></param>
                 public Kernel(string KernelName)
                 {
-                    var builder = new OpenCL100Builder();
-                    kernel = builder.ProgramCreateKernel(Prog, KernelName);
+                    var builder = new OpenCL100Factory();
+                    kernel = Prog.CreateKernel(KernelName);
                 }
 
                 /// <summary>"Remember" variables</summary>
