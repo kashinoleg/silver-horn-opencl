@@ -4,6 +4,7 @@ using NLog;
 using SilverHorn.Cloo.Context;
 using SilverHorn.Cloo.Device;
 using SilverHorn.Cloo.Kernel;
+using SilverHorn.Cloo.Platform;
 using SilverHorn.Cloo.Program;
 using SilverHorn.Cloo.Sampler;
 using System;
@@ -211,6 +212,68 @@ namespace SilverHorn.Cloo.Factories
             return sampler;
         }
         #endregion
+
+        #region Context Constructors
+        /// <summary>
+        /// Creates a new context on a collection of devices.
+        /// </summary>
+        /// <param name="devices"> A collection of devices to associate with the context. </param>
+        /// <param name="properties"> A list of context properties of the context. </param>
+        /// <param name="notify"> A delegate instance that refers to a notification routine. This routine is a callback function that will be used by the OpenCL implementation to report information on errors that occur in the context. The callback function may be called asynchronously by the OpenCL implementation. It is the application's responsibility to ensure that the callback function is thread-safe and that the delegate instance doesn't get collected by the Garbage Collector until context is disposed. If <paramref name="notify"/> is <c>null</c>, no callback function is registered. </param>
+        /// <param name="notifyDataPtr"> Optional user data that will be passed to <paramref name="notify"/>. </param>
+        public IComputeContext CreateContext(ICollection<IComputeDevice> devices, List<ComputeContextProperty> properties,
+            ComputeContextNotifier notify, IntPtr notifyDataPtr)
+        {
+            var context = new ComputeContext200();
+            var deviceHandles = ComputeTools.ExtractHandles(devices, out int handleCount);
+            var propertyArray = context.ToIntPtrArray(properties);
+            context.Handle = OpenCL200.CreateContext(
+                propertyArray,
+                handleCount,
+                deviceHandles,
+                notify,
+                notifyDataPtr,
+                out ComputeErrorCode error);
+            ComputeException.ThrowOnError(error);
+
+            context.SetID(context.Handle.Value);
+            var platformProperty = context.GetByName(properties, ComputeContextPropertyName.Platform);
+            context.Platform = ComputePlatform.GetByHandle(platformProperty.Value);
+            context.Devices = context.GetDevices();
+
+            logger.Info("Create " + this + " in Thread(" + Thread.CurrentThread.ManagedThreadId + ").", "Information");
+            return context;
+        }
+
+        /// <summary>
+        /// Creates a new context on all the devices that match the specified <see cref="ComputeDeviceTypes"/>.
+        /// </summary>
+        /// <param name="deviceType"> A bit-field that identifies the type of device to associate with the context. </param>
+        /// <param name="properties"> A list of context properties of the context. </param>
+        /// <param name="notify"> A delegate instance that refers to a notification routine. This routine is a callback function that will be used by the OpenCL implementation to report information on errors that occur in the context. The callback function may be called asynchronously by the OpenCL implementation. It is the application's responsibility to ensure that the callback function is thread-safe and that the delegate instance doesn't get collected by the Garbage Collector until context is disposed. If <paramref name="notify"/> is <c>null</c>, no callback function is registered. </param>
+        /// <param name="userDataPtr"> Optional user data that will be passed to <paramref name="notify"/>. </param>
+        public IComputeContext CreateContext(ComputeDeviceTypes deviceType, List<ComputeContextProperty> properties,
+            ComputeContextNotifier notify, IntPtr userDataPtr)
+        {
+            var context = new ComputeContext200();
+            var propertyArray = context.ToIntPtrArray(properties);
+            context.Handle = OpenCL200.CreateContextFromType(
+                propertyArray,
+                deviceType,
+                notify,
+                userDataPtr,
+                out ComputeErrorCode error);
+            ComputeException.ThrowOnError(error);
+
+            context.SetID(context.Handle.Value);
+            var platformProperty = context.GetByName(properties, ComputeContextPropertyName.Platform);
+            context.Platform = ComputePlatform.GetByHandle(platformProperty.Value);
+            context.Devices = context.GetDevices();
+            logger.Info("Create " + this + " in Thread(" + Thread.CurrentThread.ManagedThreadId + ").", "Information");
+            return context;
+        }
+        #endregion
+
 
 
     }

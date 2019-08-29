@@ -39,6 +39,7 @@ using Cloo;
 using Clootils.Properties;
 using SilverHorn.Cloo.Context;
 using SilverHorn.Cloo.Device;
+using SilverHorn.Cloo.Factories;
 using SilverHorn.Cloo.Platform;
 
 namespace Clootils
@@ -140,14 +141,14 @@ namespace Clootils
                 MessageBox.Show("No OpenCL device selected!\n\nSelect one or more devices from the list to continue.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-
+            var builder = new OpenCL100Factory();
             StringBuilder output = new StringBuilder();
             StringWriter log = new StringWriter(output);
             var properties = new List<ComputeContextProperty>
             {
                 new ComputeContextProperty(ComputeContextPropertyName.Platform, platform.Handle.Value)
             };
-            var context = new ComputeContext(devices, properties, null, IntPtr.Zero);
+            var context = builder.CreateContext(devices, properties, null, IntPtr.Zero);
 
             for (int i = 0; i < exampleList.Count; i++)
             {

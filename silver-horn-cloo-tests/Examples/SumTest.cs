@@ -29,7 +29,7 @@ namespace SilverHorn.Cloo.Tests.Examples
                         ComputePlatform.Platforms[i].Devices[j].Name);
                 }
             }
-            Device = ComputePlatform.Platforms[0].Devices[0];
+            Device = ComputePlatform.Platforms[1].Devices[0];
             Console.WriteLine("Device: {0}", Device.Name);
         }
 
@@ -42,6 +42,7 @@ namespace SilverHorn.Cloo.Tests.Examples
         [TestMethod]
         public void FloatSumTest()
         {
+            var builder = new OpenCL200Factory();
             string text = File.ReadAllText("Examples/SumTest.cl");
             int count = 2000;
             var a = new float[count];
@@ -56,9 +57,8 @@ namespace SilverHorn.Cloo.Tests.Examples
             {
                 new ComputeContextProperty(ComputeContextPropertyName.Platform, Device.Platform.Handle.Value)
             };
-            using (var Context = new ComputeContext(ComputeDeviceTypes.All, Properties, null, IntPtr.Zero))
+            using (var Context = builder.CreateContext(ComputeDeviceTypes.All, Properties, null, IntPtr.Zero))
             {
-                var builder = new OpenCL100Factory();
                 using (var Program = builder.BuildComputeProgram(Context, text))
                 {
                     var Devs = new List<IComputeDevice>() { Device };
@@ -87,6 +87,7 @@ namespace SilverHorn.Cloo.Tests.Examples
         [TestMethod]
         public void DoubleSumTest()
         {
+            var builder = new OpenCL200Factory();
             string text = File.ReadAllText("Examples/SumTest.cl");
             int count = 2000;
             var a = new double[count];
@@ -101,8 +102,7 @@ namespace SilverHorn.Cloo.Tests.Examples
             {
                 new ComputeContextProperty(ComputeContextPropertyName.Platform, Device.Platform.Handle.Value)
             };
-            var builder = new OpenCL100Factory();
-            using (var Context = new ComputeContext(ComputeDeviceTypes.All, Properties, null, IntPtr.Zero))
+            using (var Context = builder.CreateContext(ComputeDeviceTypes.All, Properties, null, IntPtr.Zero))
             {
                 using (var Program = builder.BuildComputeProgram(Context, text))
                 {

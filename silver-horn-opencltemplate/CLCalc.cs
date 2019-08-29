@@ -120,7 +120,8 @@ namespace OpenCLTemplate
                     };
                     if (PrevCtx == null)
                     {
-                        Program.Context = new ComputeContext(DevicesToUse, Properties, null, IntPtr.Zero);
+                        var builder = new OpenCL100Factory();
+                        Program.Context = builder.CreateContext(DevicesToUse, Properties, null, IntPtr.Zero);
                     }
                     else
                     {

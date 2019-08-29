@@ -38,6 +38,7 @@ namespace OpenCLTemplate.CLGLInterop
         /// <param name="DeviceNumber">Index of device to use from ComputePlatform.Platforms[0].Devices. Use -1 for default</param>
         private void CreateCLGLContext(int DeviceNumber)
         {
+            var builder = new OpenCL100Factory();
             IntPtr curDC = wglGetCurrentDC();
 
             OpenTK.Graphics.IGraphicsContextInternal ctx = (OpenTK.Graphics.IGraphicsContextInternal)OpenTK.Graphics.GraphicsContext.CurrentContext;
@@ -54,16 +55,14 @@ namespace OpenCLTemplate.CLGLInterop
             if (DeviceNumber >= 0 && ComputePlatform.Platforms[0].Devices.Count > 1)
             {
                 GLDevices = new List<IComputeDevice>() { ComputePlatform.Platforms[0].Devices[1] };
-                CLGLCtx = new ComputeContext(GLDevices, Properties, null, IntPtr.Zero);
+                CLGLCtx = builder.CreateContext(GLDevices, Properties, null, IntPtr.Zero);
                 CQ = new ComputeCommandQueue(CLGLCtx, GLDevices[0], ComputeCommandQueueFlags.None);
             }
             else
             {
-                CLGLCtx = new ComputeContext(ComputeDeviceTypes.Gpu, Properties, null, IntPtr.Zero);
+                CLGLCtx = builder.CreateContext(ComputeDeviceTypes.Gpu, Properties, null, IntPtr.Zero);
                 CQ = new ComputeCommandQueue(CLGLCtx, CLGLCtx.Devices[0], ComputeCommandQueueFlags.None);
             }
-
-
         }
 
 

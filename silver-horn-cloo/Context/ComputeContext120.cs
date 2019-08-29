@@ -50,10 +50,11 @@ namespace SilverHorn.Cloo.Context
     /// </code>
     /// Before working with the <c>clglBuffer</c> you should make sure of two things:<br/>
     /// 1) OpenGL isn't using <c>glBufferId</c>. You can achieve this by calling <c>glFinish</c>.<br/>
-    /// 2) Make it available to OpenCL through the <see cref="ComputeCommandQueue.AcquireGLObjects"/> method.<br/>
-    /// When finished, you should wait until <c>clglBuffer</c> isn't used any longer by OpenCL. After that, call <see cref="ComputeCommandQueue.ReleaseGLObjects"/> to make the buffer available to OpenGL again.
+    /// 2) Make it available to OpenCL through the Queue Acquire GLObjects method.<br/>
+    /// When finished, you should wait until <c>clglBuffer</c> isn't used any longer by OpenCL.
+    /// After that, call Queue Release GLObjects to make the buffer available to OpenGL again.
     /// </example>
-    public sealed class ComputeContext : ComputeObject, IComputeContext
+    public sealed class ComputeContext120 : ComputeObject, IComputeContext
     {
         #region Services
         /// <summary>
@@ -66,97 +67,32 @@ namespace SilverHorn.Cloo.Context
         /// <summary>
         /// The handle of the context.
         /// </summary>
-        public CLContextHandle Handle { get; private set; }
+        public CLContextHandle Handle { get; internal set; }
 
         /// <summary>
         /// Gets a read-only collection of the devices of the context.
         /// </summary>
         /// <value> A read-only collection of the devices of the context. </value>
-        public ReadOnlyCollection<IComputeDevice> Devices { get; private set; }
+        public ReadOnlyCollection<IComputeDevice> Devices { get; internal set; }
 
         /// <summary>
         /// Gets the platform of the context.
         /// </summary>
         /// <value> The platform of the context. </value>
-        public ComputePlatform Platform { get; private set; }
-
-        /// <summary>
-        /// Gets a collection of context properties of the context.
-        /// </summary>
-        /// <value> A collection of context properties of the context. </value>
-        private List<ComputeContextProperty> Properties { get; set; }
-
-
-        private ComputeContextNotifier Callback { get; set; }
+        public ComputePlatform Platform { get; internal set; }
         #endregion
 
         #region Constructors
-
-        /// <summary>
-        /// Creates a new context on a collection of devices.
-        /// </summary>
-        /// <param name="devices"> A collection of devices to associate with the context. </param>
-        /// <param name="properties"> A list of context properties of the context. </param>
-        /// <param name="notify"> A delegate instance that refers to a notification routine. This routine is a callback function that will be used by the OpenCL implementation to report information on errors that occur in the context. The callback function may be called asynchronously by the OpenCL implementation. It is the application's responsibility to ensure that the callback function is thread-safe and that the delegate instance doesn't get collected by the Garbage Collector until context is disposed. If <paramref name="notify"/> is <c>null</c>, no callback function is registered. </param>
-        /// <param name="notifyDataPtr"> Optional user data that will be passed to <paramref name="notify"/>. </param>
-        public ComputeContext(ICollection<IComputeDevice> devices, List<ComputeContextProperty> properties,
-            ComputeContextNotifier notify, IntPtr notifyDataPtr)
-        {
-            var deviceHandles = ComputeTools.ExtractHandles(devices, out int handleCount);
-            var propertyArray = ToIntPtrArray(properties);
-            Callback = notify;
-
-            var error = ComputeErrorCode.Success;
-            Handle = OpenCL100.CreateContext(propertyArray, handleCount, deviceHandles, notify, notifyDataPtr, out error);
-            ComputeException.ThrowOnError(error);
-
-            SetID(Handle.Value);
-
-            Properties = properties;
-            var platformProperty = GetByName(properties, ComputeContextPropertyName.Platform);
-            Platform = ComputePlatform.GetByHandle(platformProperty.Value);
-            Devices = GetDevices();
-
-            logger.Info("Create " + this + " in Thread(" + Thread.CurrentThread.ManagedThreadId + ").", "Information");
-        }
-
-        /// <summary>
-        /// Creates a new context on all the devices that match the specified <see cref="ComputeDeviceTypes"/>.
-        /// </summary>
-        /// <param name="deviceType"> A bit-field that identifies the type of device to associate with the context. </param>
-        /// <param name="properties"> A list of context properties of the context. </param>
-        /// <param name="notify"> A delegate instance that refers to a notification routine. This routine is a callback function that will be used by the OpenCL implementation to report information on errors that occur in the context. The callback function may be called asynchronously by the OpenCL implementation. It is the application's responsibility to ensure that the callback function is thread-safe and that the delegate instance doesn't get collected by the Garbage Collector until context is disposed. If <paramref name="notify"/> is <c>null</c>, no callback function is registered. </param>
-        /// <param name="userDataPtr"> Optional user data that will be passed to <paramref name="notify"/>. </param>
-        public ComputeContext(ComputeDeviceTypes deviceType, List<ComputeContextProperty> properties,
-            ComputeContextNotifier notify, IntPtr userDataPtr)
-        {
-            var propertyArray = ToIntPtrArray(properties);
-            Callback = notify;
-
-            ComputeErrorCode error = ComputeErrorCode.Success;
-            Handle = OpenCL100.CreateContextFromType(propertyArray, deviceType, notify, userDataPtr, out error);
-            ComputeException.ThrowOnError(error);
-
-            SetID(Handle.Value);
-
-            Properties = properties;
-            var platformProperty = GetByName(properties, ComputeContextPropertyName.Platform);
-            Platform = ComputePlatform.GetByHandle(platformProperty.Value);
-            Devices = GetDevices();
-
-            logger.Info("Create " + this + " in Thread(" + Thread.CurrentThread.ManagedThreadId + ").", "Information");
-        }
-
+        internal ComputeContext120() { }
         #endregion
 
-        #region Private methods
-
+        #region Internal methods
         /// <summary>
         /// Gets a context property of a specified <c>ComputeContextPropertyName</c>.
         /// </summary>
         /// <param name="name"> The <see cref="ComputeContextPropertyName"/> of the context property. </param>
         /// <returns> The requested context property or <c>null</c> if no such context property exists in the list of context properties. </returns>
-        private ComputeContextProperty GetByName(List<ComputeContextProperty> properties, ComputeContextPropertyName name)
+        internal ComputeContextProperty GetByName(List<ComputeContextProperty> properties, ComputeContextPropertyName name)
         {
             foreach (var property in properties)
             {
@@ -168,13 +104,13 @@ namespace SilverHorn.Cloo.Context
             return null;
         }
 
-        private IntPtr[] ToIntPtrArray(List<ComputeContextProperty> properties)
+        internal IntPtr[] ToIntPtrArray(List<ComputeContextProperty> properties)
         {
             if (properties == null)
             {
                 return null;
             }
-            IntPtr[] result = new IntPtr[2 * properties.Count + 1];
+            var result = new IntPtr[2 * properties.Count + 1];
             for (int i = 0; i < properties.Count; i++)
             {
                 result[2 * i] = new IntPtr((int)properties[i].Name);
@@ -184,10 +120,10 @@ namespace SilverHorn.Cloo.Context
             return result;
         }
 
-        private ReadOnlyCollection<IComputeDevice> GetDevices()
+        internal ReadOnlyCollection<IComputeDevice> GetDevices()
         {
             var arrayDevices = GetArrayInfo<CLContextHandle, ComputeContextInfo, CLDeviceHandle>(Handle,
-                ComputeContextInfo.Devices, OpenCL100.GetContextInfo);
+                ComputeContextInfo.Devices, OpenCL120.GetContextInfo);
             var deviceHandles = new List<CLDeviceHandle>(arrayDevices);
             var devices = new List<IComputeDevice>();
             foreach (var platform in ComputePlatform.Platforms)
@@ -220,7 +156,7 @@ namespace SilverHorn.Cloo.Context
                 if (Handle.IsValid)
                 {
                     logger.Info("Dispose " + this + " in Thread(" + Thread.CurrentThread.ManagedThreadId + ").", "Information");
-                    OpenCL100.ReleaseContext(Handle);
+                    OpenCL120.ReleaseContext(Handle);
                     Handle.Invalidate();
                 }
                 disposedValue = true;
@@ -228,7 +164,7 @@ namespace SilverHorn.Cloo.Context
         }
 
         // TODO: переопределить метод завершения, только если Dispose(bool disposing) выше включает код для освобождения неуправляемых ресурсов.
-        ~ComputeContext()
+        ~ComputeContext120()
         {
             // Не изменяйте этот код. Разместите код очистки выше, в методе Dispose(bool disposing).
             Dispose(false);
