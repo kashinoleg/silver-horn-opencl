@@ -6,6 +6,7 @@ using Cloo;
 using Cloo.Bindings;
 using SilverHorn.Cloo.Context;
 using SilverHorn.Cloo.Device;
+using SilverHorn.Cloo.Event;
 using SilverHorn.Cloo.Kernel;
 
 namespace SilverHorn.Cloo.Command
@@ -47,7 +48,7 @@ namespace SilverHorn.Cloo.Command
         /// <value> Is <c>true</c> if command queue has profiling enabled and <c>false</c> otherwise. </value>
         public bool Profiling { get; private set; }
 
-        internal IList<ComputeEventBase> Events { get; set; }
+        internal IList<IComputeEvent> Events { get; set; }
         #endregion
 
         #region Constructors
@@ -71,7 +72,7 @@ namespace SilverHorn.Cloo.Command
             OutOfOrderExecution = ((properties & ComputeCommandQueueFlags.OutOfOrderExecution) == ComputeCommandQueueFlags.OutOfOrderExecution);
             Profiling = ((properties & ComputeCommandQueueFlags.Profiling) == ComputeCommandQueueFlags.Profiling);
 
-            Events = new List<ComputeEventBase>();
+            Events = new List<IComputeEvent>();
 
             logger.Info("Create " + this + " in Thread(" + Thread.CurrentThread.ManagedThreadId + ").", "Information");
         }
@@ -84,8 +85,8 @@ namespace SilverHorn.Cloo.Command
         /// Enqueues a command to acquire a collection of memorys that have been previously created from OpenGL objects.
         /// </summary>
         /// <param name="memObjs"> A collection of OpenCL memory objects that correspond to OpenGL objects. </param>
-        /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> or read-only a new <see cref="ComputeEvent"/> identifying this command is created and attached to the end of the collection. </param>
-        public void AcquireGLObjects(ICollection<ComputeMemory> memObjs, ICollection<ComputeEventBase> events)
+        /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If events is not <c>null</c> or read-only a new event identifying this command is created and attached to the end of the collection. </param>
+        public void AcquireGLObjects(ICollection<ComputeMemory> memObjs, ICollection<IComputeEvent> events)
         {
             var memObjHandles = ComputeTools.ExtractHandles(memObjs, out int memObjCount);
             var eventHandles = ComputeTools.ExtractHandles(events, out int eventWaitListSize);
@@ -120,7 +121,9 @@ namespace SilverHorn.Cloo.Command
         /// </summary>
         public ComputeEvent AddMarker()
         {
-            var error = CL10.EnqueueMarker(Handle, out CLEventHandle newEventHandle);
+            var error = CL10.EnqueueMarker(
+                Handle,
+                out CLEventHandle newEventHandle);
             ComputeException.ThrowOnError(error);
             return new ComputeEvent(newEventHandle, this);
         }
@@ -135,7 +138,8 @@ namespace SilverHorn.Cloo.Command
         /// <param name="destinationOffset"> The <paramref name="destination"/> element position where writing starts. </param>
         /// <param name="region"> The region of elements to copy. </param>
         /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> a new event identifying this command is attached to the end of the collection. </param>
-        public void Copy<T>(ComputeBufferBase<T> source, ComputeBufferBase<T> destination, long sourceOffset, long destinationOffset, long region, ICollection<ComputeEventBase> events) where T : struct
+        public void Copy<T>(ComputeBufferBase<T> source, ComputeBufferBase<T> destination, long sourceOffset,
+            long destinationOffset, long region, ICollection<IComputeEvent> events) where T : struct
         {
             int sizeofT = Marshal.SizeOf(typeof(T));
 
@@ -143,11 +147,22 @@ namespace SilverHorn.Cloo.Command
             var eventsWritable = (events != null && !events.IsReadOnly);
             var newEventHandle = (eventsWritable) ? new CLEventHandle[1] : null;
 
-            var error = CL10.EnqueueCopyBuffer(Handle, source.Handle, destination.Handle, new IntPtr(sourceOffset * sizeofT), new IntPtr(destinationOffset * sizeofT), new IntPtr(region * sizeofT), eventWaitListSize, eventHandles, newEventHandle);
+            var error = CL10.EnqueueCopyBuffer(
+                Handle,
+                source.Handle,
+                destination.Handle,
+                new IntPtr(sourceOffset * sizeofT),
+                new IntPtr(destinationOffset * sizeofT),
+                new IntPtr(region * sizeofT),
+                eventWaitListSize,
+                eventHandles,
+                newEventHandle);
             ComputeException.ThrowOnError(error);
 
             if (eventsWritable)
+            {
                 events.Add(new ComputeEvent(newEventHandle[0], this));
+            }
         }
 
         /// <summary>
@@ -163,9 +178,12 @@ namespace SilverHorn.Cloo.Command
         /// <param name="sourceSlicePitch"> The size of the source buffer 2D slice in bytes. If set to zero then <paramref name="sourceSlicePitch"/> equals <c>region.Y * sizeof(T) * sourceRowPitch</c>. </param>
         /// <param name="destinationRowPitch"> The size of the destination buffer row in bytes. If set to zero then <paramref name="destinationRowPitch"/> equals <c>region.X * sizeof(T)</c>. </param>
         /// <param name="destinationSlicePitch"> The size of the destination buffer 2D slice in bytes. If set to zero then <paramref name="destinationSlicePitch"/> equals <c>region.Y * sizeof(T) * destinationRowPitch</c>. </param>
-        /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> or read-only a new <see cref="ComputeEvent"/> identifying this command is created and attached to the end of the collection. </param>
+        /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If events is not <c>null</c> or read-only a new event identifying this command is created and attached to the end of the collection. </param>
         /// <remarks> Requires OpenCL 1.1. </remarks>
-        public void Copy<T>(ComputeBufferBase<T> source, ComputeBufferBase<T> destination, SysIntX3 sourceOffset, SysIntX3 destinationOffset, SysIntX3 region, long sourceRowPitch, long sourceSlicePitch, long destinationRowPitch, long destinationSlicePitch, ICollection<ComputeEventBase> events) where T : struct
+        public void Copy<T>(ComputeBufferBase<T> source, ComputeBufferBase<T> destination,
+            SysIntX3 sourceOffset, SysIntX3 destinationOffset, SysIntX3 region,
+            long sourceRowPitch, long sourceSlicePitch, long destinationRowPitch, long destinationSlicePitch,
+            ICollection<IComputeEvent> events) where T : struct
         {
             int sizeofT = Marshal.SizeOf(typeof(T));
 
@@ -184,7 +202,9 @@ namespace SilverHorn.Cloo.Command
             ComputeException.ThrowOnError(error);
 
             if (eventsWritable)
+            {
                 events.Add(new ComputeEvent(newEventHandle[0], this));
+            }
         }
 
         /// <summary>
@@ -196,8 +216,10 @@ namespace SilverHorn.Cloo.Command
         /// <param name="sourceOffset"> The <paramref name="source"/> element position where reading starts. </param>
         /// <param name="destinationOffset"> The <paramref name="destination"/> element position where writing starts. </param>
         /// <param name="region"> The region of elements to copy. </param>
-        /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> or read-only a new <see cref="ComputeEvent"/> identifying this command is created and attached to the end of the collection. </param>
-        public void Copy<T>(ComputeBufferBase<T> source, ComputeImage destination, long sourceOffset, SysIntX3 destinationOffset, SysIntX3 region, ICollection<ComputeEventBase> events) where T : struct
+        /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If events is not <c>null</c> or read-only a new event identifying this command is created and attached to the end of the collection. </param>
+        public void Copy<T>(ComputeBufferBase<T> source, ComputeImage destination,
+            long sourceOffset, SysIntX3 destinationOffset, SysIntX3 region,
+            ICollection<IComputeEvent> events) where T : struct
         {
             int sizeofT = Marshal.SizeOf(typeof(T));
 
@@ -222,13 +244,13 @@ namespace SilverHorn.Cloo.Command
         /// <param name="sourceOffset"> The <paramref name="source"/> element position where reading starts. </param>
         /// <param name="destinationOffset"> The <paramref name="destination"/> element position where writing starts. </param>
         /// <param name="region"> The region of elements to copy. </param>
-        /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> or read-only a new <see cref="ComputeEvent"/> identifying this command is created and attached to the end of the collection. </param>
+        /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If events is not <c>null</c> or read-only a new event identifying this command is created and attached to the end of the collection. </param>
         public void Copy<T>(ComputeImage source,
             ComputeBufferBase<T> destination,
             SysIntX3 sourceOffset,
             long destinationOffset,
             SysIntX3 region,
-            ICollection<ComputeEventBase> events) where T : struct
+            ICollection<IComputeEvent> events) where T : struct
         {
             int sizeofT = Marshal.SizeOf(typeof(T));
             var eventHandles = ComputeTools.ExtractHandles(events, out int eventWaitListSize);
@@ -257,13 +279,13 @@ namespace SilverHorn.Cloo.Command
         /// <param name="sourceOffset"> The <paramref name="source"/> element position where reading starts. </param>
         /// <param name="destinationOffset"> The <paramref name="destination"/> element position where writing starts. </param>
         /// <param name="region"> The region of elements to copy. </param>
-        /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> or read-only a new <see cref="ComputeEvent"/> identifying this command is created and attached to the end of the collection. </param>
+        /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If events is not <c>null</c> or read-only a new event identifying this command is created and attached to the end of the collection. </param>
         public void Copy(ComputeImage source,
             ComputeImage destination,
             SysIntX3 sourceOffset,
             SysIntX3 destinationOffset,
             SysIntX3 region,
-            ICollection<ComputeEventBase> events)
+            ICollection<IComputeEvent> events)
         {
             var eventHandles = ComputeTools.ExtractHandles(events, out int eventWaitListSize);
             var eventsWritable = (events != null && !events.IsReadOnly);
@@ -281,8 +303,8 @@ namespace SilverHorn.Cloo.Command
         /// Enqueues a command to execute a kernel single.
         /// </summary>
         /// <param name="kernel"> The kernel to execute. </param>
-        /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> or read-only a new <see cref="ComputeEvent"/> identifying this command is created and attached to the end of the collection. </param>
-        public void ExecuteTask(IComputeKernel kernel, ICollection<ComputeEventBase> events)
+        /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If events is not <c>null</c> or read-only a new event identifying this command is created and attached to the end of the collection. </param>
+        public void ExecuteTask(IComputeKernel kernel, ICollection<IComputeEvent> events)
         {
             var eventHandles = ComputeTools.ExtractHandles(events, out int eventWaitListSize);
             var eventsWritable = (events != null && !events.IsReadOnly);
@@ -302,12 +324,12 @@ namespace SilverHorn.Cloo.Command
         /// <param name="globalWorkOffset"> An array of values that describe the offset used to calculate the global ID of a work-item instead of having the global IDs always start at offset (0, 0,... 0). </param>
         /// <param name="globalWorkSize"> An array of values that describe the number of global work-items in dimensions that will execute the kernel function. The total number of global work-items is computed as global_work_size[0] *...* global_work_size[work_dim - 1]. </param>
         /// <param name="localWorkSize"> An array of values that describe the number of work-items that make up a work-group (also referred to as the size of the work-group) that will execute the <paramref name="kernel"/>. The total number of work-items in a work-group is computed as local_work_size[0] *... * local_work_size[work_dim - 1]. </param>
-        /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> or read-only a new <see cref="ComputeEvent"/> identifying this command is created and attached to the end of the collection. </param>
+        /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If events is not <c>null</c> or read-only a new event identifying this command is created and attached to the end of the collection. </param>
         public void Execute(IComputeKernel kernel,
             long[] globalWorkOffset,
             long[] globalWorkSize,
             long[] localWorkSize,
-            ICollection<ComputeEventBase> events)
+            ICollection<IComputeEvent> events)
         {
             var eventHandles = ComputeTools.ExtractHandles(events, out int eventWaitListSize);
             var eventsWritable = (events != null && !events.IsReadOnly);
@@ -356,14 +378,15 @@ namespace SilverHorn.Cloo.Command
         /// <param name="flags"> A list of properties for the mapping mode. </param>
         /// <param name="offset"> The <paramref name="buffer"/> element position where mapping starts. </param>
         /// <param name="region"> The region of elements to map. </param>
-        /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> or read-only a new <see cref="ComputeEvent"/> identifying this command is created and attached to the end of the collection. </param>
+        /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If events is not <c>null</c> or read-only a new event identifying this command is created and attached to the end of the collection. </param>
         /// <remarks> If <paramref name="blocking"/> is <c>true</c> this method will not return until the command completes. If <paramref name="blocking"/> is <c>false</c> this method will return immediately after the command is enqueued. </remarks>
-        public IntPtr Map<T>(ComputeBufferBase<T> buffer,
+        public IntPtr Map<T>(
+            ComputeBufferBase<T> buffer,
             bool blocking,
             ComputeMemoryMappingFlags flags,
             long offset,
             long region,
-            ICollection<ComputeEventBase> events) where T : struct
+            ICollection<IComputeEvent> events) where T : struct
         {
             int sizeofT = Marshal.SizeOf(typeof(T));
 
@@ -389,10 +412,14 @@ namespace SilverHorn.Cloo.Command
         /// <param name="flags"> A list of properties for the mapping mode. </param>
         /// <param name="offset"> The <paramref name="image"/> element position where mapping starts. </param>
         /// <param name="region"> The region of elements to map. </param>
-        /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> or read-only a new <see cref="ComputeEvent"/> identifying this command is created and attached to the end of the collection. </param>
+        /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If events is not <c>null</c> or read-only a new event identifying this command is created and attached to the end of the collection. </param>
         /// <remarks> If <paramref name="blocking"/> is <c>true</c> this method will not return until the command completes. If <paramref name="blocking"/> is <c>false</c> this method will return immediately after the command is enqueued. </remarks>
-        public IntPtr Map(ComputeImage image, bool blocking, ComputeMemoryMappingFlags flags,
-            SysIntX3 offset, SysIntX3 region, ICollection<ComputeEventBase> events)
+        public IntPtr Map(ComputeImage image,
+            bool blocking,
+            ComputeMemoryMappingFlags flags,
+            SysIntX3 offset,
+            SysIntX3 region,
+            ICollection<IComputeEvent> events)
         {
             var eventHandles = ComputeTools.ExtractHandles(events, out int eventWaitListSize);
             var eventsWritable = (events != null && !events.IsReadOnly);
@@ -415,14 +442,14 @@ namespace SilverHorn.Cloo.Command
         /// <param name="blocking"> The mode of operation of this command. If <c>true</c> this call will not return until the command has finished execution. </param>
         /// <param name="offset"> The <paramref name="source"/> element position where reading starts. </param>
         /// <param name="region"> The region of elements to read. </param>
-        /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> or read-only a new <see cref="ComputeEvent"/> identifying this command is created and attached to the end of the collection. </param>
+        /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If events is not <c>null</c> or read-only a new event identifying this command is created and attached to the end of the collection. </param>
         /// <remarks> If <paramref name="blocking"/> is <c>true</c> this method will not return until the command completes. If <paramref name="blocking"/> is <c>false</c> this method will return immediately after the command is enqueued. </remarks>
         public T[] Read<T>(
             ComputeBufferBase<T> source,
             bool blocking,
             long offset,
             long region,
-            ICollection<ComputeEventBase> events) where T : struct
+            ICollection<IComputeEvent> events) where T : struct
         {
             var value = new T[region - offset];
             GCHandle gch = GCHandle.Alloc(value, GCHandleType.Pinned);
@@ -439,7 +466,7 @@ namespace SilverHorn.Cloo.Command
         /// <param name="offset"> The <paramref name="source"/> element position where reading starts. </param>
         /// <param name="region"> The region of elements to read. </param>
         /// <param name="destination"> A pointer to a preallocated memory area to read the data into. </param>
-        /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> or read-only a new <see cref="ComputeEvent"/> identifying this command is created and attached to the end of the collection. </param>
+        /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> or read-only a new event identifying this command is created and attached to the end of the collection. </param>
         /// <remarks> If <paramref name="blocking"/> is <c>true</c> this method will not return until the command completes. If <paramref name="blocking"/> is <c>false</c> this method will return immediately after the command is enqueued. </remarks>
         public void Read<T>(
             ComputeBufferBase<T> source,
@@ -447,7 +474,7 @@ namespace SilverHorn.Cloo.Command
             long offset,
             long region,
             IntPtr destination,
-            ICollection<ComputeEventBase> events) where T : struct
+            ICollection<IComputeEvent> events) where T : struct
         {
             int sizeofT = Marshal.SizeOf(typeof(T));
 
@@ -487,9 +514,20 @@ namespace SilverHorn.Cloo.Command
         /// <param name="destinationRowPitch"> The size of the destination buffer row in bytes. If set to zero then <paramref name="destinationRowPitch"/> equals <c>region.X * sizeof(T)</c>. </param>
         /// <param name="destinationSlicePitch"> The size of the destination buffer 2D slice in bytes. If set to zero then <paramref name="destinationSlicePitch"/> equals <c>region.Y * sizeof(T) * destinationRowPitch</c>. </param>
         /// <param name="destination"> A pointer to a preallocated memory area to read the data into. </param>
-        /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> or read-only a new <see cref="ComputeEvent"/> identifying this command is created and attached to the end of the collection. </param>
+        /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If events is not <c>null</c> or read-only a new event identifying this command is created and attached to the end of the collection. </param>
         /// <remarks> Requires OpenCL 1.1. </remarks>
-        private void Read<T>(ComputeBufferBase<T> source, bool blocking, SysIntX3 sourceOffset, SysIntX3 destinationOffset, SysIntX3 region, long sourceRowPitch, long sourceSlicePitch, long destinationRowPitch, long destinationSlicePitch, IntPtr destination, ICollection<ComputeEventBase> events) where T : struct
+        private void Read<T>(
+            ComputeBufferBase<T> source,
+            bool blocking,
+            SysIntX3 sourceOffset,
+            SysIntX3 destinationOffset,
+            SysIntX3 region,
+            long sourceRowPitch,
+            long sourceSlicePitch,
+            long destinationRowPitch,
+            long destinationSlicePitch,
+            IntPtr destination,
+            ICollection<IComputeEvent> events) where T : struct
         {
             int sizeofT = Marshal.SizeOf(typeof(T));
 
@@ -521,9 +559,17 @@ namespace SilverHorn.Cloo.Command
         /// <param name="rowPitch"> The image row pitch of source or 0. </param>
         /// <param name="slicePitch"> The image slice pitch of source or 0. </param>
         /// <param name="destination"> A pointer to a preallocated memory area to read the data into. </param>
-        /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> or read-only a new <see cref="ComputeEvent"/> identifying this command is created and attached to the end of the collection. </param>
+        /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If events is not <c>null</c> or read-only a new event identifying this command is created and attached to the end of the collection. </param>
         /// <remarks> If <paramref name="blocking"/> is <c>true</c> this method will not return until the command completes. If <paramref name="blocking"/> is <c>false</c> this method will return immediately after the command is enqueued. </remarks>
-        public void Read(ComputeImage source, bool blocking, SysIntX3 offset, SysIntX3 region, long rowPitch, long slicePitch, IntPtr destination, ICollection<ComputeEventBase> events)
+        public void Read(
+            ComputeImage source,
+            bool blocking,
+            SysIntX3 offset,
+            SysIntX3 region,
+            long rowPitch,
+            long slicePitch,
+            IntPtr destination,
+            ICollection<IComputeEvent> events)
         {
             var eventHandles = ComputeTools.ExtractHandles(events, out int eventWaitListSize);
             var eventsWritable = (events != null && !events.IsReadOnly);
@@ -542,8 +588,8 @@ namespace SilverHorn.Cloo.Command
         /// Enqueues a command to release memorys that have been created from OpenGL objects.
         /// </summary>
         /// <param name="memObjs"> A collection of memorys that correspond to OpenGL memory objects. </param>
-        /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> or read-only a new <see cref="ComputeEvent"/> identifying this command is created and attached to the end of the collection. </param>
-        public void ReleaseGLObjects(ICollection<ComputeMemory> memObjs, ICollection<ComputeEventBase> events)
+        /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> or read-only a new event identifying this command is created and attached to the end of the collection. </param>
+        public void ReleaseGLObjects(ICollection<ComputeMemory> memObjs, ICollection<IComputeEvent> events)
         {
             var memObjHandles = ComputeTools.ExtractHandles(memObjs, out int memObjCount);
 
@@ -563,8 +609,8 @@ namespace SilverHorn.Cloo.Command
         /// </summary>
         /// <param name="memory"> The memory. </param>
         /// <param name="mappedPtr"> The host address returned by a previous call to map. This pointer is <c>IntPtr.Zero</c> after this method returns. </param>
-        /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> or read-only a new <see cref="ComputeEvent"/> identifying this command is created and attached to the end of the collection. </param>
-        public void Unmap(ComputeMemory memory, ref IntPtr mappedPtr, ICollection<ComputeEventBase> events)
+        /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If events is not <c>null</c> or read-only a new event identifying this command is created and attached to the end of the collection. </param>
+        public void Unmap(ComputeMemory memory, ref IntPtr mappedPtr, ICollection<IComputeEvent> events)
         {
             var eventHandles = ComputeTools.ExtractHandles(events, out int eventWaitListSize);
             var eventsWritable = (events != null && !events.IsReadOnly);
@@ -581,10 +627,10 @@ namespace SilverHorn.Cloo.Command
         }
 
         /// <summary>
-        /// Enqueues a wait command for a collection of <see cref="ComputeEvent"/>s to complete before any future commands queued in the command queue are executed.
+        /// Enqueues a wait command for a collection of events to complete before any future commands queued in the command queue are executed.
         /// </summary>
-        /// <param name="events"> The <see cref="ComputeEvent"/>s that this command will wait for. </param>
-        public void Wait(ICollection<ComputeEventBase> events)
+        /// <param name="events"> The events that this command will wait for. </param>
+        public void Wait(ICollection<IComputeEvent> events)
         {
             var eventHandles = ComputeTools.ExtractHandles(events, out int eventWaitListSize);
             var error = CL10.EnqueueWaitForEvents(Handle, eventWaitListSize, eventHandles);
@@ -599,9 +645,15 @@ namespace SilverHorn.Cloo.Command
         /// <param name="destinationOffset"> The <paramref name="destination"/> element position where writing starts. </param>
         /// <param name="region"> The region of elements to write. </param>
         /// <param name="source"> The data written to the buffer. </param>
-        /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> or read-only a new <see cref="ComputeEvent"/> identifying this command is created and attached to the end of the collection. </param>
+        /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If events is not <c>null</c> or read-only a new event identifying this command is created and attached to the end of the collection. </param>
         /// <remarks> If <paramref name="blocking"/> is <c>true</c> this method will not return until the command completes. If <paramref name="blocking"/> is <c>false</c> this method will return immediately after the command is enqueued. </remarks>
-        public void Write<T>(ComputeBufferBase<T> destination, bool blocking, long destinationOffset, long region, IntPtr source, ICollection<ComputeEventBase> events) where T : struct
+        public void Write<T>(
+            ComputeBufferBase<T> destination,
+            bool blocking,
+            long destinationOffset,
+            long region,
+            IntPtr source,
+            ICollection<IComputeEvent> events) where T : struct
         {
             int sizeofT = Marshal.SizeOf(typeof(T));
 
@@ -631,9 +683,20 @@ namespace SilverHorn.Cloo.Command
         /// <param name="sourceRowPitch"> The size of the memory area row in bytes. If set to zero then <paramref name="sourceRowPitch"/> equals <c>region.X * sizeof(T)</c>. </param>
         /// <param name="sourceSlicePitch"> The size of the memory area 2D slice in bytes. If set to zero then <paramref name="sourceSlicePitch"/> equals <c>region.Y * sizeof(T) * sourceRowPitch</c>. </param>
         /// <param name="source"> The data written to the buffer. </param>
-        /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> or read-only a new <see cref="ComputeEvent"/> identifying this command is created and attached to the end of the collection. </param>
+        /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If events is not <c>null</c> or read-only a new event identifying this command is created and attached to the end of the collection. </param>
         /// <remarks> Requires OpenCL 1.1. </remarks>
-        private void Write<T>(ComputeBufferBase<T> destination, bool blocking, SysIntX3 sourceOffset, SysIntX3 destinationOffset, SysIntX3 region, long destinationRowPitch, long destinationSlicePitch, long sourceRowPitch, long sourceSlicePitch, IntPtr source, ICollection<ComputeEventBase> events) where T : struct
+        private void Write<T>(
+            ComputeBufferBase<T> destination,
+            bool blocking,
+            SysIntX3 sourceOffset,
+            SysIntX3 destinationOffset,
+            SysIntX3 region,
+            long destinationRowPitch,
+            long destinationSlicePitch,
+            long sourceRowPitch,
+            long sourceSlicePitch,
+            IntPtr source,
+            ICollection<IComputeEvent> events) where T : struct
         {
             int sizeofT = Marshal.SizeOf(typeof(T));
 
@@ -665,9 +728,17 @@ namespace SilverHorn.Cloo.Command
         /// <param name="rowPitch"> The image row pitch of <paramref name="destination"/> or 0. </param>
         /// <param name="slicePitch"> The image slice pitch of <paramref name="destination"/> or 0. </param>
         /// <param name="source"> The content written to the image. </param>
-        /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> or read-only a new <see cref="ComputeEvent"/> identifying this command is created and attached to the end of the collection. </param>
+        /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If events is not <c>null</c> or read-only a new event identifying this command is created and attached to the end of the collection. </param>
         /// <remarks> If <paramref name="blocking"/> is <c>true</c> this method will not return until the command completes. If <paramref name="blocking"/> is <c>false</c> this method will return immediately after the command is enqueued. </remarks>
-        public void Write(ComputeImage destination, bool blocking, SysIntX3 destinationOffset, SysIntX3 region, long rowPitch, long slicePitch, IntPtr source, ICollection<ComputeEventBase> events)
+        public void Write(
+            ComputeImage destination,
+            bool blocking,
+            SysIntX3 destinationOffset,
+            SysIntX3 region,
+            long rowPitch,
+            long slicePitch,
+            IntPtr source,
+            ICollection<IComputeEvent> events)
         {
             var eventHandles = ComputeTools.ExtractHandles(events, out int eventWaitListSize);
             var eventsWritable = (events != null && !events.IsReadOnly);
@@ -712,8 +783,10 @@ namespace SilverHorn.Cloo.Command
         /// <param name="source"> The buffer to copy from. </param>
         /// <param name="destination"> The buffer to copy to. </param>
         /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> a new event identifying this command is attached to the end of the collection. </param>
-        public void CopyBuffer<T>(ComputeBufferBase<T> source, ComputeBufferBase<T> destination,
-            ICollection<ComputeEventBase> events) where T : struct
+        public void CopyBuffer<T>(
+            ComputeBufferBase<T> source,
+            ComputeBufferBase<T> destination,
+            ICollection<IComputeEvent> events) where T : struct
         {
             Copy(source, destination, 0, 0, source.Count, events);
         }
@@ -728,8 +801,13 @@ namespace SilverHorn.Cloo.Command
         /// <param name="destinationOffset"> The <paramref name="destination"/> element position where writing starts. </param>
         /// <param name="region"> The region of elements to copy. </param>
         /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> a new event identifying this command is attached to the end of the collection. </param>
-        public void CopyBuffer<T>(ComputeBufferBase<T> source, ComputeBufferBase<T> destination,
-            long sourceOffset, long destinationOffset, long region, ICollection<ComputeEventBase> events) where T : struct
+        public void CopyBuffer<T>(
+            ComputeBufferBase<T> source,
+            ComputeBufferBase<T> destination,
+            long sourceOffset,
+            long destinationOffset,
+            long region,
+            ICollection<IComputeEvent> events) where T : struct
         {
             Copy(source, destination, sourceOffset, destinationOffset, region, events);
         }
@@ -744,8 +822,13 @@ namespace SilverHorn.Cloo.Command
         /// <param name="destinationOffset"> The <paramref name="destination"/> element position where writing starts. </param>
         /// <param name="region"> The region of elements to copy. </param>
         /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> a new event identifying this command is attached to the end of the collection. </param>
-        public void CopyBuffer<T>(ComputeBufferBase<T> source, ComputeBufferBase<T> destination,
-            SysIntX2 sourceOffset, SysIntX2 destinationOffset, SysIntX2 region, ICollection<ComputeEventBase> events) where T : struct
+        public void CopyBuffer<T>(
+            ComputeBufferBase<T> source,
+            ComputeBufferBase<T> destination,
+            SysIntX2 sourceOffset,
+            SysIntX2 destinationOffset,
+            SysIntX2 region,
+            ICollection<IComputeEvent> events) where T : struct
         {
             Copy(source, destination, new SysIntX3(sourceOffset, 0), new SysIntX3(destinationOffset, 0),
                 new SysIntX3(region, 1), 0, 0, 0, 0, events);
@@ -761,8 +844,13 @@ namespace SilverHorn.Cloo.Command
         /// <param name="destinationOffset"> The <paramref name="destination"/> element position where writing starts. </param>
         /// <param name="region"> The region of elements to copy. </param>
         /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> a new event identifying this command is attached to the end of the collection. </param>
-        public void CopyBuffer<T>(ComputeBufferBase<T> source, ComputeBufferBase<T> destination,
-            SysIntX3 sourceOffset, SysIntX3 destinationOffset, SysIntX3 region, ICollection<ComputeEventBase> events) where T : struct
+        public void CopyBuffer<T>(
+            ComputeBufferBase<T> source,
+            ComputeBufferBase<T> destination,
+            SysIntX3 sourceOffset,
+            SysIntX3 destinationOffset,
+            SysIntX3 region,
+            ICollection<IComputeEvent> events) where T : struct
         {
             Copy(source, destination, sourceOffset, destinationOffset, region, 0, 0, 0, 0, events);
         }
@@ -779,9 +867,15 @@ namespace SilverHorn.Cloo.Command
         /// <param name="sourceRowPitch"> The size of a row of elements of <paramref name="source"/> in bytes. </param>
         /// <param name="destinationRowPitch"> The size of a row of elements of <paramref name="destination"/> in bytes. </param>
         /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> a new event identifying this command is attached to the end of the collection. </param>
-        public void CopyBuffer<T>(ComputeBufferBase<T> source, ComputeBufferBase<T> destination,
-            SysIntX2 sourceOffset, SysIntX2 destinationOffset, SysIntX2 region, long sourceRowPitch, long destinationRowPitch,
-            ICollection<ComputeEventBase> events) where T : struct
+        public void CopyBuffer<T>(
+            ComputeBufferBase<T> source,
+            ComputeBufferBase<T> destination,
+            SysIntX2 sourceOffset,
+            SysIntX2 destinationOffset,
+            SysIntX2 region,
+            long sourceRowPitch,
+            long destinationRowPitch,
+            ICollection<IComputeEvent> events) where T : struct
         {
             Copy(source, destination, new SysIntX3(sourceOffset, 0), new SysIntX3(destinationOffset, 0),
                 new SysIntX3(region, 1), sourceRowPitch, 0, destinationRowPitch, 0, events);
@@ -801,10 +895,17 @@ namespace SilverHorn.Cloo.Command
         /// <param name="sourceSlicePitch"> The size of a 2D slice of elements of <paramref name="source"/> in bytes. </param>
         /// <param name="destinationSlicePitch"> The size of a 2D slice of elements of <paramref name="destination"/> in bytes. </param>
         /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> a new event identifying this command is attached to the end of the collection. </param>
-        public void CopyBuffer<T>(ComputeBufferBase<T> source, ComputeBufferBase<T> destination,
-            SysIntX3 sourceOffset, SysIntX3 destinationOffset, SysIntX3 region, long sourceRowPitch,
-            long destinationRowPitch, long sourceSlicePitch, long destinationSlicePitch,
-            ICollection<ComputeEventBase> events) where T : struct
+        public void CopyBuffer<T>(
+            ComputeBufferBase<T> source,
+            ComputeBufferBase<T> destination,
+            SysIntX3 sourceOffset,
+            SysIntX3 destinationOffset,
+            SysIntX3 region,
+            long sourceRowPitch,
+            long destinationRowPitch,
+            long sourceSlicePitch,
+            long destinationSlicePitch,
+            ICollection<IComputeEvent> events) where T : struct
         {
             Copy(source, destination, sourceOffset, destinationOffset, region, sourceRowPitch,
                 sourceSlicePitch, destinationRowPitch, destinationSlicePitch, events);
@@ -821,9 +922,13 @@ namespace SilverHorn.Cloo.Command
         /// <param name="source"> The buffer to copy from. </param>
         /// <param name="destination"> The image to copy to. </param>
         /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> a new event identifying this command is attached to the end of the collection. </param>
-        public void CopyBufferToImage<T>(ComputeBufferBase<T> source, ComputeImage destination, ICollection<ComputeEventBase> events) where T : struct
+        public void CopyBufferToImage<T>(
+            ComputeBufferBase<T> source,
+            ComputeImage destination,
+            ICollection<IComputeEvent> events) where T : struct
         {
-            Copy(source, destination, 0, new SysIntX3(), new SysIntX3(destination.Width, destination.Height, (destination.Depth == 0) ? 1 : destination.Depth), events);
+            Copy(source, destination, 0, new SysIntX3(),
+                new SysIntX3(destination.Width, destination.Height, (destination.Depth == 0) ? 1 : destination.Depth), events);
         }
 
         /// <summary>
@@ -836,7 +941,13 @@ namespace SilverHorn.Cloo.Command
         /// <param name="destinationOffset"> The <paramref name="destination"/> element position where writing starts. </param>
         /// <param name="region"> The region of elements to copy. </param>
         /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> a new event identifying this command is attached to the end of the collection. </param>
-        public void CopyBufferToImage<T>(ComputeBufferBase<T> source, ComputeImage2D destination, long sourceOffset, SysIntX2 destinationOffset, SysIntX2 region, ICollection<ComputeEventBase> events) where T : struct
+        public void CopyBufferToImage<T>(
+            ComputeBufferBase<T> source,
+            ComputeImage2D destination,
+            long sourceOffset,
+            SysIntX2 destinationOffset,
+            SysIntX2 region,
+            ICollection<IComputeEvent> events) where T : struct
         {
             Copy(source, destination, sourceOffset, new SysIntX3(destinationOffset, 0), new SysIntX3(region, 1), events);
         }
@@ -851,7 +962,13 @@ namespace SilverHorn.Cloo.Command
         /// <param name="destinationOffset"> The <paramref name="destination"/> element position where writing starts. </param>
         /// <param name="region"> The region of elements to copy. </param>
         /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> a new event identifying this command is attached to the end of the collection. </param>
-        public void CopyBufferToImage<T>(ComputeBufferBase<T> source, ComputeImage3D destination, long sourceOffset, SysIntX3 destinationOffset, SysIntX3 region, ICollection<ComputeEventBase> events) where T : struct
+        public void CopyBufferToImage<T>(
+            ComputeBufferBase<T> source,
+            ComputeImage3D destination,
+            long sourceOffset,
+            SysIntX3 destinationOffset,
+            SysIntX3 region,
+            ICollection<IComputeEvent> events) where T : struct
         {
             Copy(source, destination, sourceOffset, destinationOffset, region, events);
         }
@@ -866,9 +983,13 @@ namespace SilverHorn.Cloo.Command
         /// <param name="source"> The image to copy from. </param>
         /// <param name="destination"> The image to copy to. </param>
         /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> a new event identifying this command is attached to the end of the collection. </param>
-        public void CopyImage(ComputeImage source, ComputeImage destination, ICollection<ComputeEventBase> events)
+        public void CopyImage(
+            ComputeImage source,
+            ComputeImage destination,
+            ICollection<IComputeEvent> events)
         {
-            Copy(source, destination, new SysIntX3(), new SysIntX3(), new SysIntX3(source.Width, source.Height, (source.Depth == 0) ? 1 : source.Depth), events);
+            Copy(source, destination, new SysIntX3(), new SysIntX3(),
+                new SysIntX3(source.Width, source.Height, (source.Depth == 0) ? 1 : source.Depth), events);
         }
 
         /// <summary>
@@ -880,8 +1001,13 @@ namespace SilverHorn.Cloo.Command
         /// <param name="destinationOffset"> The <paramref name="destination"/> element position where writing starts. </param>
         /// <param name="region"> The region of elements to copy. </param>
         /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> a new event identifying this command is attached to the end of the collection. </param>
-        public void CopyImage(ComputeImage2D source, ComputeImage2D destination, SysIntX2 sourceOffset,
-            SysIntX2 destinationOffset, SysIntX2 region, ICollection<ComputeEventBase> events)
+        public void CopyImage(
+            ComputeImage2D source,
+            ComputeImage2D destination,
+            SysIntX2 sourceOffset,
+            SysIntX2 destinationOffset,
+            SysIntX2 region,
+            ICollection<IComputeEvent> events)
         {
             Copy(source, destination, new SysIntX3(sourceOffset, 0),
                 new SysIntX3(destinationOffset, 0), new SysIntX3(region, 1), events);
@@ -896,9 +1022,16 @@ namespace SilverHorn.Cloo.Command
         /// <param name="destinationOffset"> The <paramref name="destination"/> element position where writing starts. </param>
         /// <param name="region"> The region of elements to copy. </param>
         /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> a new event identifying this command is attached to the end of the collection. </param>
-        public void CopyImage(ComputeImage2D source, ComputeImage3D destination, SysIntX2 sourceOffset, SysIntX3 destinationOffset, SysIntX2 region, ICollection<ComputeEventBase> events)
+        public void CopyImage(
+            ComputeImage2D source,
+            ComputeImage3D destination,
+            SysIntX2 sourceOffset,
+            SysIntX3 destinationOffset,
+            SysIntX2 region,
+            ICollection<IComputeEvent> events)
         {
-            Copy(source, destination, new SysIntX3(sourceOffset, 0), destinationOffset, new SysIntX3(region, 1), events);
+            Copy(source, destination, new SysIntX3(sourceOffset, 0),
+                destinationOffset, new SysIntX3(region, 1), events);
         }
 
         /// <summary>
@@ -925,8 +1058,13 @@ namespace SilverHorn.Cloo.Command
         /// <param name="destinationOffset"> The <paramref name="destination"/> element position where writing starts. </param>
         /// <param name="region"> The region of elements to copy. </param>
         /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> a new event identifying this command is attached to the end of the collection. </param>
-        public void CopyImage(ComputeImage3D source, ComputeImage3D destination, SysIntX3 sourceOffset,
-            SysIntX3 destinationOffset, SysIntX3 region, ICollection<ComputeEventBase> events)
+        public void CopyImage(
+            ComputeImage3D source,
+            ComputeImage3D destination,
+            SysIntX3 sourceOffset,
+            SysIntX3 destinationOffset,
+            SysIntX3 region,
+            ICollection<IComputeEvent> events)
         {
             Copy(source, destination, sourceOffset, destinationOffset, region, events);
         }
@@ -942,8 +1080,10 @@ namespace SilverHorn.Cloo.Command
         /// <param name="source"> The image to copy from. </param>
         /// <param name="destination"> The buffer to copy to. </param>
         /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> a new event identifying this command is attached to the end of the collection. </param>
-        public void CopyImageToBuffer<T>(ComputeImage source, ComputeBufferBase<T> destination,
-            ICollection<ComputeEventBase> events) where T : struct
+        public void CopyImageToBuffer<T>(
+            ComputeImage source,
+            ComputeBufferBase<T> destination,
+            ICollection<IComputeEvent> events) where T : struct
         {
             Copy(source, destination, new SysIntX3(), 0,
                 new SysIntX3(source.Width, source.Height, (source.Depth == 0) ? 1 : source.Depth), events);
@@ -959,8 +1099,13 @@ namespace SilverHorn.Cloo.Command
         /// <param name="destinationOffset"> The <paramref name="destination"/> element position where writing starts. </param>
         /// <param name="region"> The region of elements to copy. </param>
         /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> a new event identifying this command is attached to the end of the collection. </param>
-        public void CopyImageToBuffer<T>(ComputeImage2D source, ComputeBufferBase<T> destination,
-            SysIntX2 sourceOffset, long destinationOffset, SysIntX2 region, ICollection<ComputeEventBase> events) where T : struct
+        public void CopyImageToBuffer<T>(
+            ComputeImage2D source,
+            ComputeBufferBase<T> destination,
+            SysIntX2 sourceOffset,
+            long destinationOffset,
+            SysIntX2 region,
+            ICollection<IComputeEvent> events) where T : struct
         {
             Copy(source, destination, new SysIntX3(sourceOffset, 0), destinationOffset, new SysIntX3(region, 1), events);
         }
@@ -975,7 +1120,13 @@ namespace SilverHorn.Cloo.Command
         /// <param name="destinationOffset"> The <paramref name="destination"/> element position where writing starts. </param>
         /// <param name="region"> The region of elements to copy. </param>
         /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> a new event identifying this command is attached to the end of the collection. </param>
-        public void CopyImageToBuffer<T>(ComputeImage3D source, ComputeBufferBase<T> destination, SysIntX3 sourceOffset, long destinationOffset, SysIntX3 region, ICollection<ComputeEventBase> events) where T : struct
+        public void CopyImageToBuffer<T>(
+            ComputeImage3D source,
+            ComputeBufferBase<T> destination,
+            SysIntX3 sourceOffset,
+            long destinationOffset,
+            SysIntX3 region,
+            ICollection<IComputeEvent> events) where T : struct
         {
             Copy(source, destination, sourceOffset, destinationOffset, region, events);
         }
@@ -992,7 +1143,11 @@ namespace SilverHorn.Cloo.Command
         /// <param name="destination"> The array to write to. </param>
         /// <param name="blocking"> The mode of operation of this command. If <c>true</c> this call will not return until the command has finished execution. </param>
         /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> a new event identifying this command is attached to the end of the collection. </param>
-        public void ReadFromBuffer<T>(ComputeBufferBase<T> source, ref T[] destination, bool blocking, IList<ComputeEventBase> events) where T : struct
+        public void ReadFromBuffer<T>(
+            ComputeBufferBase<T> source,
+            ref T[] destination,
+            bool blocking,
+            IList<IComputeEvent> events) where T : struct
         {
             ReadFromBuffer(source, ref destination, blocking, 0, 0, source.Count, events);
         }
@@ -1008,7 +1163,14 @@ namespace SilverHorn.Cloo.Command
         /// <param name="destinationOffset"> The <paramref name="destination"/> element position where writing starts. </param>
         /// <param name="region"> The region of elements to read. </param>
         /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> a new event identifying this command is attached to the end of the collection. </param>
-        public void ReadFromBuffer<T>(ComputeBufferBase<T> source, ref T[] destination, bool blocking, long sourceOffset, long destinationOffset, long region, IList<ComputeEventBase> events) where T : struct
+        public void ReadFromBuffer<T>(
+            ComputeBufferBase<T> source,
+            ref T[] destination,
+            bool blocking,
+            long sourceOffset,
+            long destinationOffset,
+            long region,
+            IList<IComputeEvent> events) where T : struct
         {
             GCHandle destinationGCHandle = GCHandle.Alloc(destination, GCHandleType.Pinned);
             IntPtr destinationOffsetPtr = Marshal.UnsafeAddrOfPinnedArrayElement(destination, (int)destinationOffset);
@@ -1021,9 +1183,9 @@ namespace SilverHorn.Cloo.Command
             else
             {
                 bool userEventsWritable = (events != null && !events.IsReadOnly);
-                IList<ComputeEventBase> eventList = (userEventsWritable) ? events : Events;
+                var eventList = (userEventsWritable) ? events : Events;
                 Read(source, blocking, sourceOffset, region, destinationOffsetPtr, eventList);
-                ComputeEvent newEvent = (ComputeEvent)eventList[eventList.Count - 1];
+                var newEvent = (ComputeEvent)eventList[eventList.Count - 1];
                 newEvent.TrackGCHandle(destinationGCHandle);
             }
         }
@@ -1039,7 +1201,14 @@ namespace SilverHorn.Cloo.Command
         /// <param name="destinationOffset"> The <paramref name="destination"/> element position where writing starts. </param>
         /// <param name="region"> The region of elements to read. </param>
         /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> a new event identifying this command is attached to the end of the collection. </param>
-        public void ReadFromBuffer<T>(ComputeBufferBase<T> source, ref T[,] destination, bool blocking, SysIntX2 sourceOffset, SysIntX2 destinationOffset, SysIntX2 region, IList<ComputeEventBase> events) where T : struct
+        public void ReadFromBuffer<T>(
+            ComputeBufferBase<T> source,
+            ref T[,] destination,
+            bool blocking,
+            SysIntX2 sourceOffset,
+            SysIntX2 destinationOffset,
+            SysIntX2 region,
+            IList<IComputeEvent> events) where T : struct
         {
             ReadFromBuffer(source, ref destination, blocking, sourceOffset, destinationOffset, region, 0, 0, events);
         }
@@ -1055,7 +1224,14 @@ namespace SilverHorn.Cloo.Command
         /// <param name="destinationOffset"> The <paramref name="destination"/> element position where writing starts. </param>
         /// <param name="region"> The region of elements to read. </param>
         /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> a new event identifying this command is attached to the end of the collection. </param>
-        public void ReadFromBuffer<T>(ComputeBufferBase<T> source, ref T[,,] destination, bool blocking, SysIntX3 sourceOffset, SysIntX3 destinationOffset, SysIntX3 region, IList<ComputeEventBase> events) where T : struct
+        public void ReadFromBuffer<T>(
+            ComputeBufferBase<T> source,
+            ref T[,,] destination,
+            bool blocking,
+            SysIntX3 sourceOffset,
+            SysIntX3 destinationOffset,
+            SysIntX3 region,
+            IList<IComputeEvent> events) where T : struct
         {
             ReadFromBuffer(source, ref destination, blocking, sourceOffset, destinationOffset, region, 0, 0, 0, 0, events);
         }
@@ -1073,21 +1249,32 @@ namespace SilverHorn.Cloo.Command
         /// <param name="sourceRowPitch"> The size of a row of elements of <paramref name="source"/> in bytes. </param>
         /// <param name="destinationRowPitch"> The size of a row of elements of <paramref name="destination"/> in bytes. </param>
         /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> a new event identifying this command is attached to the end of the collection. </param>
-        public void ReadFromBuffer<T>(ComputeBufferBase<T> source, ref T[,] destination, bool blocking, SysIntX2 sourceOffset, SysIntX2 destinationOffset, SysIntX2 region, long sourceRowPitch, long destinationRowPitch, IList<ComputeEventBase> events) where T : struct
+        public void ReadFromBuffer<T>(
+            ComputeBufferBase<T> source,
+            ref T[,] destination,
+            bool blocking,
+            SysIntX2 sourceOffset,
+            SysIntX2 destinationOffset,
+            SysIntX2 region,
+            long sourceRowPitch,
+            long destinationRowPitch,
+            IList<IComputeEvent> events) where T : struct
         {
             GCHandle destinationGCHandle = GCHandle.Alloc(destination, GCHandleType.Pinned);
 
             if (blocking)
             {
-                Read(source, blocking, new SysIntX3(sourceOffset, 0), new SysIntX3(destinationOffset, 0), new SysIntX3(region, 1), sourceRowPitch, 0, destinationRowPitch, 0, destinationGCHandle.AddrOfPinnedObject(), events);
+                Read(source, blocking, new SysIntX3(sourceOffset, 0),
+                    new SysIntX3(destinationOffset, 0), new SysIntX3(region, 1),
+                    sourceRowPitch, 0, destinationRowPitch, 0, destinationGCHandle.AddrOfPinnedObject(), events);
                 destinationGCHandle.Free();
             }
             else
             {
                 bool userEventsWritable = (events != null && !events.IsReadOnly);
-                IList<ComputeEventBase> eventList = (userEventsWritable) ? events : Events;
+                var eventList = (userEventsWritable) ? events : Events;
                 Read(source, blocking, new SysIntX3(sourceOffset, 0), new SysIntX3(destinationOffset, 0), new SysIntX3(region, 1), sourceRowPitch, 0, destinationRowPitch, 0, destinationGCHandle.AddrOfPinnedObject(), eventList);
-                ComputeEvent newEvent = (ComputeEvent)eventList[eventList.Count - 1];
+                var newEvent = (ComputeEvent)eventList[eventList.Count - 1];
                 newEvent.TrackGCHandle(destinationGCHandle);
             }
         }
@@ -1107,21 +1294,34 @@ namespace SilverHorn.Cloo.Command
         /// <param name="sourceSlicePitch"> The size of a 2D slice of elements of <paramref name="source"/> in bytes. </param>
         /// <param name="destinationSlicePitch"> The size of a 2D slice of elements of <paramref name="destination"/> in bytes. </param>
         /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> a new event identifying this command is attached to the end of the collection. </param>
-        public void ReadFromBuffer<T>(ComputeBufferBase<T> source, ref T[,,] destination, bool blocking, SysIntX3 sourceOffset, SysIntX3 destinationOffset, SysIntX3 region, long sourceRowPitch, long destinationRowPitch, long sourceSlicePitch, long destinationSlicePitch, IList<ComputeEventBase> events) where T : struct
+        public void ReadFromBuffer<T>(
+            ComputeBufferBase<T> source,
+            ref T[,,] destination,
+            bool blocking,
+            SysIntX3 sourceOffset,
+            SysIntX3 destinationOffset,
+            SysIntX3 region,
+            long sourceRowPitch,
+            long destinationRowPitch,
+            long sourceSlicePitch,
+            long destinationSlicePitch,
+            IList<IComputeEvent> events) where T : struct
         {
             GCHandle destinationGCHandle = GCHandle.Alloc(destination, GCHandleType.Pinned);
 
             if (blocking)
             {
-                Read(source, blocking, sourceOffset, destinationOffset, region, sourceRowPitch, sourceSlicePitch, destinationRowPitch, destinationSlicePitch, destinationGCHandle.AddrOfPinnedObject(), events);
+                Read(source, blocking, sourceOffset, destinationOffset, region,
+                    sourceRowPitch, sourceSlicePitch, destinationRowPitch, destinationSlicePitch,
+                    destinationGCHandle.AddrOfPinnedObject(), events);
                 destinationGCHandle.Free();
             }
             else
             {
                 bool userEventsWritable = (events != null && !events.IsReadOnly);
-                IList<ComputeEventBase> eventList = (userEventsWritable) ? events : Events;
+                var eventList = (userEventsWritable) ? events : Events;
                 Read(source, blocking, sourceOffset, destinationOffset, region, sourceRowPitch, sourceSlicePitch, destinationRowPitch, destinationSlicePitch, destinationGCHandle.AddrOfPinnedObject(), eventList);
-                ComputeEvent newEvent = (ComputeEvent)eventList[eventList.Count - 1];
+                var newEvent = (ComputeEvent)eventList[eventList.Count - 1];
                 newEvent.TrackGCHandle(destinationGCHandle);
             }
         }
@@ -1137,9 +1337,15 @@ namespace SilverHorn.Cloo.Command
         /// <param name="destination"> A valid pointer to a preallocated memory area to write to. </param>
         /// <param name="blocking"> The mode of operation of this command. If <c>true</c> this call will not return until the command has finished execution. </param>
         /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> a new event identifying this command is attached to the end of the collection. </param>
-        public void ReadFromImage(ComputeImage source, IntPtr destination, bool blocking, ICollection<ComputeEventBase> events)
+        public void ReadFromImage(
+            ComputeImage source,
+            IntPtr destination,
+            bool blocking,
+            ICollection<IComputeEvent> events)
         {
-            Read(source, blocking, new SysIntX3(), new SysIntX3(source.Width, source.Height, (source.Depth == 0) ? 1 : source.Depth), 0, 0, destination, events);
+            Read(source, blocking, new SysIntX3(),
+                new SysIntX3(source.Width, source.Height, (source.Depth == 0) ? 1 : source.Depth),
+                0, 0, destination, events);
         }
 
         /// <summary>
@@ -1151,7 +1357,13 @@ namespace SilverHorn.Cloo.Command
         /// <param name="sourceOffset"> The <paramref name="source"/> element position where reading starts. </param>
         /// <param name="region"> The region of elements to read. </param>
         /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> a new event identifying this command is attached to the end of the collection. </param>
-        public void ReadFromImage(ComputeImage2D source, IntPtr destination, bool blocking, SysIntX2 sourceOffset, SysIntX2 region, ICollection<ComputeEventBase> events)
+        public void ReadFromImage(
+            ComputeImage2D source,
+            IntPtr destination,
+            bool blocking,
+            SysIntX2 sourceOffset,
+            SysIntX2 region,
+            ICollection<IComputeEvent> events)
         {
             Read(source, blocking, new SysIntX3(sourceOffset, 0), new SysIntX3(region, 1), 0, 0, destination, events);
         }
@@ -1165,7 +1377,13 @@ namespace SilverHorn.Cloo.Command
         /// <param name="sourceOffset"> The <paramref name="source"/> element position where reading starts. </param>
         /// <param name="region"> The region of elements to read. </param>
         /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> a new event identifying this command is attached to the end of the collection. </param>
-        public void ReadFromImage(ComputeImage3D source, IntPtr destination, bool blocking, SysIntX3 sourceOffset, SysIntX3 region, ICollection<ComputeEventBase> events)
+        public void ReadFromImage(
+            ComputeImage3D source,
+            IntPtr destination,
+            bool blocking,
+            SysIntX3 sourceOffset,
+            SysIntX3 region,
+            ICollection<IComputeEvent> events)
         {
             Read(source, blocking, sourceOffset, region, 0, 0, destination, events);
         }
@@ -1180,9 +1398,17 @@ namespace SilverHorn.Cloo.Command
         /// <param name="region"> The region of elements to read. </param>
         /// <param name="sourceRowPitch"> The size of a row of pixels of <paramref name="destination"/> in bytes. </param>
         /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> a new event identifying this command is attached to the end of the collection. </param>
-        public void ReadFromImage(ComputeImage2D source, IntPtr destination, bool blocking, SysIntX2 sourceOffset, SysIntX2 region, long sourceRowPitch, ICollection<ComputeEventBase> events)
+        public void ReadFromImage(
+            ComputeImage2D source,
+            IntPtr destination,
+            bool blocking,
+            SysIntX2 sourceOffset,
+            SysIntX2 region,
+            long sourceRowPitch,
+            ICollection<IComputeEvent> events)
         {
-            Read(source, blocking, new SysIntX3(sourceOffset, 0), new SysIntX3(region, 1), sourceRowPitch, 0, destination, events);
+            Read(source, blocking, new SysIntX3(sourceOffset, 0),
+                new SysIntX3(region, 1), sourceRowPitch, 0, destination, events);
         }
 
         /// <summary>
@@ -1196,9 +1422,18 @@ namespace SilverHorn.Cloo.Command
         /// <param name="sourceRowPitch"> The size of a row of pixels of <paramref name="destination"/> in bytes. </param>
         /// <param name="sourceSlicePitch"> The size of a 2D slice of pixels of <paramref name="destination"/> in bytes. </param>
         /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> a new event identifying this command is attached to the end of the collection. </param>
-        public void ReadFromImage(ComputeImage3D source, IntPtr destination, bool blocking, SysIntX3 sourceOffset, SysIntX3 region, long sourceRowPitch, long sourceSlicePitch, ICollection<ComputeEventBase> events)
+        public void ReadFromImage(
+            ComputeImage3D source,
+            IntPtr destination,
+            bool blocking,
+            SysIntX3 sourceOffset,
+            SysIntX3 region,
+            long sourceRowPitch,
+            long sourceSlicePitch,
+            ICollection<IComputeEvent> events)
         {
-            Read(source, blocking, sourceOffset, region, sourceRowPitch, sourceSlicePitch, destination, events);
+            Read(source, blocking, sourceOffset, region, sourceRowPitch,
+                sourceSlicePitch, destination, events);
         }
 
         #endregion
@@ -1213,7 +1448,11 @@ namespace SilverHorn.Cloo.Command
         /// <param name="destination"> The buffer to write to. </param>
         /// <param name="blocking"> The mode of operation of this command. If <c>true</c> this call will not return until the command has finished execution. </param>
         /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> a new event identifying this command is attached to the end of the collection. </param>
-        public void WriteToBuffer<T>(T[] source, ComputeBufferBase<T> destination, bool blocking, IList<ComputeEventBase> events) where T : struct
+        public void WriteToBuffer<T>(
+            T[] source,
+            ComputeBufferBase<T> destination,
+            bool blocking,
+            IList<IComputeEvent> events) where T : struct
         {
             WriteToBuffer(source, destination, blocking, 0, 0, destination.Count, events);
         }
@@ -1229,7 +1468,14 @@ namespace SilverHorn.Cloo.Command
         /// <param name="destinationOffset"> The <paramref name="destination"/> element position where writing starts. </param>
         /// <param name="region"> The region of elements to write. </param>
         /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> a new event identifying this command is attached to the end of the collection. </param>
-        public void WriteToBuffer<T>(T[] source, ComputeBufferBase<T> destination, bool blocking, long sourceOffset, long destinationOffset, long region, IList<ComputeEventBase> events) where T : struct
+        public void WriteToBuffer<T>(
+            T[] source,
+            ComputeBufferBase<T> destination,
+            bool blocking,
+            long sourceOffset,
+            long destinationOffset,
+            long region,
+            IList<IComputeEvent> events) where T : struct
         {
             GCHandle sourceGCHandle = GCHandle.Alloc(source, GCHandleType.Pinned);
             IntPtr sourceOffsetPtr = Marshal.UnsafeAddrOfPinnedArrayElement(source, (int)sourceOffset);
@@ -1242,9 +1488,9 @@ namespace SilverHorn.Cloo.Command
             else
             {
                 bool userEventsWritable = (events != null && !events.IsReadOnly);
-                IList<ComputeEventBase> eventList = (userEventsWritable) ? events : Events;
+                var eventList = (userEventsWritable) ? events : Events;
                 Write(destination, blocking, destinationOffset, region, sourceOffsetPtr, eventList);
-                ComputeEvent newEvent = (ComputeEvent)eventList[eventList.Count - 1];
+                var newEvent = (ComputeEvent)eventList[eventList.Count - 1];
                 newEvent.TrackGCHandle(sourceGCHandle);
             }
         }
@@ -1260,7 +1506,14 @@ namespace SilverHorn.Cloo.Command
         /// <param name="destinationOffset"> The <paramref name="destination"/> element position where writing starts. </param>
         /// <param name="region"> The region of elements to write. </param>
         /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> a new event identifying this command is attached to the end of the collection. </param>
-        public void WriteToBuffer<T>(T[,] source, ComputeBufferBase<T> destination, bool blocking, SysIntX2 sourceOffset, SysIntX2 destinationOffset, SysIntX2 region, IList<ComputeEventBase> events) where T : struct
+        public void WriteToBuffer<T>(
+            T[,] source,
+            ComputeBufferBase<T> destination,
+            bool blocking,
+            SysIntX2 sourceOffset,
+            SysIntX2 destinationOffset,
+            SysIntX2 region,
+            IList<IComputeEvent> events) where T : struct
         {
             WriteToBuffer(source, destination, blocking, sourceOffset, destinationOffset, region, 0, 0, events);
         }
@@ -1276,7 +1529,14 @@ namespace SilverHorn.Cloo.Command
         /// <param name="destinationOffset"> The <paramref name="destination"/> element position where writing starts. </param>
         /// <param name="region"> The region of elements to write. </param>
         /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> a new event identifying this command is attached to the end of the collection. </param>
-        public void WriteToBuffer<T>(T[,,] source, ComputeBufferBase<T> destination, bool blocking, SysIntX3 sourceOffset, SysIntX3 destinationOffset, SysIntX3 region, IList<ComputeEventBase> events) where T : struct
+        public void WriteToBuffer<T>(
+            T[,,] source,
+            ComputeBufferBase<T> destination,
+            bool blocking,
+            SysIntX3 sourceOffset,
+            SysIntX3 destinationOffset,
+            SysIntX3 region,
+            IList<IComputeEvent> events) where T : struct
         {
             WriteToBuffer(source, destination, blocking, sourceOffset, destinationOffset, region, 0, 0, 0, 0, events);
         }
@@ -1294,21 +1554,33 @@ namespace SilverHorn.Cloo.Command
         /// <param name="sourceRowPitch"> The size of a row of elements of <paramref name="source"/> in bytes. </param>
         /// <param name="destinationRowPitch"> The size of a row of elements of <paramref name="destination"/> in bytes. </param>
         /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> a new event identifying this command is attached to the end of the collection. </param>
-        public void WriteToBuffer<T>(T[,] source, ComputeBufferBase<T> destination, bool blocking, SysIntX2 sourceOffset, SysIntX2 destinationOffset, SysIntX2 region, long sourceRowPitch, long destinationRowPitch, IList<ComputeEventBase> events) where T : struct
+        public void WriteToBuffer<T>(
+            T[,] source,
+            ComputeBufferBase<T> destination,
+            bool blocking,
+            SysIntX2 sourceOffset,
+            SysIntX2 destinationOffset,
+            SysIntX2 region,
+            long sourceRowPitch,
+            long destinationRowPitch,
+            IList<IComputeEvent> events) where T : struct
         {
             GCHandle sourceGCHandle = GCHandle.Alloc(source, GCHandleType.Pinned);
 
             if (blocking)
             {
-                Write(destination, blocking, new SysIntX3(sourceOffset, 0), new SysIntX3(destinationOffset, 0), new SysIntX3(region, 1), sourceRowPitch, 0, destinationRowPitch, 0, sourceGCHandle.AddrOfPinnedObject(), events);
+                Write(destination, blocking, new SysIntX3(sourceOffset, 0),
+                    new SysIntX3(destinationOffset, 0), new SysIntX3(region, 1),
+                    sourceRowPitch, 0, destinationRowPitch, 0,
+                    sourceGCHandle.AddrOfPinnedObject(), events);
                 sourceGCHandle.Free();
             }
             else
             {
                 bool userEventsWritable = (events != null && !events.IsReadOnly);
-                IList<ComputeEventBase> eventList = (userEventsWritable) ? events : Events;
+                var eventList = (userEventsWritable) ? events : Events;
                 Write(destination, blocking, new SysIntX3(sourceOffset, 0), new SysIntX3(destinationOffset, 0), new SysIntX3(region, 1), sourceRowPitch, 0, destinationRowPitch, 0, sourceGCHandle.AddrOfPinnedObject(), eventList);
-                ComputeEvent newEvent = (ComputeEvent)eventList[eventList.Count - 1];
+                var newEvent = (ComputeEvent)eventList[eventList.Count - 1];
                 newEvent.TrackGCHandle(sourceGCHandle);
             }
         }
@@ -1328,21 +1600,35 @@ namespace SilverHorn.Cloo.Command
         /// <param name="sourceSlicePitch"> The size of a 2D slice of elements of <paramref name="source"/> in bytes. </param>
         /// <param name="destinationSlicePitch"> The size of a 2D slice of elements of <paramref name="destination"/> in bytes. </param>
         /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> a new event identifying this command is attached to the end of the collection. </param>
-        public void WriteToBuffer<T>(T[,,] source, ComputeBufferBase<T> destination, bool blocking, SysIntX3 sourceOffset, SysIntX3 destinationOffset, SysIntX3 region, long sourceRowPitch, long destinationRowPitch, long sourceSlicePitch, long destinationSlicePitch, IList<ComputeEventBase> events) where T : struct
+        public void WriteToBuffer<T>(
+            T[,,] source,
+            ComputeBufferBase<T> destination,
+            bool blocking,
+            SysIntX3 sourceOffset,
+            SysIntX3 destinationOffset,
+            SysIntX3 region,
+            long sourceRowPitch,
+            long destinationRowPitch,
+            long sourceSlicePitch,
+            long destinationSlicePitch,
+            IList<IComputeEvent> events) where T : struct
         {
             GCHandle sourceGCHandle = GCHandle.Alloc(source, GCHandleType.Pinned);
 
             if (blocking)
             {
-                Write(destination, blocking, sourceOffset, destinationOffset, region, sourceRowPitch, sourceSlicePitch, destinationRowPitch, destinationSlicePitch, sourceGCHandle.AddrOfPinnedObject(), events);
+                Write(destination, blocking, sourceOffset,
+                    destinationOffset, region, sourceRowPitch,
+                    sourceSlicePitch, destinationRowPitch, destinationSlicePitch,
+                    sourceGCHandle.AddrOfPinnedObject(), events);
                 sourceGCHandle.Free();
             }
             else
             {
                 bool userEventsWritable = (events != null && !events.IsReadOnly);
-                IList<ComputeEventBase> eventList = (userEventsWritable) ? events : Events;
+                var eventList = (userEventsWritable) ? events : Events;
                 Write(destination, blocking, sourceOffset, destinationOffset, region, sourceRowPitch, sourceSlicePitch, destinationRowPitch, destinationSlicePitch, sourceGCHandle.AddrOfPinnedObject(), eventList);
-                ComputeEvent newEvent = (ComputeEvent)eventList[eventList.Count - 1];
+                var newEvent = (ComputeEvent)eventList[eventList.Count - 1];
                 newEvent.TrackGCHandle(sourceGCHandle);
             }
         }
@@ -1358,9 +1644,15 @@ namespace SilverHorn.Cloo.Command
         /// <param name="destination"> The image to write to. </param>
         /// <param name="blocking"> The mode of operation of this command. If <c>true</c> this call will not return until the command has finished execution. </param>
         /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> a new event identifying this command is attached to the end of the collection. </param>
-        public void WriteToImage(IntPtr source, ComputeImage destination, bool blocking, ICollection<ComputeEventBase> events)
+        public void WriteToImage(
+            IntPtr source,
+            ComputeImage destination,
+            bool blocking,
+            ICollection<IComputeEvent> events)
         {
-            Write(destination, blocking, new SysIntX3(), new SysIntX3(destination.Width, destination.Height, (destination.Depth == 0) ? 1 : destination.Depth), 0, 0, source, events);
+            Write(destination, blocking, new SysIntX3(),
+                new SysIntX3(destination.Width, destination.Height, (destination.Depth == 0) ? 1 : destination.Depth),
+                0, 0, source, events);
         }
 
         /// <summary>
@@ -1372,7 +1664,13 @@ namespace SilverHorn.Cloo.Command
         /// <param name="destinationOffset"> The <paramref name="destination"/> element position where writing starts. </param>
         /// <param name="region"> The region of elements to write. </param>
         /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> a new event identifying this command is attached to the end of the collection. </param>
-        public void WriteToImage(IntPtr source, ComputeImage2D destination, bool blocking, SysIntX2 destinationOffset, SysIntX2 region, ICollection<ComputeEventBase> events)
+        public void WriteToImage(
+            IntPtr source,
+            ComputeImage2D destination,
+            bool blocking,
+            SysIntX2 destinationOffset,
+            SysIntX2 region,
+            ICollection<IComputeEvent> events)
         {
             Write(destination, blocking, new SysIntX3(destinationOffset, 0), new SysIntX3(region, 1), 0, 0, source, events);
         }
@@ -1386,7 +1684,13 @@ namespace SilverHorn.Cloo.Command
         /// <param name="destinationOffset"> The <paramref name="destination"/> element position where writing starts. </param>
         /// <param name="region"> The region of elements to write. </param>
         /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> a new event identifying this command is attached to the end of the collection. </param>
-        public void WriteToImage(IntPtr source, ComputeImage3D destination, bool blocking, SysIntX3 destinationOffset, SysIntX3 region, ICollection<ComputeEventBase> events)
+        public void WriteToImage(
+            IntPtr source,
+            ComputeImage3D destination,
+            bool blocking,
+            SysIntX3 destinationOffset,
+            SysIntX3 region,
+            ICollection<IComputeEvent> events)
         {
             Write(destination, blocking, destinationOffset, region, 0, 0, source, events);
         }
@@ -1401,7 +1705,14 @@ namespace SilverHorn.Cloo.Command
         /// <param name="region"> The region of elements to write. </param>
         /// <param name="destinationRowPitch"> The size of a row of pixels of <paramref name="destination"/> in bytes. </param>
         /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> a new event identifying this command is attached to the end of the collection. </param>
-        public void WriteToImage(IntPtr source, ComputeImage2D destination, bool blocking, SysIntX2 destinationOffset, SysIntX2 region, long destinationRowPitch, ICollection<ComputeEventBase> events)
+        public void WriteToImage(
+            IntPtr source,
+            ComputeImage2D destination,
+            bool blocking,
+            SysIntX2 destinationOffset,
+            SysIntX2 region,
+            long destinationRowPitch,
+            ICollection<IComputeEvent> events)
         {
             Write(destination, blocking, new SysIntX3(destinationOffset, 0), new SysIntX3(region, 1), destinationRowPitch, 0, source, events);
         }
@@ -1417,9 +1728,18 @@ namespace SilverHorn.Cloo.Command
         /// <param name="destinationRowPitch"> The size of a row of pixels of <paramref name="destination"/> in bytes. </param>
         /// <param name="destinationSlicePitch"> The size of a 2D slice of pixels of <paramref name="destination"/> in bytes. </param>
         /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> a new event identifying this command is attached to the end of the collection. </param>
-        public void WriteToImage(IntPtr source, ComputeImage3D destination, bool blocking, SysIntX3 destinationOffset, SysIntX3 region, long destinationRowPitch, long destinationSlicePitch, ICollection<ComputeEventBase> events)
+        public void WriteToImage(
+            IntPtr source,
+            ComputeImage3D destination,
+            bool blocking,
+            SysIntX3 destinationOffset,
+            SysIntX3 region,
+            long destinationRowPitch,
+            long destinationSlicePitch,
+            ICollection<IComputeEvent> events)
         {
-            Write(destination, blocking, destinationOffset, region, destinationRowPitch, destinationSlicePitch, source, events);
+            Write(destination, blocking, destinationOffset, region,
+                destinationRowPitch, destinationSlicePitch, source, events);
         }
 
         #endregion

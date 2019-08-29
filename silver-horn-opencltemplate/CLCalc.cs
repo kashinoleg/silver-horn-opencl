@@ -10,6 +10,7 @@ using SilverHorn.Cloo.Device;
 using SilverHorn.Cloo.Context;
 using SilverHorn.Cloo.Command;
 using SilverHorn.Cloo.Factories;
+using SilverHorn.Cloo.Event;
 
 namespace OpenCLTemplate
 {
@@ -606,10 +607,16 @@ namespace OpenCLTemplate
                 /// <param name="CQ">Command queue to use</param>
                 /// <param name="BlockingWrite">TRUE to return only after completed writing.</param>
                 /// <param name="events">OpenCL Event associated to this operation</param>
-                public void WriteToDevice(float[] Values, ComputeCommandQueue CQ, bool BlockingWrite, ICollection<ComputeEventBase> events)
+                public void WriteToDevice(
+                    float[] Values,
+                    ComputeCommandQueue CQ,
+                    bool BlockingWrite,
+                    ICollection<IComputeEvent> events)
                 {
-                    if (Values.Length != OriginalVarLength) throw new Exception("Values length should be the same as allocated length");
-                    if (CreatedFromGLBuffer && (!AcquiredInOpenCL)) throw new Exception("Attempting to use a variable created from OpenGL buffer without acquiring. Should use CLGLInteropFunctions to properly acquire and release these variables");
+                    if (Values.Length != OriginalVarLength)
+                        throw new Exception("Values length should be the same as allocated length");
+                    if (CreatedFromGLBuffer && (!AcquiredInOpenCL))
+                        throw new Exception("Attempting to use a variable created from OpenGL buffer without acquiring. Should use CLGLInteropFunctions to properly acquire and release these variables");
                     unsafe
                     {
                         fixed (void* ponteiro = Values)
@@ -633,9 +640,14 @@ namespace OpenCLTemplate
                 /// <param name="CQ">Command queue to use</param>
                 /// <param name="BlockingWrite">TRUE to return only after completed writing.</param>
                 /// <param name="events">OpenCL Event associated to this operation</param>
-                public void WriteToDevice(int[] Values, ComputeCommandQueue CQ, bool BlockingWrite, ICollection<ComputeEventBase> events)
+                public void WriteToDevice(
+                    int[] Values,
+                    ComputeCommandQueue CQ,
+                    bool BlockingWrite,
+                    ICollection<IComputeEvent> events)
                 {
-                    if (Values.Length != OriginalVarLength) throw new Exception("Values length should be the same as allocated length");
+                    if (Values.Length != OriginalVarLength)
+                        throw new Exception("Values length should be the same as allocated length");
                     unsafe
                     {
                         fixed (void* ponteiro = Values)
@@ -660,9 +672,14 @@ namespace OpenCLTemplate
                 /// <param name="CQ">Command queue to use</param>
                 /// <param name="BlockingWrite">TRUE to return only after completed writing.</param>
                 /// <param name="events">OpenCL Event associated to this operation</param>
-                public void WriteToDevice(short[] Values, ComputeCommandQueue CQ, bool BlockingWrite, ICollection<ComputeEventBase> events)
+                public void WriteToDevice(
+                    short[] Values,
+                    ComputeCommandQueue CQ,
+                    bool BlockingWrite,
+                    ICollection<IComputeEvent> events)
                 {
-                    if (Values.Length != OriginalVarLength) throw new Exception("Values length should be the same as allocated length");
+                    if (Values.Length != OriginalVarLength)
+                        throw new Exception("Values length should be the same as allocated length");
                     unsafe
                     {
                         fixed (void* ponteiro = Values)
@@ -685,9 +702,14 @@ namespace OpenCLTemplate
                 /// <param name="CQ">Command queue to use</param>
                 /// <param name="BlockingWrite">TRUE to return only after completed writing.</param>
                 /// <param name="events">OpenCL Event associated to this operation</param>
-                public void WriteToDevice(uint[] Values, ComputeCommandQueue CQ, bool BlockingWrite, ICollection<ComputeEventBase> events)
+                public void WriteToDevice(
+                    uint[] Values,
+                    ComputeCommandQueue CQ,
+                    bool BlockingWrite,
+                    ICollection<IComputeEvent> events)
                 {
-                    if (Values.Length != OriginalVarLength) throw new Exception("Values length should be the same as allocated length");
+                    if (Values.Length != OriginalVarLength)
+                        throw new Exception("Values length should be the same as allocated length");
                     unsafe
                     {
                         fixed (void* ponteiro = Values)
@@ -712,10 +734,16 @@ namespace OpenCLTemplate
                 /// <param name="CQ">Command queue to use</param>
                 /// <param name="BlockingWrite">TRUE to return only after completed writing.</param>
                 /// <param name="events">OpenCL Event associated to this operation</param>
-                public void WriteToDevice(long[] Values, ComputeCommandQueue CQ, bool BlockingWrite, ICollection<ComputeEventBase> events)
+                public void WriteToDevice(
+                    long[] Values,
+                    ComputeCommandQueue CQ,
+                    bool BlockingWrite,
+                    ICollection<IComputeEvent> events)
                 {
-                    if (Values.Length != OriginalVarLength) throw new Exception("Values length should be the same as allocated length");
-                    if (CreatedFromGLBuffer && (!AcquiredInOpenCL)) throw new Exception("Attempting to use a variable created from OpenGL buffer without acquiring. Should use CLGLInteropFunctions to properly acquire and release these variables");
+                    if (Values.Length != OriginalVarLength)
+                        throw new Exception("Values length should be the same as allocated length");
+                    if (CreatedFromGLBuffer && (!AcquiredInOpenCL))
+                        throw new Exception("Attempting to use a variable created from OpenGL buffer without acquiring. Should use CLGLInteropFunctions to properly acquire and release these variables");
                     unsafe
                     {
                         fixed (void* ponteiro = Values)
@@ -739,10 +767,16 @@ namespace OpenCLTemplate
                 /// <param name="CQ">Command queue to use</param>
                 /// <param name="BlockingWrite">TRUE to return only after completed writing.</param>
                 /// <param name="events">OpenCL Event associated to this operation</param>
-                public void WriteToDevice(double[] Values, ComputeCommandQueue CQ, bool BlockingWrite, ICollection<ComputeEventBase> events)
+                public void WriteToDevice(
+                    double[] Values,
+                    ComputeCommandQueue CQ,
+                    bool BlockingWrite,
+                    ICollection<IComputeEvent> events)
                 {
-                    if (Values.Length != OriginalVarLength) throw new Exception("Values length should be the same as allocated length");
-                    if (CreatedFromGLBuffer && (!AcquiredInOpenCL)) throw new Exception("Attempting to use a variable created from OpenGL buffer without acquiring. Should use CLGLInteropFunctions to properly acquire and release these variables");
+                    if (Values.Length != OriginalVarLength)
+                        throw new Exception("Values length should be the same as allocated length");
+                    if (CreatedFromGLBuffer && (!AcquiredInOpenCL))
+                        throw new Exception("Attempting to use a variable created from OpenGL buffer without acquiring. Should use CLGLInteropFunctions to properly acquire and release these variables");
                     unsafe
                     {
                         fixed (void* ponteiro = Values)
@@ -767,10 +801,16 @@ namespace OpenCLTemplate
                 /// <param name="BlockingWrite">TRUE to return only after completed writing.</param>
                 /// <param name="events">OpenCL Event associated to this operation</param>
 
-                public void WriteToDevice(char[] Values, ComputeCommandQueue CQ, bool BlockingWrite, ICollection<ComputeEventBase> events)
+                public void WriteToDevice(
+                    char[] Values,
+                    ComputeCommandQueue CQ,
+                    bool BlockingWrite,
+                    ICollection<IComputeEvent> events)
                 {
-                    if (Values.Length != OriginalVarLength) throw new Exception("Values length should be the same as allocated length");
-                    if (CreatedFromGLBuffer && (!AcquiredInOpenCL)) throw new Exception("Attempting to use a variable created from OpenGL buffer without acquiring. Should use CLGLInteropFunctions to properly acquire and release these variables");
+                    if (Values.Length != OriginalVarLength)
+                        throw new Exception("Values length should be the same as allocated length");
+                    if (CreatedFromGLBuffer && (!AcquiredInOpenCL))
+                        throw new Exception("Attempting to use a variable created from OpenGL buffer without acquiring. Should use CLGLInteropFunctions to properly acquire and release these variables");
                     unsafe
                     {
                         fixed (void* ponteiro = Values)
@@ -795,10 +835,16 @@ namespace OpenCLTemplate
                 /// <param name="BlockingWrite">TRUE to return only after completed writing.</param>
                 /// <param name="events">OpenCL Event associated to this operation</param>
 
-                public void WriteToDevice(byte[] Values, ComputeCommandQueue CQ, bool BlockingWrite, ICollection<ComputeEventBase> events)
+                public void WriteToDevice(
+                    byte[] Values,
+                    ComputeCommandQueue CQ,
+                    bool BlockingWrite,
+                    ICollection<IComputeEvent> events)
                 {
-                    if (Values.Length != OriginalVarLength) throw new Exception("Values length should be the same as allocated length");
-                    if (CreatedFromGLBuffer && (!AcquiredInOpenCL)) throw new Exception("Attempting to use a variable created from OpenGL buffer without acquiring. Should use CLGLInteropFunctions to properly acquire and release these variables");
+                    if (Values.Length != OriginalVarLength)
+                        throw new Exception("Values length should be the same as allocated length");
+                    if (CreatedFromGLBuffer && (!AcquiredInOpenCL))
+                        throw new Exception("Attempting to use a variable created from OpenGL buffer without acquiring. Should use CLGLInteropFunctions to properly acquire and release these variables");
                     unsafe
                     {
                         fixed (void* ponteiro = Values)
@@ -838,10 +884,16 @@ namespace OpenCLTemplate
                 /// <param name="BlockingRead">TRUE to return only after completed reading.</param>
                 /// <param name="events">OpenCL Event associated with this operation</param>
 
-                public void ReadFromDeviceTo(float[] Values, ComputeCommandQueue CQ, bool BlockingRead, ICollection<ComputeEventBase> events)
+                public void ReadFromDeviceTo(
+                    float[] Values,
+                    ComputeCommandQueue CQ,
+                    bool BlockingRead,
+                    ICollection<IComputeEvent> events)
                 {
-                    if (Values.Length != OriginalVarLength) throw new Exception("Values length should be the same as allocated length");
-                    if (CreatedFromGLBuffer && (!AcquiredInOpenCL)) throw new Exception("Attempting to use a variable created from OpenGL buffer without acquiring. Should use CLGLInteropFunctions to properly acquire and release these variables");
+                    if (Values.Length != OriginalVarLength)
+                        throw new Exception("Values length should be the same as allocated length");
+                    if (CreatedFromGLBuffer && (!AcquiredInOpenCL))
+                        throw new Exception("Attempting to use a variable created from OpenGL buffer without acquiring. Should use CLGLInteropFunctions to properly acquire and release these variables");
                     unsafe
                     {
                         fixed (void* ponteiro = Values)
@@ -866,10 +918,16 @@ namespace OpenCLTemplate
                 /// <param name="CQ">Command queue to use</param>
                 /// <param name="BlockingRead">TRUE to return only after completed reading.</param>
                 /// <param name="events">OpenCL Event associated with this operation</param>
-                public void ReadFromDeviceTo(int[] Values, ComputeCommandQueue CQ, bool BlockingRead, ICollection<ComputeEventBase> events)
+                public void ReadFromDeviceTo(
+                    int[] Values,
+                    ComputeCommandQueue CQ,
+                    bool BlockingRead,
+                    ICollection<IComputeEvent> events)
                 {
-                    if (Values.Length != OriginalVarLength) throw new Exception("Values length should be the same as allocated length");
-                    if (CreatedFromGLBuffer && (!AcquiredInOpenCL)) throw new Exception("Attempting to use a variable created from OpenGL buffer without acquiring. Should use CLGLInteropFunctions to properly acquire and release these variables");
+                    if (Values.Length != OriginalVarLength)
+                        throw new Exception("Values length should be the same as allocated length");
+                    if (CreatedFromGLBuffer && (!AcquiredInOpenCL))
+                        throw new Exception("Attempting to use a variable created from OpenGL buffer without acquiring. Should use CLGLInteropFunctions to properly acquire and release these variables");
                     unsafe
                     {
                         fixed (void* ponteiro = Values)
@@ -894,10 +952,16 @@ namespace OpenCLTemplate
                 /// <param name="CQ">Command queue to use</param>
                 /// <param name="BlockingRead">TRUE to return only after completed reading.</param>
                 /// <param name="events">OpenCL Event associated with this operation</param>
-                public void ReadFromDeviceTo(short[] Values, ComputeCommandQueue CQ, bool BlockingRead, ICollection<ComputeEventBase> events)
+                public void ReadFromDeviceTo(
+                    short[] Values,
+                    ComputeCommandQueue CQ,
+                    bool BlockingRead,
+                    ICollection<IComputeEvent> events)
                 {
-                    if (Values.Length != OriginalVarLength) throw new Exception("Values length should be the same as allocated length");
-                    if (CreatedFromGLBuffer && (!AcquiredInOpenCL)) throw new Exception("Attempting to use a variable created from OpenGL buffer without acquiring. Should use CLGLInteropFunctions to properly acquire and release these variables");
+                    if (Values.Length != OriginalVarLength)
+                        throw new Exception("Values length should be the same as allocated length");
+                    if (CreatedFromGLBuffer && (!AcquiredInOpenCL))
+                        throw new Exception("Attempting to use a variable created from OpenGL buffer without acquiring. Should use CLGLInteropFunctions to properly acquire and release these variables");
                     unsafe
                     {
                         fixed (void* ponteiro = Values)
@@ -922,10 +986,16 @@ namespace OpenCLTemplate
                 /// <param name="CQ">Command queue to use</param>
                 /// <param name="BlockingRead">TRUE to return only after completed reading.</param>
                 /// <param name="events">OpenCL Event associated with this operation</param>
-                public void ReadFromDeviceTo(uint[] Values, ComputeCommandQueue CQ, bool BlockingRead, ICollection<ComputeEventBase> events)
+                public void ReadFromDeviceTo(
+                    uint[] Values,
+                    ComputeCommandQueue CQ,
+                    bool BlockingRead,
+                    ICollection<IComputeEvent> events)
                 {
-                    if (Values.Length != OriginalVarLength) throw new Exception("Values length should be the same as allocated length");
-                    if (CreatedFromGLBuffer && (!AcquiredInOpenCL)) throw new Exception("Attempting to use a variable created from OpenGL buffer without acquiring. Should use CLGLInteropFunctions to properly acquire and release these variables");
+                    if (Values.Length != OriginalVarLength)
+                        throw new Exception("Values length should be the same as allocated length");
+                    if (CreatedFromGLBuffer && (!AcquiredInOpenCL))
+                        throw new Exception("Attempting to use a variable created from OpenGL buffer without acquiring. Should use CLGLInteropFunctions to properly acquire and release these variables");
                     unsafe
                     {
                         fixed (void* ponteiro = Values)
@@ -951,7 +1021,11 @@ namespace OpenCLTemplate
                 /// <param name="BlockingRead">TRUE to return only after completed reading.</param>
                 /// <param name="events">OpenCL Event associated with this operation</param>
 
-                public void ReadFromDeviceTo(long[] Values, ComputeCommandQueue CQ, bool BlockingRead, ICollection<ComputeEventBase> events)
+                public void ReadFromDeviceTo(
+                    long[] Values,
+                    ComputeCommandQueue CQ,
+                    bool BlockingRead,
+                    ICollection<IComputeEvent> events)
                 {
                     if (Values.Length != OriginalVarLength) throw new Exception("Values length should be the same as allocated length");
                     if (CreatedFromGLBuffer && (!AcquiredInOpenCL)) throw new Exception("Attempting to use a variable created from OpenGL buffer without acquiring. Should use CLGLInteropFunctions to properly acquire and release these variables");
@@ -980,7 +1054,11 @@ namespace OpenCLTemplate
                 /// <param name="BlockingRead">TRUE to return only after completed reading.</param>
                 /// <param name="events">OpenCL Event associated with this operation</param>
 
-                public void ReadFromDeviceTo(double[] Values, ComputeCommandQueue CQ, bool BlockingRead, ICollection<ComputeEventBase> events)
+                public void ReadFromDeviceTo(
+                    double[] Values,
+                    ComputeCommandQueue CQ,
+                    bool BlockingRead,
+                    ICollection<IComputeEvent> events)
                 {
                     if (Values.Length != OriginalVarLength) throw new Exception("Values length should be the same as allocated length");
                     if (CreatedFromGLBuffer && (!AcquiredInOpenCL)) throw new Exception("Attempting to use a variable created from OpenGL buffer without acquiring. Should use CLGLInteropFunctions to properly acquire and release these variables");
@@ -1008,10 +1086,16 @@ namespace OpenCLTemplate
                 /// <param name="CQ">Command queue to use</param>
                 /// <param name="BlockingRead">TRUE to return only after completed reading.</param>
                 /// <param name="events">OpenCL Event associated with this operation</param>
-                public void ReadFromDeviceTo(char[] Values, ComputeCommandQueue CQ, bool BlockingRead, ICollection<ComputeEventBase> events)
+                public void ReadFromDeviceTo(
+                    char[] Values,
+                    ComputeCommandQueue CQ,
+                    bool BlockingRead,
+                    ICollection<IComputeEvent> events)
                 {
-                    if (Values.Length != OriginalVarLength) throw new Exception("Values length should be the same as allocated length");
-                    if (CreatedFromGLBuffer && (!AcquiredInOpenCL)) throw new Exception("Attempting to use a variable created from OpenGL buffer without acquiring. Should use CLGLInteropFunctions to properly acquire and release these variables");
+                    if (Values.Length != OriginalVarLength)
+                        throw new Exception("Values length should be the same as allocated length");
+                    if (CreatedFromGLBuffer && (!AcquiredInOpenCL))
+                        throw new Exception("Attempting to use a variable created from OpenGL buffer without acquiring. Should use CLGLInteropFunctions to properly acquire and release these variables");
                     unsafe
                     {
                         fixed (void* ponteiro = Values)
@@ -1037,10 +1121,16 @@ namespace OpenCLTemplate
                 /// <param name="CQ">Command queue to use</param>
                 /// <param name="BlockingRead">TRUE to return only after completed reading.</param>
                 /// <param name="events">OpenCL Event associated with this operation</param>
-                public void ReadFromDeviceTo(byte[] Values, ComputeCommandQueue CQ, bool BlockingRead, ICollection<ComputeEventBase> events)
+                public void ReadFromDeviceTo(
+                    byte[] Values,
+                    ComputeCommandQueue CQ,
+                    bool BlockingRead,
+                    ICollection<IComputeEvent> events)
                 {
-                    if (Values.Length != OriginalVarLength) throw new Exception("Values length should be the same as allocated length");
-                    if (CreatedFromGLBuffer && (!AcquiredInOpenCL)) throw new Exception("Attempting to use a variable created from OpenGL buffer without acquiring. Should use CLGLInteropFunctions to properly acquire and release these variables");
+                    if (Values.Length != OriginalVarLength)
+                        throw new Exception("Values length should be the same as allocated length");
+                    if (CreatedFromGLBuffer && (!AcquiredInOpenCL))
+                        throw new Exception("Attempting to use a variable created from OpenGL buffer without acquiring. Should use CLGLInteropFunctions to properly acquire and release these variables");
                     unsafe
                     {
                         fixed (void* ponteiro = Values)
@@ -1242,10 +1332,16 @@ namespace OpenCLTemplate
                 #region Write to Device memory. float[], int[], byte[], Bitmap
 
 
-                private unsafe void WriteToDevice(void* p, ComputeCommandQueue CQ, bool BlockingWrite, ICollection<ComputeEventBase> events)
+                private unsafe void WriteToDevice(
+                    void* p,
+                    ComputeCommandQueue CQ,
+                    bool BlockingWrite,
+                    ICollection<IComputeEvent> events)
                 {
-                    if (CreatedFromGLBuffer && (!AcquiredInOpenCL)) throw new Exception("Attempting to use a variable created from OpenGL buffer without acquiring. Should use CLGLInteropFunctions to properly acquire and release these variables");
-                    CQ.Write((ComputeImage)VarPointer, BlockingWrite, new SysIntX3(0, 0, 0), new SysIntX3(width, height, 1), 0, 0, new IntPtr(p), events);
+                    if (CreatedFromGLBuffer && (!AcquiredInOpenCL))
+                        throw new Exception("Attempting to use a variable created from OpenGL buffer without acquiring. Should use CLGLInteropFunctions to properly acquire and release these variables");
+                    CQ.Write((ComputeImage)VarPointer, BlockingWrite, new SysIntX3(0, 0, 0),
+                        new SysIntX3(width, height, 1), 0, 0, new IntPtr(p), events);
                 }
 
                 /// <summary>Writes variable to device</summary>
@@ -1253,9 +1349,14 @@ namespace OpenCLTemplate
                 /// <param name="CQ">Command queue to use</param>
                 /// <param name="BlockingWrite">TRUE to return only after completed writing.</param>
                 /// <param name="events">OpenCL Event associated to this operation</param>
-                public void WriteToDevice(float[] Values, ComputeCommandQueue CQ, bool BlockingWrite, ICollection<ComputeEventBase> events)
+                public void WriteToDevice(
+                    float[] Values,
+                    ComputeCommandQueue CQ,
+                    bool BlockingWrite,
+                    ICollection<IComputeEvent> events)
                 {
-                    if (Values.Length != OriginalVarLength) throw new Exception("Values length should be the same as allocated length");
+                    if (Values.Length != OriginalVarLength)
+                        throw new Exception("Values length should be the same as allocated length");
                     unsafe
                     {
                         fixed (void* ponteiro = Values)
@@ -1280,7 +1381,11 @@ namespace OpenCLTemplate
                 /// <param name="BlockingWrite">TRUE to return only after completed writing.</param>
                 /// <param name="events">OpenCL Event associated to this operation</param>
 
-                public void WriteToDevice(int[] Values, ComputeCommandQueue CQ, bool BlockingWrite, ICollection<ComputeEventBase> events)
+                public void WriteToDevice(
+                    int[] Values,
+                    ComputeCommandQueue CQ,
+                    bool BlockingWrite,
+                    ICollection<IComputeEvent> events)
                 {
                     if (Values.Length != OriginalVarLength) throw new Exception("Values length should be the same as allocated length");
                     unsafe
@@ -1307,7 +1412,11 @@ namespace OpenCLTemplate
                 /// <param name="BlockingWrite">TRUE to return only after completed writing.</param>
                 /// <param name="events">OpenCL Event associated to this operation</param>
 
-                public void WriteToDevice(byte[] Values, ComputeCommandQueue CQ, bool BlockingWrite, ICollection<ComputeEventBase> events)
+                public void WriteToDevice(
+                    byte[] Values,
+                    ComputeCommandQueue CQ,
+                    bool BlockingWrite,
+                    ICollection<IComputeEvent> events)
                 {
                     if (Values.Length != OriginalVarLength) throw new Exception("Values length should be the same as allocated length");
                     unsafe
@@ -1333,7 +1442,11 @@ namespace OpenCLTemplate
                 /// <param name="CQ">Command queue to use</param>
                 /// <param name="BlockingWrite">TRUE to return only after completed reading.</param>
                 /// <param name="events">OpenCL Event associated with this operation</param>
-                public void WriteBitmap(System.Drawing.Bitmap bmp, ComputeCommandQueue CQ, bool BlockingWrite, ICollection<ComputeEventBase> events)
+                public void WriteBitmap(
+                    System.Drawing.Bitmap bmp,
+                    ComputeCommandQueue CQ,
+                    bool BlockingWrite,
+                    ICollection<IComputeEvent> events)
                 {
                     if (bmp.Width != this.width || bmp.Height != this.height) throw new Exception("Bitmap dimensions not compatible");
 
@@ -1364,10 +1477,16 @@ namespace OpenCLTemplate
 
                 #region Read from Device memory. float[], int[], byte[], Bitmap
 
-                private unsafe void ReadFromDeviceTo(void* p, ComputeCommandQueue CQ, bool BlockingRead, ICollection<ComputeEventBase> events)
+                private unsafe void ReadFromDeviceTo(
+                    void* p,
+                    ComputeCommandQueue CQ,
+                    bool BlockingRead,
+                    ICollection<IComputeEvent> events)
                 {
-                    if (CreatedFromGLBuffer && (!AcquiredInOpenCL)) throw new Exception("Attempting to use a variable created from OpenGL buffer without acquiring. Should use CLGLInteropFunctions to properly acquire and release these variables");
-                    CQ.Read((ComputeImage)VarPointer, BlockingRead, new SysIntX3(0, 0, 0), new SysIntX3(width, height, 1), 0, 0, new IntPtr(p), events);
+                    if (CreatedFromGLBuffer && (!AcquiredInOpenCL))
+                        throw new Exception("Attempting to use a variable created from OpenGL buffer without acquiring. Should use CLGLInteropFunctions to properly acquire and release these variables");
+                    CQ.Read((ComputeImage)VarPointer, BlockingRead, new SysIntX3(0, 0, 0),
+                        new SysIntX3(width, height, 1), 0, 0, new IntPtr(p), events);
                 }
 
                 /// <summary>Reads variable from device.</summary>
@@ -1376,9 +1495,14 @@ namespace OpenCLTemplate
                 /// <param name="BlockingRead">TRUE to return only after completed reading.</param>
                 /// <param name="events">OpenCL Event associated with this operation</param>
 
-                public void ReadFromDeviceTo(float[] Values, ComputeCommandQueue CQ, bool BlockingRead, ICollection<ComputeEventBase> events)
+                public void ReadFromDeviceTo(
+                    float[] Values,
+                    ComputeCommandQueue CQ,
+                    bool BlockingRead,
+                    ICollection<IComputeEvent> events)
                 {
-                    if (Values.Length != OriginalVarLength) throw new Exception("Values length should be the same as allocated length");
+                    if (Values.Length != OriginalVarLength)
+                        throw new Exception("Values length should be the same as allocated length");
 
                     unsafe
                     {
@@ -1404,9 +1528,14 @@ namespace OpenCLTemplate
                 /// <param name="CQ">Command queue to use</param>
                 /// <param name="BlockingRead">TRUE to return only after completed reading.</param>
                 /// <param name="events">OpenCL Event associated with this operation</param>
-                public void ReadFromDeviceTo(int[] Values, ComputeCommandQueue CQ, bool BlockingRead, ICollection<ComputeEventBase> events)
+                public void ReadFromDeviceTo(
+                    int[] Values,
+                    ComputeCommandQueue CQ,
+                    bool BlockingRead,
+                    ICollection<IComputeEvent> events)
                 {
-                    if (Values.Length != OriginalVarLength) throw new Exception("Values length should be the same as allocated length");
+                    if (Values.Length != OriginalVarLength)
+                        throw new Exception("Values length should be the same as allocated length");
 
                     unsafe
                     {
@@ -1433,9 +1562,14 @@ namespace OpenCLTemplate
                 /// <param name="BlockingRead">TRUE to return only after completed reading.</param>
                 /// <param name="events">OpenCL Event associated with this operation</param>
 
-                public void ReadFromDeviceTo(byte[] Values, ComputeCommandQueue CQ, bool BlockingRead, ICollection<ComputeEventBase> events)
+                public void ReadFromDeviceTo(
+                    byte[] Values,
+                    ComputeCommandQueue CQ,
+                    bool BlockingRead,
+                    ICollection<IComputeEvent> events)
                 {
-                    if (Values.Length != OriginalVarLength) throw new Exception("Values length should be the same as allocated length");
+                    if (Values.Length != OriginalVarLength)
+                        throw new Exception("Values length should be the same as allocated length");
 
                     unsafe
                     {
@@ -1461,7 +1595,10 @@ namespace OpenCLTemplate
                 /// <param name="BlockingRead">TRUE to return only after completed reading.</param>
                 /// <param name="events">OpenCL Event associated with this operation</param>
 
-                public System.Drawing.Bitmap ReadBitmap(ComputeCommandQueue CQ, bool BlockingRead, ICollection<ComputeEventBase> events)
+                public System.Drawing.Bitmap ReadBitmap(
+                    ComputeCommandQueue CQ,
+                    bool BlockingRead,
+                    ICollection<IComputeEvent> events)
                 {
                     System.Drawing.Bitmap bmp = new System.Drawing.Bitmap(width, height);
                     System.Drawing.Rectangle rect = new System.Drawing.Rectangle(0, 0, bmp.Width, bmp.Height);
@@ -1537,7 +1674,11 @@ namespace OpenCLTemplate
                 /// <param name="Arguments">Arguments of the kernel function</param>
                 /// <param name="GlobalWorkSize">Array of maximum index arrays. Total work-items = product(max[i],i+0..n-1), n=max.Length</param>
                 /// <param name="events">Event of this command</param>
-                public void Execute(ComputeCommandQueue CQ, CLCalc.Program.MemoryObject[] Arguments, int[] GlobalWorkSize, ICollection<ComputeEventBase> events)
+                public void Execute(
+                    ComputeCommandQueue CQ,
+                    MemoryObject[] Arguments,
+                    int[] GlobalWorkSize,
+                    ICollection<IComputeEvent> events)
                 {
                     SetArguments(Arguments);
 
@@ -1554,7 +1695,12 @@ namespace OpenCLTemplate
                 /// <param name="GlobalWorkSize">Array of maximum index arrays. Total work-items = product(max[i],i+0..n-1), n=max.Length</param>
                 /// <param name="LocalWorkSize">Local work sizes</param>
                 /// <param name="events">Event of this command</param>
-                public void Execute(ComputeCommandQueue CQ, CLCalc.Program.MemoryObject[] Arguments, int[] GlobalWorkSize, int[] LocalWorkSize, ICollection<ComputeEventBase> events)
+                public void Execute(
+                    ComputeCommandQueue CQ,
+                    MemoryObject[] Arguments,
+                    int[] GlobalWorkSize,
+                    int[] LocalWorkSize,
+                    ICollection<IComputeEvent> events)
                 {
                     Execute(CQ, Arguments, GlobalWorkSize, LocalWorkSize, null, events);
 
@@ -1567,10 +1713,17 @@ namespace OpenCLTemplate
                 /// <param name="LocalWorkSize">Local work sizes</param>
                 /// <param name="WorkOffSet">Global offset</param>
                 /// <param name="events">Event of this command</param>
-                public void Execute(ComputeCommandQueue CQ, CLCalc.Program.MemoryObject[] Arguments, int[] GlobalWorkSize, int[] LocalWorkSize, int[] WorkOffSet, ICollection<ComputeEventBase> events)
+                public void Execute(
+                    ComputeCommandQueue CQ,
+                    MemoryObject[] Arguments,
+                    int[] GlobalWorkSize,
+                    int[] LocalWorkSize,
+                    int[] WorkOffSet,
+                    ICollection<IComputeEvent> events)
                 {
                     SetArguments(Arguments);
-                    if (LocalWorkSize != null && GlobalWorkSize.Length != LocalWorkSize.Length) throw new Exception("Global and local work size must have same dimension");
+                    if (LocalWorkSize != null && GlobalWorkSize.Length != LocalWorkSize.Length)
+                        throw new Exception("Global and local work size must have same dimension");
 
 
                     long[] globWSize = new long[GlobalWorkSize.Length];
@@ -1591,7 +1744,6 @@ namespace OpenCLTemplate
                     }
 
                     CQ.Execute(kernel, wOffSet, globWSize, locWSize, events);
-
                 }
 
                 /// <summary>Execute this kernel</summary>
@@ -1641,7 +1793,11 @@ namespace OpenCLTemplate
                 /// <param name="LocalWorkSize">Local work sizes</param>
                 /// <param name="Arguments">Arguments of the kernel function</param>
                 /// <param name="events">Events list</param>
-                public void Execute(CLCalc.Program.MemoryObject[] Arguments, int[] GlobalWorkSize, int[] LocalWorkSize, ICollection<ComputeEventBase> events)
+                public void Execute(
+                    MemoryObject[] Arguments,
+                    int[] GlobalWorkSize,
+                    int[] LocalWorkSize,
+                    ICollection<IComputeEvent> events)
                 {
                     //CLEvent Event=new CLEvent();
                     Execute(CommQueues[DefaultCQ], Arguments, GlobalWorkSize, LocalWorkSize, events);
@@ -1672,30 +1828,30 @@ namespace OpenCLTemplate
             {
                 #region Kernels
                 /// <summary>Float vector sum kernel</summary>
-                private CLCalc.Program.Kernel floatVecSum;
+                private Program.Kernel floatVecSum;
 
                 /// <summary>float matrix multiplication kernel</summary>
-                private CLCalc.Program.Kernel floatMatrixMult;
+                private Program.Kernel floatMatrixMult;
 
                 /// <summary>float Gauss Seidel method</summary>
-                private CLCalc.Program.Kernel floatGaussSeidel;
-                private CLCalc.Program.Kernel floatGaussSeidelError;
-                private CLCalc.Program.Kernel floatCalcMtM;
-                private CLCalc.Program.Kernel floatCalcMtb;
+                private Program.Kernel floatGaussSeidel;
+                private Program.Kernel floatGaussSeidelError;
+                private Program.Kernel floatCalcMtM;
+                private Program.Kernel floatCalcMtb;
 
                 /// <summary>LU factorizaton method</summary>
-                private CLCalc.Program.Kernel floatLUScale;
-                private CLCalc.Program.Kernel floatLUCalcBetas;
-                private CLCalc.Program.Kernel floatLUCalcAlphas;
-                private CLCalc.Program.Kernel floatLUCalcPivo;
-                private CLCalc.Program.Kernel floatLUTrocaCols;
-                private CLCalc.Program.Kernel floatLUDivByPivot;
-                private CLCalc.Program.Kernel floatLUForwardSubs;
-                private CLCalc.Program.Kernel floatLUBackSubs;
-                private CLCalc.Program.Kernel floatLUDivide;
-                private CLCalc.Program.Kernel floatLUUnscramble;
-                private CLCalc.Program.Kernel floatSolveError;
-                private CLCalc.Program.Kernel floatLUSubErr;
+                private Program.Kernel floatLUScale;
+                private Program.Kernel floatLUCalcBetas;
+                private Program.Kernel floatLUCalcAlphas;
+                private Program.Kernel floatLUCalcPivo;
+                private Program.Kernel floatLUTrocaCols;
+                private Program.Kernel floatLUDivByPivot;
+                private Program.Kernel floatLUForwardSubs;
+                private Program.Kernel floatLUBackSubs;
+                private Program.Kernel floatLUDivide;
+                private Program.Kernel floatLUUnscramble;
+                private Program.Kernel floatSolveError;
+                private Program.Kernel floatLUSubErr;
 
                 #endregion
 

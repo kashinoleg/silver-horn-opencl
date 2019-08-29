@@ -2,19 +2,20 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using Cloo;
 using Cloo.Bindings;
 
-namespace Cloo
+namespace SilverHorn.Cloo.Event
 {
     /// <summary>
     /// Represents a list of OpenCL generated or user created events.
     /// </summary>
-    public class ComputeEventList : IList<ComputeEventBase>
+    public class ComputeEventList : IList<IComputeEvent>
     {
         #region Fields
 
         [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
-        private readonly List<ComputeEventBase> events;
+        private readonly List<IComputeEvent> events;
 
         #endregion
 
@@ -25,16 +26,16 @@ namespace Cloo
         /// </summary>
         public ComputeEventList()
         {
-            events = new List<ComputeEventBase>();
+            events = new List<IComputeEvent>();
         }
 
         /// <summary>
-        /// Creates a new <see cref="ComputeEventList"/> from an existing list of <see cref="ComputeEventBase"/>s.
+        /// Creates a new <see cref="ComputeEventList"/> from an existing list of event types.
         /// </summary>
-        /// <param name="events"> A list of <see cref="ComputeEventBase"/>s. </param>
-        public ComputeEventList(IList<ComputeEventBase> events)
+        /// <param name="events"> A list of event types. </param>
+        public ComputeEventList(IList<IComputeEvent> events)
         {
-            events = new Collection<ComputeEventBase>(events);
+            events = new Collection<IComputeEvent>(events);
         }
 
         #endregion
@@ -42,10 +43,10 @@ namespace Cloo
         #region Properties
 
         /// <summary>
-        /// Gets the last <see cref="ComputeEventBase"/> on the list.
+        /// Gets the last event types on the list.
         /// </summary>
-        /// <value> The last <see cref="ComputeEventBase"/> on the list. </value>
-        public ComputeEventBase Last { get { return events[events.Count - 1]; } }
+        /// <value> The last event types on the list. </value>
+        public IComputeEvent Last { get { return events[events.Count - 1]; } }
 
         #endregion
 
@@ -55,7 +56,7 @@ namespace Cloo
         /// Waits on the host thread for the specified events to complete.
         /// </summary>
         /// <param name="events"> The events to be waited for completition. </param>
-        public static void Wait(ICollection<ComputeEventBase> events)
+        public static void Wait(ICollection<IComputeEvent> events)
         {
             int eventWaitListSize;
             CLEventHandle[] eventHandles = ComputeTools.ExtractHandles(events, out eventWaitListSize);
@@ -64,7 +65,7 @@ namespace Cloo
         }
 
         /// <summary>
-        /// Waits on the host thread for the <see cref="ComputeEventBase"/>s in the <see cref="ComputeEventList"/> to complete.
+        /// Waits on the host thread for the event types in the <see cref="ComputeEventList"/> to complete.
         /// </summary>
         public void Wait()
         {
@@ -80,7 +81,7 @@ namespace Cloo
         /// </summary>
         /// <param name="item"></param>
         /// <returns></returns>
-        public int IndexOf(ComputeEventBase item)
+        public int IndexOf(IComputeEvent item)
         {
             return events.IndexOf(item);
         }
@@ -90,7 +91,7 @@ namespace Cloo
         /// </summary>
         /// <param name="index"></param>
         /// <param name="item"></param>
-        public void Insert(int index, ComputeEventBase item)
+        public void Insert(int index, IComputeEvent item)
         {
             events.Insert(index, item);
         }
@@ -109,7 +110,7 @@ namespace Cloo
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-        public ComputeEventBase this[int index]
+        public IComputeEvent this[int index]
         {
             get
             {
@@ -123,13 +124,13 @@ namespace Cloo
 
         #endregion
 
-        #region ICollection<ComputeEventBase> Members
+        #region ICollection<IComputeEvent> Members
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="item"></param>
-        public void Add(ComputeEventBase item)
+        public void Add(IComputeEvent item)
         {
             events.Add(item);
         }
@@ -147,7 +148,7 @@ namespace Cloo
         /// </summary>
         /// <param name="item"></param>
         /// <returns></returns>
-        public bool Contains(ComputeEventBase item)
+        public bool Contains(IComputeEvent item)
         {
             return events.Contains(item);
         }
@@ -157,7 +158,7 @@ namespace Cloo
         /// </summary>
         /// <param name="array"></param>
         /// <param name="arrayIndex"></param>
-        public void CopyTo(ComputeEventBase[] array, int arrayIndex)
+        public void CopyTo(IComputeEvent[] array, int arrayIndex)
         {
             events.CopyTo(array, arrayIndex);
         }
@@ -183,22 +184,22 @@ namespace Cloo
         /// </summary>
         /// <param name="item"></param>
         /// <returns></returns>
-        public bool Remove(ComputeEventBase item)
+        public bool Remove(IComputeEvent item)
         {
             return events.Remove(item);
         }
 
         #endregion
 
-        #region IEnumerable<ComputeEventBase> Members
+        #region IEnumerable<IComputeEvent> Members
 
         /// <summary>
         /// 
         /// </summary>
         /// <returns></returns>
-        public IEnumerator<ComputeEventBase> GetEnumerator()
+        public IEnumerator<IComputeEvent> GetEnumerator()
         {
-            return ((IEnumerable<ComputeEventBase>)events).GetEnumerator();
+            return ((IEnumerable<IComputeEvent>)events).GetEnumerator();
         }
 
         #endregion

@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
 
-namespace Cloo.Bindings
+namespace SilverHorn.Cloo.Event
 {
     /// <summary>
-    /// Represents the <see cref="ComputeEvent"/> ID.
+    /// Represents the event ID.
     /// </summary>
     public struct CLEventHandle
     {

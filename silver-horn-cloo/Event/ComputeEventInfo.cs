@@ -1,4 +1,4 @@
-﻿namespace Cloo
+﻿namespace SilverHorn.Cloo.Event
 {
     /// <summary>
     /// The event info query symbols.

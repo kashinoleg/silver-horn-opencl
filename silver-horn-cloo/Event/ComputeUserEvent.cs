@@ -1,10 +1,10 @@
-﻿using System.Diagnostics;
-using System.Threading;
+﻿using System.Threading;
+using Cloo;
 using Cloo.Bindings;
 using SilverHorn.Cloo.Command;
 using SilverHorn.Cloo.Context;
 
-namespace Cloo
+namespace SilverHorn.Cloo.Event
 {
     /// <summary>
     /// Represents an user created event.
@@ -15,9 +15,9 @@ namespace Cloo
         #region Constructors
 
         /// <summary>
-        /// Creates a new <see cref="ComputeUserEvent"/>.
+        /// Creates a new user created event.
         /// </summary>
-        /// <param name="context"> The context in which the <see cref="ComputeUserEvent"/> is created. </param>
+        /// <param name="context"> The context in which the user created event is created. </param>
         /// <remarks> Requires OpenCL 1.1. </remarks>
         public ComputeUserEvent(IComputeContext context)
         {
@@ -26,7 +26,8 @@ namespace Cloo
 
             SetID(Handle.Value);
 
-            Type = (ComputeCommandType)GetInfo<CLEventHandle, ComputeEventInfo, uint>(Handle, ComputeEventInfo.CommandType, CL10.GetEventInfo);
+            Type = (ComputeCommandType)GetInfo<CLEventHandle, ComputeEventInfo, uint>(Handle, ComputeEventInfo.CommandType,
+                CL10.GetEventInfo);
             Context = context;
             HookNotifier();
 
@@ -38,18 +39,18 @@ namespace Cloo
         #region Public methods
 
         /// <summary>
-        /// Sets the new status of the <see cref="ComputeUserEvent"/>.
+        /// Sets the new status of the user created event.
         /// </summary>
-        /// <param name="status"> The new status of the <see cref="ComputeUserEvent"/>. Allowed value is <see cref="ComputeCommandExecutionStatus.Complete"/>. </param>
+        /// <param name="status"> The new status of the user created event. Allowed value is <see cref="ComputeCommandExecutionStatus.Complete"/>. </param>
         public void SetStatus(ComputeCommandExecutionStatus status)
         {
             SetStatus((int)status);
         }
 
         /// <summary>
-        /// Sets the new status of the <see cref="ComputeUserEvent"/> to an error value.
+        /// Sets the new status of the user created event to an error value.
         /// </summary>
-        /// <param name="status"> The error status of the <see cref="ComputeUserEvent"/>. This should be a negative value. </param>
+        /// <param name="status"> The error status of the user created event. This should be a negative value. </param>
         public void SetStatus(int status)
         {
             ComputeErrorCode error = CL11.SetUserEventStatus(Handle, status);

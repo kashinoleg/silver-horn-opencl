@@ -1,5 +1,6 @@
 ﻿using SilverHorn.Cloo.Command;
 using SilverHorn.Cloo.Context;
+using SilverHorn.Cloo.Event;
 using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;

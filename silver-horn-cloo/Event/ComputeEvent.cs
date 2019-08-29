@@ -2,16 +2,16 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
+using Cloo;
 using Cloo.Bindings;
 using SilverHorn.Cloo.Command;
 
-namespace Cloo
+namespace SilverHorn.Cloo.Event
 {
     /// <summary>
     /// Represents an OpenCL event.
     /// </summary>
     /// <remarks> An event encapsulates the status of an operation such as a command. It can be used to synchronize operations in a context. </remarks>
-    /// <seealso cref="ComputeUserEvent"/>
     public class ComputeEvent : ComputeEventBase
     {
         #region Fields
@@ -24,9 +24,9 @@ namespace Cloo
         #region Properties
 
         /// <summary>
-        /// Gets the command queue associated with the <see cref="ComputeEvent"/>.
+        /// Gets the command queue associated with the event.
         /// </summary>
-        /// <value> The command queue associated with the <see cref="ComputeEvent"/>. </value>
+        /// <value> The command queue associated with the event. </value>
         public ComputeCommandQueue CommandQueue { get; private set; }
 
         #endregion
@@ -39,7 +39,8 @@ namespace Cloo
             SetID(Handle.Value);
 
             CommandQueue = queue;
-            Type = (ComputeCommandType)GetInfo<CLEventHandle, ComputeEventInfo, int>(Handle, ComputeEventInfo.CommandType, CL10.GetEventInfo);
+            Type = (ComputeCommandType)GetInfo<CLEventHandle, ComputeEventInfo, int>(Handle,
+                ComputeEventInfo.CommandType, CL10.GetEventInfo);
             Context = queue.Context;
 
             if (ComputeTools.ParseVersionString(CommandQueue.Device.Platform.Version, 1) > new Version(1, 0))

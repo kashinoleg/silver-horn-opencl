@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using Cloo.Bindings;
 using SilverHorn.Cloo.Device;
+using SilverHorn.Cloo.Event;
 
 namespace Cloo
 {
@@ -61,19 +62,26 @@ namespace Cloo
 
             IntPtr[] result = new IntPtr[array.Length];
             for (long i = 0; i < array.Length; i++)
+            {
                 result[i] = new IntPtr(array[i]);
+            }
             return result;
         }
 
         internal static long[] ConvertArray(IntPtr[] array)
         {
-            if (array == null) return null;
+            if (array == null)
+            {
+                return null;
+            }
 
             NumberFormatInfo nfi = new NumberFormatInfo();
 
             long[] result = new long[array.Length];
             for (long i = 0; i < array.Length; i++)
+            {
                 result[i] = array[i].ToInt64();
+            }
             return result;
         }
 
@@ -85,7 +93,7 @@ namespace Cloo
                 return null;
             }
 
-            CLDeviceHandle[] result = new CLDeviceHandle[computeObjects.Count];
+            var result = new CLDeviceHandle[computeObjects.Count];
             int i = 0;
             foreach (var computeObj in computeObjects)
             {
@@ -96,7 +104,7 @@ namespace Cloo
             return result;
         }
 
-        internal static CLEventHandle[] ExtractHandles(ICollection<ComputeEventBase> computeObjects, out int handleCount)
+        internal static CLEventHandle[] ExtractHandles(ICollection<IComputeEvent> computeObjects, out int handleCount)
         {
             if (computeObjects == null || computeObjects.Count == 0)
             {
@@ -104,9 +112,9 @@ namespace Cloo
                 return null;
             }
 
-            CLEventHandle[] result = new CLEventHandle[computeObjects.Count];
+            var result = new CLEventHandle[computeObjects.Count];
             int i = 0;
-            foreach (ComputeEventBase computeObj in computeObjects)
+            foreach (var computeObj in computeObjects)
             {
                 result[i] = computeObj.Handle;
                 i++;
@@ -122,8 +130,7 @@ namespace Cloo
                 handleCount = 0;
                 return null;
             }
-
-            CLMemoryHandle[] result = new CLMemoryHandle[computeObjects.Count];
+            var result = new CLMemoryHandle[computeObjects.Count];
             int i = 0;
             foreach (var computeObj in computeObjects)
             {
@@ -133,7 +140,6 @@ namespace Cloo
             handleCount = computeObjects.Count;
             return result;
         }
-
         #endregion
     }
 }

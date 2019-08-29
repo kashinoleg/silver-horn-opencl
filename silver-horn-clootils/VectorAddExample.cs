@@ -3,6 +3,7 @@ using System.IO;
 using Cloo;
 using SilverHorn.Cloo.Command;
 using SilverHorn.Cloo.Context;
+using SilverHorn.Cloo.Event;
 using SilverHorn.Cloo.Factories;
 using SilverHorn.Cloo.Kernel;
 using SilverHorn.Cloo.Program;

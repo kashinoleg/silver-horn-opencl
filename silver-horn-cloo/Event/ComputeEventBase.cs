@@ -1,18 +1,17 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Threading;
+using Cloo;
 using Cloo.Bindings;
 using SilverHorn.Cloo.Command;
 using SilverHorn.Cloo.Context;
 
-namespace Cloo
+namespace SilverHorn.Cloo.Event
 {
     /// <summary>
     /// Represents the parent type to any Cloo event types.
     /// </summary>
-    /// <seealso cref="ComputeEvent"/>
-    /// <seealso cref="ComputeUserEvent"/>
-    public abstract class ComputeEventBase : ComputeResource
+    public abstract class ComputeEventBase : ComputeResource, IComputeEvent
     {
         #region Fields
 
@@ -70,18 +69,14 @@ namespace Cloo
         #region Properties
 
         /// <summary>
-        /// The handle of the <see cref="ComputeEventBase"/>.
+        /// The handle of the event types.
         /// </summary>
-        public CLEventHandle Handle
-        {
-            get;
-            protected set;
-        }
+        public CLEventHandle Handle { get; protected set; }
 
         /// <summary>
-        /// Gets the context associated with the <see cref="ComputeEventBase"/>.
+        /// Gets the context associated with the event types.
         /// </summary>
-        /// <value> The context associated with the <see cref="ComputeEventBase"/>. </value>
+        /// <value> The context associated with the event types. </value>
         public IComputeContext Context { get; protected set; }
 
         /// <summary>
@@ -204,48 +199,4 @@ namespace Cloo
 
         #endregion
     }
-
-    /// <summary>
-    /// Represents the arguments of a command status change.
-    /// </summary>
-    public class ComputeCommandStatusArgs : EventArgs
-    {
-        /// <summary>
-        /// Gets the event associated with the command that had its status changed.
-        /// </summary>
-        public ComputeEventBase Event { get; private set; }
-
-        /// <summary>
-        /// Gets the execution status of the command represented by the event.
-        /// </summary>
-        /// <remarks> Returns a negative integer if the command was abnormally terminated. </remarks>
-        public ComputeCommandExecutionStatus Status { get; private set; }
-
-        /// <summary>
-        /// Creates a new <c>ComputeCommandStatusArgs</c> instance.
-        /// </summary>
-        /// <param name="ev"> The event representing the command that had its status changed. </param>
-        /// <param name="status"> The status of the command. </param>
-        public ComputeCommandStatusArgs(ComputeEventBase ev, ComputeCommandExecutionStatus status)
-        {
-            Event = ev;
-            Status = status;
-        }
-
-        /// <summary>
-        /// Creates a new <c>ComputeCommandStatusArgs</c> instance.
-        /// </summary>
-        /// <param name="ev"> The event of the command that had its status changed. </param>
-        /// <param name="status"> The status of the command. </param>
-        public ComputeCommandStatusArgs(ComputeEventBase ev, int status)
-            : this(ev, (ComputeCommandExecutionStatus)status)
-        { }
-    }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="args"></param>
-    public delegate void ComputeCommandStatusChanged(object sender, ComputeCommandStatusArgs args);
 }
