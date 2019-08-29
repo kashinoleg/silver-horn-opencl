@@ -84,7 +84,7 @@ namespace SilverHorn.Cloo.Context
         /// Gets a collection of context properties of the context.
         /// </summary>
         /// <value> A collection of context properties of the context. </value>
-        private ComputeContextPropertyList Properties { get; set; }
+        private List<ComputeContextProperty> Properties { get; set; }
 
 
         private ComputeContextNotifier Callback { get; set; }
@@ -96,14 +96,14 @@ namespace SilverHorn.Cloo.Context
         /// Creates a new context on a collection of devices.
         /// </summary>
         /// <param name="devices"> A collection of devices to associate with the context. </param>
-        /// <param name="properties"> A <see cref="ComputeContextPropertyList"/> of the context. </param>
+        /// <param name="properties"> A list of context properties of the context. </param>
         /// <param name="notify"> A delegate instance that refers to a notification routine. This routine is a callback function that will be used by the OpenCL implementation to report information on errors that occur in the context. The callback function may be called asynchronously by the OpenCL implementation. It is the application's responsibility to ensure that the callback function is thread-safe and that the delegate instance doesn't get collected by the Garbage Collector until context is disposed. If <paramref name="notify"/> is <c>null</c>, no callback function is registered. </param>
         /// <param name="notifyDataPtr"> Optional user data that will be passed to <paramref name="notify"/>. </param>
-        public ComputeContext(ICollection<IComputeDevice> devices, ComputeContextPropertyList properties,
+        public ComputeContext(ICollection<IComputeDevice> devices, List<ComputeContextProperty> properties,
             ComputeContextNotifier notify, IntPtr notifyDataPtr)
         {
             var deviceHandles = ComputeTools.ExtractHandles(devices, out int handleCount);
-            IntPtr[] propertyArray = properties?.ToIntPtrArray();
+            var propertyArray = ToIntPtrArray(properties);
             Callback = notify;
 
             var error = ComputeErrorCode.Success;
@@ -113,7 +113,7 @@ namespace SilverHorn.Cloo.Context
             SetID(Handle.Value);
 
             Properties = properties;
-            var platformProperty = properties.GetByName(ComputeContextPropertyName.Platform);
+            var platformProperty = GetByName(properties, ComputeContextPropertyName.Platform);
             Platform = ComputePlatform.GetByHandle(platformProperty.Value);
             Devices = GetDevices();
 
@@ -124,13 +124,13 @@ namespace SilverHorn.Cloo.Context
         /// Creates a new context on all the devices that match the specified <see cref="ComputeDeviceTypes"/>.
         /// </summary>
         /// <param name="deviceType"> A bit-field that identifies the type of device to associate with the context. </param>
-        /// <param name="properties"> A <see cref="ComputeContextPropertyList"/> of the context. </param>
+        /// <param name="properties"> A list of context properties of the context. </param>
         /// <param name="notify"> A delegate instance that refers to a notification routine. This routine is a callback function that will be used by the OpenCL implementation to report information on errors that occur in the context. The callback function may be called asynchronously by the OpenCL implementation. It is the application's responsibility to ensure that the callback function is thread-safe and that the delegate instance doesn't get collected by the Garbage Collector until context is disposed. If <paramref name="notify"/> is <c>null</c>, no callback function is registered. </param>
         /// <param name="userDataPtr"> Optional user data that will be passed to <paramref name="notify"/>. </param>
-        public ComputeContext(ComputeDeviceTypes deviceType, ComputeContextPropertyList properties,
+        public ComputeContext(ComputeDeviceTypes deviceType, List<ComputeContextProperty> properties,
             ComputeContextNotifier notify, IntPtr userDataPtr)
         {
-            IntPtr[] propertyArray = (properties != null) ? properties.ToIntPtrArray() : null;
+            var propertyArray = ToIntPtrArray(properties);
             Callback = notify;
 
             ComputeErrorCode error = ComputeErrorCode.Success;
@@ -140,7 +140,7 @@ namespace SilverHorn.Cloo.Context
             SetID(Handle.Value);
 
             Properties = properties;
-            var platformProperty = properties.GetByName(ComputeContextPropertyName.Platform);
+            var platformProperty = GetByName(properties, ComputeContextPropertyName.Platform);
             Platform = ComputePlatform.GetByHandle(platformProperty.Value);
             Devices = GetDevices();
 
@@ -150,6 +150,40 @@ namespace SilverHorn.Cloo.Context
         #endregion
 
         #region Private methods
+
+        /// <summary>
+        /// Gets a context property of a specified <c>ComputeContextPropertyName</c>.
+        /// </summary>
+        /// <param name="name"> The <see cref="ComputeContextPropertyName"/> of the context property. </param>
+        /// <returns> The requested context property or <c>null</c> if no such context property exists in the list of context properties. </returns>
+        private ComputeContextProperty GetByName(List<ComputeContextProperty> properties, ComputeContextPropertyName name)
+        {
+            foreach (var property in properties)
+            {
+                if (property.Name == name)
+                {
+                    return property;
+                }
+            }
+            return null;
+        }
+
+        private IntPtr[] ToIntPtrArray(List<ComputeContextProperty> properties)
+        {
+            if (properties == null)
+            {
+                return null;
+            }
+            IntPtr[] result = new IntPtr[2 * properties.Count + 1];
+            for (int i = 0; i < properties.Count; i++)
+            {
+                result[2 * i] = new IntPtr((int)properties[i].Name);
+                result[2 * i + 1] = properties[i].Value;
+            }
+            result[result.Length - 1] = IntPtr.Zero;
+            return result;
+        }
+
         private ReadOnlyCollection<IComputeDevice> GetDevices()
         {
             var arrayDevices = GetArrayInfo<CLContextHandle, ComputeContextInfo, CLDeviceHandle>(Handle,

@@ -49,8 +49,7 @@ namespace OpenCLTemplate.CLGLInterop
             var p3 = new ComputeContextProperty(ComputeContextPropertyName.Platform, ComputePlatform.Platforms[0].Handle.Value);
             var props = new List<ComputeContextProperty>() { p1, p2, p3 };
 
-            var Properties = new ComputeContextPropertyList(props);
-
+            var Properties = new List<ComputeContextProperty>(props);
             List<IComputeDevice> GLDevices = null;
             if (DeviceNumber >= 0 && ComputePlatform.Platforms[0].Devices.Count > 1)
             {

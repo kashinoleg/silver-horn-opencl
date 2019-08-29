@@ -348,7 +348,9 @@ namespace SilverHorn.Cloo.Command
             ComputeException.ThrowOnError(error);
 
             if (eventsWritable)
+            {
                 events.Add(new ComputeEvent(newEventHandle[0], this));
+            }
         }
 
         /// <summary>
@@ -478,11 +480,11 @@ namespace SilverHorn.Cloo.Command
         {
             int sizeofT = Marshal.SizeOf(typeof(T));
 
-            CLEventHandle[] eventHandles = ComputeTools.ExtractHandles(events, out int eventWaitListSize);
-            bool eventsWritable = (events != null && !events.IsReadOnly);
-            CLEventHandle[] newEventHandle = (eventsWritable) ? new CLEventHandle[1] : null;
+            var eventHandles = ComputeTools.ExtractHandles(events, out int eventWaitListSize);
+            var eventsWritable = (events != null && !events.IsReadOnly);
+            var newEventHandle = (eventsWritable) ? new CLEventHandle[1] : null;
 
-            ComputeErrorCode error = CL10.EnqueueReadBuffer(
+            var error = CL10.EnqueueReadBuffer(
                 Handle,
                 source.Handle,
                 blocking,
@@ -1043,8 +1045,13 @@ namespace SilverHorn.Cloo.Command
         /// <param name="destinationOffset"> The <paramref name="destination"/> element position where writing starts. </param>
         /// <param name="region"> The region of elements to copy. </param>
         /// <param name="events"> A collection of events that need to complete before this particular command can be executed. If <paramref name="events"/> is not <c>null</c> a new event identifying this command is attached to the end of the collection. </param>
-        public void CopyImage(ComputeImage3D source, ComputeImage2D destination, SysIntX3 sourceOffset,
-            SysIntX2 destinationOffset, SysIntX2 region, ICollection<ComputeEventBase> events)
+        public void CopyImage(
+            ComputeImage3D source,
+            ComputeImage2D destination,
+            SysIntX3 sourceOffset,
+            SysIntX2 destinationOffset,
+            SysIntX2 region,
+            ICollection<IComputeEvent> events)
         {
             Copy(source, destination, sourceOffset, new SysIntX3(destinationOffset, 0), new SysIntX3(region, 1), null);
         }

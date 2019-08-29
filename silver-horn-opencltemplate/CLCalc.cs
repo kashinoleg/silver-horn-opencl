@@ -87,33 +87,50 @@ namespace OpenCLTemplate
         }
 
         /// <summary>Initializes OpenCL and reads devices. Uses previously created context and command queue if supplied. In that case DevicesToUse is ignored.</summary>
-        public static void InitCL(ComputeDeviceTypes DevicesToUse, IComputeContext PrevCtx, ComputeCommandQueue PrevCQ, int PlatformToUse)
+        public static void InitCL(
+            ComputeDeviceTypes DevicesToUse,
+            IComputeContext PrevCtx,
+            ComputeCommandQueue PrevCQ,
+            int PlatformToUse)
         {
             if (CLAcceleration != CLAccelerationType.UsingCL)
             {
                 try
                 {
-                    if (ComputePlatform.Platforms.Count > 0) CLAccel = CLAccelerationType.UsingCL;
-                    else CLAccel = CLAccelerationType.NotUsingCL;
+                    if (ComputePlatform.Platforms.Count > 0)
+                    {
+                        CLAccel = CLAccelerationType.UsingCL;
+                    }
+                    else
+                    {
+                        CLAccel = CLAccelerationType.NotUsingCL;
+                    }
 
                     //Program.Event = new List<ComputeEventBase>();
 
                     CLPlatforms = new List<ComputePlatform>();
-                    foreach (ComputePlatform pp in ComputePlatform.Platforms) CLPlatforms.Add(pp);
+                    foreach (ComputePlatform pp in ComputePlatform.Platforms)
+                    {
+                        CLPlatforms.Add(pp);
+                    }
 
-                    var Properties = new ComputeContextPropertyList(ComputePlatform.Platforms[PlatformToUse]);
-
+                    var Properties = new List<ComputeContextProperty>
+                    {
+                        new ComputeContextProperty(ComputeContextPropertyName.Platform, ComputePlatform.Platforms[PlatformToUse].Handle.Value)
+                    };
                     if (PrevCtx == null)
                     {
                         Program.Context = new ComputeContext(DevicesToUse, Properties, null, IntPtr.Zero);
                     }
-                    else Program.Context = PrevCtx;
+                    else
+                    {
+                        Program.Context = PrevCtx;
+                    }
 
                     CLDevices = new List<IComputeDevice>();
                     for (int i = 0; i < Program.Context.Devices.Count; i++)
                     {
                         CLDevices.Add(Program.Context.Devices[i]);
-
                     }
 
                     Program.CommQueues = new List<ComputeCommandQueue>();

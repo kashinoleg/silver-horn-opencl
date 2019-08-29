@@ -52,7 +52,10 @@ namespace SilverHorn.Cloo.Tests.Examples
                 a[i] = (float)i / 10;
                 b[i] = -(float)i / 9;
             }
-            var Properties = new ComputeContextPropertyList(Device.Platform);
+            var Properties = new List<ComputeContextProperty>
+            {
+                new ComputeContextProperty(ComputeContextPropertyName.Platform, Device.Platform.Handle.Value)
+            };
             using (var Context = new ComputeContext(ComputeDeviceTypes.All, Properties, null, IntPtr.Zero))
             {
                 var builder = new OpenCL100Factory();
@@ -94,7 +97,10 @@ namespace SilverHorn.Cloo.Tests.Examples
                 a[i] = i / 10.0;
                 b[i] = -i / 9.0;
             }
-            var Properties = new ComputeContextPropertyList(Device.Platform);
+            var Properties = new List<ComputeContextProperty>
+            {
+                new ComputeContextProperty(ComputeContextPropertyName.Platform, Device.Platform.Handle.Value)
+            };
             var builder = new OpenCL100Factory();
             using (var Context = new ComputeContext(ComputeDeviceTypes.All, Properties, null, IntPtr.Zero))
             {

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using Cloo;
 using SilverHorn.Cloo.Command;
@@ -69,7 +70,7 @@ kernel void VectorAdd(
                 // Create the event wait list. An event list is not really needed for this example but it is important to see how it works.
                 // Note that events (like everything else) consume OpenCL resources and creating a lot of them may slow down execution.
                 // For this reason their use should be avoided if possible.
-                var eventList = new ComputeEventList();
+                var eventList = new List<IComputeEvent>();
 
                 // Create the command queue. This is used to control kernel execution and manage read/write/copy operations.
                 var commands = new ComputeCommandQueue(context, context.Devices[0], ComputeCommandQueueFlags.None);

@@ -12,7 +12,7 @@ namespace SilverHorn.Cloo.Command
         /// <summary>
         /// Gets the event associated with the command that had its status changed.
         /// </summary>
-        public ComputeEventBase Event { get; private set; }
+        public IComputeEvent Event { get; private set; }
 
         /// <summary>
         /// Gets the execution status of the command represented by the event.
@@ -25,7 +25,7 @@ namespace SilverHorn.Cloo.Command
         /// </summary>
         /// <param name="ev"> The event representing the command that had its status changed. </param>
         /// <param name="status"> The status of the command. </param>
-        public ComputeCommandStatusArgs(ComputeEventBase ev, ComputeCommandExecutionStatus status)
+        public ComputeCommandStatusArgs(IComputeEvent ev, ComputeCommandExecutionStatus status)
         {
             Event = ev;
             Status = status;
@@ -36,7 +36,7 @@ namespace SilverHorn.Cloo.Command
         /// </summary>
         /// <param name="ev"> The event of the command that had its status changed. </param>
         /// <param name="status"> The status of the command. </param>
-        public ComputeCommandStatusArgs(ComputeEventBase ev, int status)
+        public ComputeCommandStatusArgs(IComputeEvent ev, int status)
             : this(ev, (ComputeCommandExecutionStatus)status)
         { }
     }

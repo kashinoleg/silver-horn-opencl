@@ -20,17 +20,10 @@ namespace SilverHorn.Cloo.Event
         #endregion
 
         #region Properties
-
         /// <summary>
         /// The handle of the event types.
         /// </summary>
         CLEventHandle Handle { get; }
-
-        /// <summary>
-        /// Gets the context associated with the event types.
-        /// </summary>
-        /// <value> The context associated with the event types. </value>
-        IComputeContext Context { get; }
 
         /// <summary>
         /// Gets the <see cref="ComputeDevice"/> time counter in nanoseconds when the associated command has finished execution.

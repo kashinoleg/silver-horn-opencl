@@ -143,8 +143,10 @@ namespace Clootils
 
             StringBuilder output = new StringBuilder();
             StringWriter log = new StringWriter(output);
-
-            var properties = new ComputeContextPropertyList(platform);
+            var properties = new List<ComputeContextProperty>
+            {
+                new ComputeContextProperty(ComputeContextPropertyName.Platform, platform.Handle.Value)
+            };
             var context = new ComputeContext(devices, properties, null, IntPtr.Zero);
 
             for (int i = 0; i < exampleList.Count; i++)
