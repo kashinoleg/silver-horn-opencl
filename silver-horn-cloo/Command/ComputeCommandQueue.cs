@@ -25,12 +25,6 @@ namespace SilverHorn.Cloo.Command
         public CLCommandQueueHandle Handle { get; private set; }
 
         /// <summary>
-        /// Gets the context of the command queue.
-        /// </summary>
-        /// <value> The context of the command queue. </value>
-        public IComputeContext Context { get; private set; }
-
-        /// <summary>
         /// Gets the device of the command queue.
         /// </summary>
         /// <value> The device of the command queue. </value>
@@ -48,7 +42,7 @@ namespace SilverHorn.Cloo.Command
         /// <value> Is <c>true</c> if command queue has profiling enabled and <c>false</c> otherwise. </value>
         public bool Profiling { get; private set; }
 
-        internal IList<IComputeEvent> Events { get; set; }
+        public IList<IComputeEvent> Events { get; private set; }
         #endregion
 
         #region Constructors
@@ -67,7 +61,6 @@ namespace SilverHorn.Cloo.Command
             SetID(Handle.Value);
 
             Device = device;
-            Context = context;
 
             OutOfOrderExecution = ((properties & ComputeCommandQueueFlags.OutOfOrderExecution) == ComputeCommandQueueFlags.OutOfOrderExecution);
             Profiling = ((properties & ComputeCommandQueueFlags.Profiling) == ComputeCommandQueueFlags.Profiling);
