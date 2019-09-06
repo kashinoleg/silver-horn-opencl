@@ -3,6 +3,17 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>SilverHorn.Cloo</RootNamespace>
+    <PackageId>Cloo.SilverHorn</PackageId>
+    <Product>Cloo</Product>
+    <Description>This package includes execution classes of OpenCL commands</Description>
+    <Company></Company>
+    <Authors>SilverHorn</Authors>
+    <PackageReleaseNotes>Support of version 1.0 and 1.1 OpenCL commands</PackageReleaseNotes>
+    <Copyright>Copyright 2019</Copyright>
+    <PackageTags>OpenCL</PackageTags>
+    <RepositoryUrl>https://github.com/kashinoleg/silver-horn-opencl</RepositoryUrl>
+    <PackageLicenseExpression>LGPL-3.0-or-later</PackageLicenseExpression>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>
