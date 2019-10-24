@@ -24,47 +24,69 @@ namespace Cloo
             : this(context, flags, count, IntPtr.Zero)
         { }
 
-        /// <summary>
-        /// Creates a new buffer.
-        /// </summary>
-        /// <param name="context"> A context used to create the buffer. </param>
-        /// <param name="flags"> A bit-field that is used to specify allocation and usage information about the buffer. </param>
-        /// <param name="count"> The number of elements of the buffer. </param>
-        /// <param name="dataPtr"> A pointer to the data for the buffer. </param>
-        public ComputeBuffer(IComputeContext context, ComputeMemoryFlags flags, long count, IntPtr dataPtr)
+		/// <summary>
+		/// Creates a new buffer from the given pointer.
+		/// </summary>
+		/// <param name="context"> A context used to create the buffer. </param>
+		/// <param name="flags"> A bit-field that is used to specify allocation and usage information about the buffer. </param>
+		/// <param name="count"> The number of elements of the buffer. </param>
+		/// <param name="dataPtr"> A pointer to the data for the buffer. </param>
+		/// <remarks> Note, that if <paramref name="dataPtr"/> does not persist for the life of this buffer, <c>ComputeMemoryFlags.CopyHostPointer</c> should be set in flags to ensure that the underlying buffer remains available. </remarks>
+		public ComputeBuffer(IComputeContext context, ComputeMemoryFlags flags, long count, IntPtr dataPtr)
             : base(context, flags)
         {
-            ComputeErrorCode error = ComputeErrorCode.Success;
-            Handle = CL10.CreateBuffer(context.Handle, flags, new IntPtr(Marshal.SizeOf(typeof(T)) * count), dataPtr, out error);
-            ComputeException.ThrowOnError(error);
-            Init();
+			InternalCreateBuffer(context, flags, count, dataPtr);
         }
 
         /// <summary>
-        /// Creates a new buffer.
+        /// Creates a new buffer from the given array.
         /// </summary>
         /// <param name="context"> A context used to create the buffer. </param>
-        /// <param name="flags"> A bit-field that is used to specify allocation and usage information about the buffer. </param>
+        /// <param name="flags"> A bit-field that is used to specify allocation and usage information about the buffer.  Any xxxHostPointer flags are ignored. </param>
         /// <param name="data"> The data for the buffer. </param>
-        /// <remarks> Note, that <paramref name="data"/> cannot be an "immediate" parameter, i.e.: <c>new T[100]</c>, because it could be quickly collected by the GC causing Cloo to send and invalid reference to OpenCL. </remarks>
         public ComputeBuffer(IComputeContext context, ComputeMemoryFlags flags, T[] data)
             : base(context, flags)
         {
             GCHandle dataPtr = GCHandle.Alloc(data, GCHandleType.Pinned);
             try
             {
-                ComputeErrorCode error = ComputeErrorCode.Success;
-                Handle = CL10.CreateBuffer(context.Handle, flags, new IntPtr(Marshal.SizeOf(typeof(T)) * data.Length), dataPtr.AddrOfPinnedObject(), out error);
-                ComputeException.ThrowOnError(error);
-            }
-            finally
+				InternalCreateBuffer(context, (flags | ComputeMemoryFlags.CopyHostPointer) & ~(ComputeMemoryFlags.UseHostPointer | ComputeMemoryFlags.AllocateHostPointer), data.Length, dataPtr.AddrOfPinnedObject());
+			}
+			finally
             {
                 dataPtr.Free();
             }
-            Init();
         }
 
-        private ComputeBuffer(CLMemoryHandle handle, IComputeContext context, ComputeMemoryFlags flags)
+		/// <summary>
+		/// Creates a new buffer from the given 2-dimensional array.
+		/// </summary>
+		/// <param name="context"> A context used to create the buffer. </param>
+		/// <param name="flags"> A bit-field that is used to specify allocation and usage information about the buffer.  Any xxxHostPointer flags are ignored. </param>
+		/// <param name="data"> The 2-dimensional data for the buffer. </param>
+		public ComputeBuffer(IComputeContext context, ComputeMemoryFlags flags, T[,] data)
+			: base(context, flags)
+		{
+			GCHandle dataPtr = GCHandle.Alloc(data, GCHandleType.Pinned);
+			try
+			{
+				InternalCreateBuffer(context, (flags | ComputeMemoryFlags.CopyHostPointer) & ~(ComputeMemoryFlags.UseHostPointer | ComputeMemoryFlags.AllocateHostPointer), data.Length, dataPtr.AddrOfPinnedObject());
+			}
+			finally
+			{
+				dataPtr.Free();
+			}
+		}
+
+		private void InternalCreateBuffer(IComputeContext context, ComputeMemoryFlags flags, long count, IntPtr dataPtr)
+		{
+            ComputeErrorCode error = ComputeErrorCode.Success;
+            Handle = CL10.CreateBuffer(context.Handle, flags, new IntPtr(Marshal.SizeOf(typeof(T)) * count), dataPtr, out error);
+            ComputeException.ThrowOnError(error);
+            Init();
+		}
+
+		private ComputeBuffer(CLMemoryHandle handle, IComputeContext context, ComputeMemoryFlags flags)
             : base(context, flags)
         {
             Handle = handle;

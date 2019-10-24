@@ -65,8 +65,8 @@ namespace SilverHorn.Cloo.Tests.Examples
                     Program.Build(Devs, "", null, IntPtr.Zero);
                     var kernel = builder.CreateKernel(Program, "floatVectorSum");
                     using (ComputeBuffer<float>
-                        varA = new ComputeBuffer<float>(Context, ComputeMemoryFlags.ReadWrite | ComputeMemoryFlags.UseHostPointer, a),
-                        varB = new ComputeBuffer<float>(Context, ComputeMemoryFlags.ReadOnly | ComputeMemoryFlags.UseHostPointer, b))
+                        varA = new ComputeBuffer<float>(Context, ComputeMemoryFlags.ReadWrite | ComputeMemoryFlags.CopyHostPointer, a),
+                        varB = new ComputeBuffer<float>(Context, ComputeMemoryFlags.ReadOnly | ComputeMemoryFlags.CopyHostPointer, b))
                     {
                         kernel.SetMemoryArgument(0, varA);
                         kernel.SetMemoryArgument(1, varB);
