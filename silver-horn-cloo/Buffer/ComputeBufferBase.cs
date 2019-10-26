@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
 using Cloo.Bindings;
-using NLog;
 using SilverHorn.Cloo.Context;
 
 namespace Cloo
@@ -48,7 +46,6 @@ namespace Cloo
 
             logger.Info("Create " + this + " in Thread(" + Thread.CurrentThread.ManagedThreadId + ").", "Information");
         }
-
         #endregion
     }
 }

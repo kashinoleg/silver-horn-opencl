@@ -80,8 +80,7 @@ namespace Cloo
 
 		private void InternalCreateBuffer(IComputeContext context, ComputeMemoryFlags flags, long count, IntPtr dataPtr)
 		{
-            ComputeErrorCode error = ComputeErrorCode.Success;
-            Handle = CL10.CreateBuffer(context.Handle, flags, new IntPtr(Marshal.SizeOf(typeof(T)) * count), dataPtr, out error);
+            Handle = CL10.CreateBuffer(context.Handle, flags, new IntPtr(Marshal.SizeOf(typeof(T)) * count), dataPtr, out ComputeErrorCode error);
             ComputeException.ThrowOnError(error);
             Init();
 		}
@@ -107,12 +106,10 @@ namespace Cloo
         /// <returns> The created buffer. </returns>
         public static ComputeBuffer<DataType> CreateFromGLBuffer<DataType>(IComputeContext context, ComputeMemoryFlags flags, int bufferId) where DataType : struct
         {
-            ComputeErrorCode error = ComputeErrorCode.Success;
-            CLMemoryHandle handle = CL10.CreateFromGLBuffer(context.Handle, flags, bufferId, out error);
+            var handle = CL10.CreateFromGLBuffer(context.Handle, flags, bufferId, out ComputeErrorCode error);
             ComputeException.ThrowOnError(error);
             return new ComputeBuffer<DataType>(handle, context, flags);
         }
-
         #endregion
     }
 }
