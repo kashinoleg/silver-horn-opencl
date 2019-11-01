@@ -5,7 +5,6 @@
     <RootNamespace>SilverHorn.OpenCLTemplate.Tests</RootNamespace>
 
     <IsPackable>false</IsPackable>
-    <SonarQubeExclude>true</SonarQubeExclude>
   </PropertyGroup>
 
   <ItemGroup>

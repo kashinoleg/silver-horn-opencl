@@ -5,7 +5,6 @@
     <RootNamespace>SilverHorn.Cloo.Tests</RootNamespace>
 
     <IsPackable>false</IsPackable>
-    <SonarQubeExclude>true</SonarQubeExclude>
   </PropertyGroup>
 
   <ItemGroup>
