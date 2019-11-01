@@ -1,9 +1,17 @@
 language: csharp
+dist: trusty
 mono: none
 dotnet: 2.1.802
+
+addons:
+  sonarcloud:
+    organization: "kashinoleg"
+    token:
+      secure: "6960462c949e2b5e20b4db6b3f0d579c43fe0f6b" # encrypted value of your token
 
 before_script:
   - dotnet restore
 
 script:
   - dotnet build ./silver-horn-cloo-tests -c Release -f netcoreapp2.1
+  - sonar-scanner
