@@ -29,7 +29,7 @@ namespace SilverHorn.Cloo.Tests.Examples
                         ComputePlatform.Platforms[i].Devices[j].Name);
                 }
             }
-            Device = ComputePlatform.Platforms[1].Devices[0];
+            Device = ComputePlatform.Platforms[0].Devices[0];
             Console.WriteLine("Device: {0}", Device.Name);
         }
 
