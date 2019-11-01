@@ -1,11 +1,9 @@
-language: csharp  
-sudo: required  
-dist: trusty  
+language: csharp
 mono: none
 dotnet: 2.1.802
 solution: SilverHorn.Cloo.Tests.sln
 
 before_script:
   - dotnet restore
-script:  
-  - dotnet test ./silver-horn-cloo-tests -c Release -f netcoreapp2.1
+script:
+  - dotnet test
