@@ -7,8 +7,9 @@ dotnet: 2.1
 addons:
   sonarcloud:
     organization: "kashinoleg"
-    token:
-      secure: "6960462c949e2b5e20b4db6b3f0d579c43fe0f6b" # encrypted value of your token
+
+git:
+  depth: false
 
 before_script:
   - dotnet restore
