@@ -10,9 +10,11 @@ addons:
     token:
       secure: $SONAR_TOKEN
 
+git:
+  depth: false
+
 install:
   - dotnet tool install --global dotnet-sonarscanner
-  - git fetch --unshallow --tags
   - dotnet restore
 
 before_script:
