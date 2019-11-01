@@ -21,9 +21,9 @@ before_script:
   - export PATH="$PATH:$HOME/.dotnet/tools"
 
 script:
+  - dotnet build silver-horn-cloo/silver-horn-cloo.csproj
   - dotnet sonarscanner begin /d:sonar.login="$SONAR_TOKEN" /k:"kashinoleg_silver-horn-opencl" /o:"kashinoleg" /n:"silver-horn-opencl" /v:"1.0.$TRAVIS_BUILD_NUMBER" /d:sonar.links.homepage="https://github.com/kashinoleg/silver-horn-opencl" /d:sonar.links.ci="https://travis-ci.org/kashinoleg/silver-horn-opencl" /d:sonar.links.scm="https://github.com/kashinoleg/silver-horn-opencl" /d:sonar.links.issue="https://github.com/kashinoleg/silver-horn-opencl/issues" /d:sonar.sources="." /d:sonar.language="cs" /d:sonar.c.file.suffixes="-" /d:sonar.cpp.file.suffixes="-" /d:sonar.objc.file.suffixes="-" /d:sonar.sourceEncoding="UTF-8" /d:sonar.language="cs" /d:sonar.exclusions="**/bin/**/*,**/obj/**/*" || true
 # /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml"
-  - dotnet build silver-horn-cloo/silver-horn-cloo.csproj
 #  - dotnet test silver-horn-cloo-tests/silver-horn-cloo-tests.csproj /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
   - dotnet sonarscanner end /d:sonar.login="$SONAR_TOKEN" || true
 
