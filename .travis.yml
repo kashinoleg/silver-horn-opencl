@@ -1,4 +1,5 @@
 language: csharp
+sudo: required
 dist: trusty
 mono: none
 dotnet: 2.1
@@ -14,4 +15,8 @@ before_script:
 
 script:
   - dotnet build ./silver-horn-cloo-tests -c Release -f netcoreapp2.1
-  - sonar-scanner
+  - sonar-scanner -Dsonar.projectVersion=1.0.$TRAVIS_BUILD_NUMBER
+
+cache:
+  directories:
+    - '$HOME/.sonar/cache'
