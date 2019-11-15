@@ -71,28 +71,25 @@ namespace SilverHorn.Cloo.Platform
         /// </summary>
         /// <value> The OpenCL version string supported by the platform. It has the following format: <c>OpenCL[space][major_version].[minor_version][space][vendor-specific information]</c>. </value>
         public string Version { get; private set; }
+
+        private static readonly object lockObj = new object();
         #endregion
 
         #region Constructors
         static ComputePlatform()
         {
-            lock (typeof(ComputePlatform))
+            if (Platforms != null)
+            {
+                return;
+            }
+            lock (lockObj)
             {
                 try
                 {
-                    if (Platforms != null)
-                    {
-                        return;
-                    }
-
-                    CLPlatformHandle[] handles;
-                    var error = CL10.GetPlatformIDs(0, null, out int handlesLength);
-                    ComputeException.ThrowOnError(error);
-                    handles = new CLPlatformHandle[handlesLength];
-
-                    error = CL10.GetPlatformIDs(handlesLength, handles, out handlesLength);
-                    ComputeException.ThrowOnError(error);
-
+                    CL10.GetPlatformIDsWrapper(0, null, out int handlesLength);
+                    CLPlatformHandle[] handles = new CLPlatformHandle[handlesLength];
+                    CL10.GetPlatformIDsWrapper(handlesLength, handles, out handlesLength);
+                    
                     var platformList = new List<ComputePlatform>(handlesLength);
                     foreach (CLPlatformHandle handle in handles)
                     {
@@ -112,16 +109,13 @@ namespace SilverHorn.Cloo.Platform
             Handle = handle;
             SetID(Handle.Value);
 
-            string extensionString = GetStringInfo<CLPlatformHandle, ComputePlatformInfo>(
-                Handle,
-                ComputePlatformInfo.Extensions,
-                CL10.GetPlatformInfo);
+            string extensionString = GetStringInfo(Handle, ComputePlatformInfo.Extensions, CL10.GetPlatformInfoWrapper);
             Extensions = new ReadOnlyCollection<string>(extensionString.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries));
 
-            Name = GetStringInfo<CLPlatformHandle, ComputePlatformInfo>(Handle, ComputePlatformInfo.Name, CL10.GetPlatformInfo);
-            Profile = GetStringInfo<CLPlatformHandle, ComputePlatformInfo>(Handle, ComputePlatformInfo.Profile, CL10.GetPlatformInfo);
-            Vendor = GetStringInfo<CLPlatformHandle, ComputePlatformInfo>(Handle, ComputePlatformInfo.Vendor, CL10.GetPlatformInfo);
-            Version = GetStringInfo<CLPlatformHandle, ComputePlatformInfo>(Handle, ComputePlatformInfo.Version, CL10.GetPlatformInfo);
+            Name = GetStringInfo(Handle, ComputePlatformInfo.Name, CL10.GetPlatformInfoWrapper);
+            Profile = GetStringInfo(Handle, ComputePlatformInfo.Profile, CL10.GetPlatformInfoWrapper);
+            Vendor = GetStringInfo(Handle, ComputePlatformInfo.Vendor, CL10.GetPlatformInfoWrapper);
+            Version = GetStringInfo(Handle, ComputePlatformInfo.Version, CL10.GetPlatformInfoWrapper);
             QueryDevices();
         }
         #endregion
@@ -185,13 +179,9 @@ namespace SilverHorn.Cloo.Platform
         /// <remarks> This method resets the <c>ComputePlatform.Devices</c>. This is useful if one or more of them become unavailable (<c>ComputeDevice.Available</c> is <c>false</c>) after a device and command queues that use the device have been created and commands have been queued to them. Further calls will trigger an <c>OutOfResourcesComputeException</c> until this method is executed. You will also need to recreate any <see cref="ComputeResource"/> that was created on the no longer available device. </remarks>
         public ReadOnlyCollection<IComputeDevice> QueryDevices()
         {
-            var error = CL10.GetDeviceIDs(Handle, ComputeDeviceTypes.All, 0, null, out int handlesLength);
-            ComputeException.ThrowOnError(error);
-
+            CL10.GetDeviceIDsWrapper(Handle, ComputeDeviceTypes.All, 0, null, out int handlesLength);
             var handles = new CLDeviceHandle[handlesLength];
-            error = CL10.GetDeviceIDs(Handle, ComputeDeviceTypes.All, handlesLength, handles, out handlesLength);
-            ComputeException.ThrowOnError(error);
-
+            CL10.GetDeviceIDsWrapper(Handle, ComputeDeviceTypes.All, handlesLength, handles, out handlesLength);
             var devices = new ComputeDevice[handlesLength];
             for (int i = 0; i < handlesLength; i++)
             {

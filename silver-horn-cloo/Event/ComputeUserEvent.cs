@@ -80,7 +80,7 @@ namespace SilverHorn.Cloo.Event
         /// <value> The device time counter in nanoseconds when the associated command has finished execution. </value>
         public long FinishTime
         {
-            get { return GetInfo<CLEventHandle, ComputeCommandProfilingInfo, long>(Handle, ComputeCommandProfilingInfo.Ended, CL10.GetEventProfilingInfo); }
+            get => GetInfo<CLEventHandle, ComputeCommandProfilingInfo, long>(Handle, ComputeCommandProfilingInfo.Ended, CL10.GetEventProfilingInfoWrapper);
         }
 
         /// <summary>
@@ -89,7 +89,7 @@ namespace SilverHorn.Cloo.Event
         /// <value> The device time counter in nanoseconds when the associated command is enqueued in the command queue by the host. </value>
         public long EnqueueTime
         {
-            get { return (long)GetInfo<CLEventHandle, ComputeCommandProfilingInfo, long>(Handle, ComputeCommandProfilingInfo.Queued, CL10.GetEventProfilingInfo); }
+            get => GetInfo<CLEventHandle, ComputeCommandProfilingInfo, long>(Handle, ComputeCommandProfilingInfo.Queued, CL10.GetEventProfilingInfoWrapper);
         }
 
         /// <summary>
@@ -98,7 +98,15 @@ namespace SilverHorn.Cloo.Event
         /// <value> The execution status of the associated command or a negative value if the execution was abnormally terminated. </value>
         public ComputeCommandExecutionStatus Status
         {
-            get { return (ComputeCommandExecutionStatus)GetInfo<CLEventHandle, ComputeEventInfo, int>(Handle, ComputeEventInfo.ExecutionStatus, CL10.GetEventInfo); }
+            get
+            {
+                var status = GetInfo<CLEventHandle, ComputeEventInfo, int>(Handle, ComputeEventInfo.ExecutionStatus, CL10.GetEventInfoWrapper);
+                if (Enum.IsDefined(typeof(ComputeCommandExecutionStatus), status))
+                {
+                    return (ComputeCommandExecutionStatus)Enum.ToObject(typeof(ComputeCommandExecutionStatus), status);
+                }
+                throw new ComputeException(ComputeErrorCode.InvalidValue);
+            }
         }
 
         /// <summary>
@@ -107,7 +115,7 @@ namespace SilverHorn.Cloo.Event
         /// <value> The device time counter in nanoseconds when the associated command starts execution. </value>
         public long StartTime
         {
-            get { return (long)GetInfo<CLEventHandle, ComputeCommandProfilingInfo, ulong>(Handle, ComputeCommandProfilingInfo.Started, CL10.GetEventProfilingInfo); }
+            get => (long)GetInfo<CLEventHandle, ComputeCommandProfilingInfo, ulong>(Handle, ComputeCommandProfilingInfo.Started, CL10.GetEventProfilingInfoWrapper);
         }
 
         /// <summary>
@@ -116,7 +124,7 @@ namespace SilverHorn.Cloo.Event
         /// <value> The device time counter in nanoseconds when the associated command that has been enqueued is submitted by the host to the device. </value>
         public long SubmitTime
         {
-            get { return (long)GetInfo<CLEventHandle, ComputeCommandProfilingInfo, ulong>(Handle, ComputeCommandProfilingInfo.Submitted, CL10.GetEventProfilingInfo); }
+            get => (long)GetInfo<CLEventHandle, ComputeCommandProfilingInfo, ulong>(Handle, ComputeCommandProfilingInfo.Submitted, CL10.GetEventProfilingInfoWrapper);
         }
 
         /// <summary>
@@ -162,8 +170,7 @@ namespace SilverHorn.Cloo.Event
         protected virtual void OnCompleted(object sender, ComputeCommandStatusArgs evArgs)
         {
             logger.Info("Complete " + Type + " operation of " + this + ".", "Information");
-            if (completed != null)
-                completed(sender, evArgs);
+            completed?.Invoke(sender, evArgs);
         }
 
         /// <summary>
@@ -174,8 +181,7 @@ namespace SilverHorn.Cloo.Event
         protected virtual void OnAborted(object sender, ComputeCommandStatusArgs evArgs)
         {
             logger.Info("Abort " + Type + " operation of " + this + ".", "Information");
-            if (aborted != null)
-                aborted(sender, evArgs);
+            aborted?.Invoke(sender, evArgs);
         }
 
         #endregion
@@ -208,8 +214,7 @@ namespace SilverHorn.Cloo.Event
 
             SetID(Handle.Value);
 
-            Type = (ComputeCommandType)GetInfo<CLEventHandle, ComputeEventInfo, uint>(Handle, ComputeEventInfo.CommandType,
-                CL10.GetEventInfo);
+            Type = (ComputeCommandType)GetInfo<CLEventHandle, ComputeEventInfo, uint>(Handle, ComputeEventInfo.CommandType, CL10.GetEventInfoWrapper);
             HookNotifier();
 
             logger.Info("Create " + this + " in Thread(" + Thread.CurrentThread.ManagedThreadId + ").", "Information");

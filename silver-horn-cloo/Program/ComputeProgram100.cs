@@ -66,8 +66,7 @@ namespace Cloo
         /// <returns> The build log of the program for device. </returns>
         public string GetBuildLog(IComputeDevice device)
         {
-            return GetStringInfo<CLProgramHandle, CLDeviceHandle, ComputeProgramBuildInfo>(Handle, device.Handle,
-                ComputeProgramBuildInfo.BuildLog, OpenCL100.GetProgramBuildInfo);
+            return GetStringInfo(Handle, device.Handle, ComputeProgramBuildInfo.BuildLog, OpenCL100.GetProgramBuildInfoWrapper);
         }
 
         /// <summary>
@@ -78,7 +77,7 @@ namespace Cloo
         public ComputeProgramBuildStatus GetBuildStatus(IComputeDevice device)
         {
             return (ComputeProgramBuildStatus)GetInfo<CLProgramHandle, CLDeviceHandle, ComputeProgramBuildInfo, uint>(Handle,
-                device.Handle, ComputeProgramBuildInfo.Status, OpenCL100.GetProgramBuildInfo);
+                device.Handle, ComputeProgramBuildInfo.Status, OpenCL100.GetProgramBuildInfoWrapper);
         }
 
         public List<byte[]> GetBinaries()
@@ -86,7 +85,7 @@ namespace Cloo
             var binaryLengths = GetArrayInfo<CLProgramHandle, ComputeProgramInfo, IntPtr>(
                 Handle,
                 ComputeProgramInfo.BinarySizes,
-                OpenCL100.GetProgramInfo);
+                OpenCL100.GetProgramInfoWrapper);
 
             var binariesGCHandles = new GCHandle[binaryLengths.Length];
             var binariesPtrs = new IntPtr[binaryLengths.Length];
@@ -102,13 +101,11 @@ namespace Cloo
                     binariesPtrs[i] = binariesGCHandles[i].AddrOfPinnedObject();
                     binaries.Add(binary);
                 }
-                ComputeErrorCode error = OpenCL100.GetProgramInfo(
-                    Handle,
+                OpenCL100.GetProgramInfoWrapper(Handle,
                     ComputeProgramInfo.Binaries,
                     new IntPtr(binariesPtrs.Length * IntPtr.Size),
                     binariesPtrsGCHandle.AddrOfPinnedObject(),
                     out IntPtr sizeRet);
-                ComputeException.ThrowOnError(error);
             }
             finally
             {

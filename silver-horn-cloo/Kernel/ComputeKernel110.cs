@@ -48,7 +48,7 @@ namespace SilverHorn.Cloo.Kernel
         public long GetLocalMemorySize(IComputeDevice device)
         {
             return GetInfo<CLKernelHandle, CLDeviceHandle, ComputeKernelWorkGroupInfo, long>(
-                Handle, device.Handle, ComputeKernelWorkGroupInfo.LocalMemorySize, OpenCL110.GetKernelWorkGroupInfo);
+                Handle, device.Handle, ComputeKernelWorkGroupInfo.LocalMemorySize, OpenCL110.GetKernelWorkGroupInfoWrapper);
         }
 
         /// <summary>
@@ -60,7 +60,7 @@ namespace SilverHorn.Cloo.Kernel
         {
             return ComputeTools.ConvertArray(
                 GetArrayInfo<CLKernelHandle, CLDeviceHandle, ComputeKernelWorkGroupInfo, IntPtr>(
-                    Handle, device.Handle, ComputeKernelWorkGroupInfo.CompileWorkGroupSize, OpenCL110.GetKernelWorkGroupInfo));
+                    Handle, device.Handle, ComputeKernelWorkGroupInfo.CompileWorkGroupSize, OpenCL110.GetKernelWorkGroupInfoWrapper));
         }
 
         /// <summary>
@@ -73,7 +73,7 @@ namespace SilverHorn.Cloo.Kernel
         public long GetPreferredWorkGroupSizeMultiple(IComputeDevice device)
         {
             return (long)GetInfo<CLKernelHandle, CLDeviceHandle, ComputeKernelWorkGroupInfo, IntPtr>(
-                Handle, device.Handle, ComputeKernelWorkGroupInfo.PreferredWorkGroupSizeMultiple, OpenCL110.GetKernelWorkGroupInfo);
+                Handle, device.Handle, ComputeKernelWorkGroupInfo.PreferredWorkGroupSizeMultiple, OpenCL110.GetKernelWorkGroupInfoWrapper);
         }
 
         /// <summary>
@@ -85,7 +85,7 @@ namespace SilverHorn.Cloo.Kernel
         public long GetPrivateMemorySize(IComputeDevice device)
         {
             return GetInfo<CLKernelHandle, CLDeviceHandle, ComputeKernelWorkGroupInfo, long>(
-                Handle, device.Handle, ComputeKernelWorkGroupInfo.PrivateMemorySize, OpenCL110.GetKernelWorkGroupInfo);
+                Handle, device.Handle, ComputeKernelWorkGroupInfo.PrivateMemorySize, OpenCL110.GetKernelWorkGroupInfoWrapper);
         }
 
         /// <summary>
@@ -96,7 +96,7 @@ namespace SilverHorn.Cloo.Kernel
         public long GetWorkGroupSize(IComputeDevice device)
         {
             return (long)GetInfo<CLKernelHandle, CLDeviceHandle, ComputeKernelWorkGroupInfo, IntPtr>(
-                    Handle, device.Handle, ComputeKernelWorkGroupInfo.WorkGroupSize, OpenCL110.GetKernelWorkGroupInfo);
+                    Handle, device.Handle, ComputeKernelWorkGroupInfo.WorkGroupSize, OpenCL110.GetKernelWorkGroupInfoWrapper);
         }
 
         /// <summary>
@@ -139,7 +139,7 @@ namespace SilverHorn.Cloo.Kernel
         /// <remarks> This method will automatically track <paramref name="memObj"/> to prevent it from being collected by the GC.<br/> Arguments to the kernel are referred by indices that go from 0 for the leftmost argument to n-1, where n is the total number of arguments declared by the kernel. </remarks>
         public void SetMemoryArgument(int index, ComputeMemory memObj)
         {
-            SetValueArgument<CLMemoryHandle>(index, memObj.Handle);
+            SetValueArgument(index, memObj.Handle);
         }
 
         /// <summary>
@@ -150,7 +150,7 @@ namespace SilverHorn.Cloo.Kernel
         /// <remarks> This method will automatically track sampler to prevent it from being collected by the GC.<br/> Arguments to the kernel are referred by indices that go from 0 for the leftmost argument to n-1, where n is the total number of arguments declared by the kernel. </remarks>
         public void SetSamplerArgument(int index, IComputeSampler sampler)
         {
-            SetValueArgument<CLSamplerHandle>(index, sampler.Handle);
+            SetValueArgument(index, sampler.Handle);
         }
 
         /// <summary>
