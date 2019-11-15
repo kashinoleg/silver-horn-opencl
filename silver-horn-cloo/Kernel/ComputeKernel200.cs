@@ -48,7 +48,7 @@ namespace SilverHorn.Cloo.Kernel
         public long GetLocalMemorySize(IComputeDevice device)
         {
             return GetInfo<CLKernelHandle, CLDeviceHandle, ComputeKernelWorkGroupInfo, long>(
-                Handle, device.Handle, ComputeKernelWorkGroupInfo.LocalMemorySize, OpenCL200.GetKernelWorkGroupInfo);
+                Handle, device.Handle, ComputeKernelWorkGroupInfo.LocalMemorySize, OpenCL200.GetKernelWorkGroupInfoWrapper);
         }
 
         /// <summary>
@@ -60,7 +60,7 @@ namespace SilverHorn.Cloo.Kernel
         {
             return ComputeTools.ConvertArray(
                 GetArrayInfo<CLKernelHandle, CLDeviceHandle, ComputeKernelWorkGroupInfo, IntPtr>(
-                    Handle, device.Handle, ComputeKernelWorkGroupInfo.CompileWorkGroupSize, OpenCL200.GetKernelWorkGroupInfo));
+                    Handle, device.Handle, ComputeKernelWorkGroupInfo.CompileWorkGroupSize, OpenCL200.GetKernelWorkGroupInfoWrapper));
         }
 
         /// <summary>
@@ -73,7 +73,7 @@ namespace SilverHorn.Cloo.Kernel
         public long GetPreferredWorkGroupSizeMultiple(IComputeDevice device)
         {
             return (long)GetInfo<CLKernelHandle, CLDeviceHandle, ComputeKernelWorkGroupInfo, IntPtr>(
-                Handle, device.Handle, ComputeKernelWorkGroupInfo.PreferredWorkGroupSizeMultiple, OpenCL200.GetKernelWorkGroupInfo);
+                Handle, device.Handle, ComputeKernelWorkGroupInfo.PreferredWorkGroupSizeMultiple, OpenCL200.GetKernelWorkGroupInfoWrapper);
         }
 
         /// <summary>
@@ -85,7 +85,7 @@ namespace SilverHorn.Cloo.Kernel
         public long GetPrivateMemorySize(IComputeDevice device)
         {
             return GetInfo<CLKernelHandle, CLDeviceHandle, ComputeKernelWorkGroupInfo, long>(
-                Handle, device.Handle, ComputeKernelWorkGroupInfo.PrivateMemorySize, OpenCL200.GetKernelWorkGroupInfo);
+                Handle, device.Handle, ComputeKernelWorkGroupInfo.PrivateMemorySize, OpenCL200.GetKernelWorkGroupInfoWrapper);
         }
 
         /// <summary>
@@ -96,7 +96,7 @@ namespace SilverHorn.Cloo.Kernel
         public long GetWorkGroupSize(IComputeDevice device)
         {
             return (long)GetInfo<CLKernelHandle, CLDeviceHandle, ComputeKernelWorkGroupInfo, IntPtr>(
-                    Handle, device.Handle, ComputeKernelWorkGroupInfo.WorkGroupSize, OpenCL200.GetKernelWorkGroupInfo);
+                    Handle, device.Handle, ComputeKernelWorkGroupInfo.WorkGroupSize, OpenCL200.GetKernelWorkGroupInfoWrapper);
         }
 
         /// <summary>

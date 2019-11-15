@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Runtime.InteropServices;
 using System.Threading;
 using Cloo.Bindings;
 using NLog;
-using SilverHorn.Cloo.Context;
 using SilverHorn.Cloo.Device;
-using SilverHorn.Cloo.Kernel;
 using SilverHorn.Cloo.Program;
 
 namespace Cloo
@@ -49,14 +46,7 @@ namespace Cloo
         {
             var deviceHandles = ComputeTools.ExtractHandles(devices, out int handleCount);
             var BuildOptions = options ?? "";
-            var error = OpenCL110.BuildProgram(
-                Handle,
-                handleCount,
-                deviceHandles,
-                options,
-                notify,
-                notifyDataPtr);
-            ComputeException.ThrowOnError(error);
+            OpenCL110.BuildProgramWrapper(Handle, handleCount, deviceHandles, options, notify, notifyDataPtr);
         }
 
         /// <summary>
@@ -66,8 +56,7 @@ namespace Cloo
         /// <returns> The build log of the program for device. </returns>
         public string GetBuildLog(IComputeDevice device)
         {
-            return GetStringInfo<CLProgramHandle, CLDeviceHandle, ComputeProgramBuildInfo>(Handle, device.Handle,
-                ComputeProgramBuildInfo.BuildLog, OpenCL110.GetProgramBuildInfo);
+            return GetStringInfo(Handle, device.Handle, ComputeProgramBuildInfo.BuildLog, OpenCL110.GetProgramBuildInfoWrapper);
         }
 
         /// <summary>
@@ -78,7 +67,7 @@ namespace Cloo
         public ComputeProgramBuildStatus GetBuildStatus(IComputeDevice device)
         {
             return (ComputeProgramBuildStatus)GetInfo<CLProgramHandle, CLDeviceHandle, ComputeProgramBuildInfo, uint>(Handle,
-                device.Handle, ComputeProgramBuildInfo.Status, OpenCL110.GetProgramBuildInfo);
+                device.Handle, ComputeProgramBuildInfo.Status, OpenCL110.GetProgramBuildInfoWrapper);
         }
 
         public List<byte[]> GetBinaries()
@@ -86,7 +75,7 @@ namespace Cloo
             var binaryLengths = GetArrayInfo<CLProgramHandle, ComputeProgramInfo, IntPtr>(
                 Handle,
                 ComputeProgramInfo.BinarySizes,
-                OpenCL110.GetProgramInfo);
+                OpenCL110.GetProgramInfoWrapper);
 
             var binariesGCHandles = new GCHandle[binaryLengths.Length];
             var binariesPtrs = new IntPtr[binaryLengths.Length];
@@ -102,13 +91,11 @@ namespace Cloo
                     binariesPtrs[i] = binariesGCHandles[i].AddrOfPinnedObject();
                     binaries.Add(binary);
                 }
-                ComputeErrorCode error = OpenCL110.GetProgramInfo(
+                OpenCL110.GetProgramInfoWrapper(
                     Handle,
                     ComputeProgramInfo.Binaries,
                     new IntPtr(binariesPtrs.Length * IntPtr.Size),
-                    binariesPtrsGCHandle.AddrOfPinnedObject(),
-                    out IntPtr sizeRet);
-                ComputeException.ThrowOnError(error);
+                    binariesPtrsGCHandle.AddrOfPinnedObject(), out IntPtr sizeRet);
             }
             finally
             {

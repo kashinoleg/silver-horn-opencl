@@ -133,21 +133,9 @@ namespace SilverHorn.Cloo.Factories
         public ICollection<IComputeKernel> CreateAllKernels(IComputeProgram program)
         {
             var kernels = new Collection<IComputeKernel>();
-            var error = OpenCL110.CreateKernelsInProgram(
-                program.Handle,
-                0,
-                null,
-                out int kernelsCount);
-            ComputeException.ThrowOnError(error);
-
+            OpenCL110.CreateKernelsInProgramWrapper(program.Handle, 0, null, out int kernelsCount);
             var kernelHandles = new CLKernelHandle[kernelsCount];
-            error = OpenCL110.CreateKernelsInProgram(
-                program.Handle,
-                kernelsCount,
-                kernelHandles,
-                out kernelsCount);
-            ComputeException.ThrowOnError(error);
-
+            OpenCL110.CreateKernelsInProgramWrapper(program.Handle, kernelsCount, kernelHandles, out kernelsCount);
             for (int i = 0; i < kernelsCount; i++)
             {
                 kernels.Add(CreateKernel(kernelHandles[i]));
@@ -160,9 +148,7 @@ namespace SilverHorn.Cloo.Factories
             var kernel = new ComputeKernel110();
             kernel.Handle = handle;
             kernel.SetID(kernel.Handle.Value);
-
-            kernel.FunctionName = kernel.GetStringInfo<CLKernelHandle, ComputeKernelInfo>(kernel.Handle,
-                ComputeKernelInfo.FunctionName, OpenCL110.GetKernelInfo);
+            kernel.FunctionName = kernel.GetStringInfo(kernel.Handle, ComputeKernelInfo.FunctionName, OpenCL110.GetKernelInfoWrapper);
             logger.Info("Create " + this + " in Thread(" + Thread.CurrentThread.ManagedThreadId + ").", "Information");
             return kernel;
         }

@@ -13,7 +13,8 @@
     <PackageTags>OpenCL</PackageTags>
     <RepositoryUrl>https://github.com/kashinoleg/silver-horn-opencl</RepositoryUrl>
     <PackageLicenseExpression>LGPL-3.0-or-later</PackageLicenseExpression>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <Version>1.0.1</Version>
   </PropertyGroup>
 
   <ItemGroup>

@@ -123,7 +123,7 @@ namespace SilverHorn.Cloo.Context
         internal ReadOnlyCollection<IComputeDevice> GetDevices()
         {
             var arrayDevices = GetArrayInfo<CLContextHandle, ComputeContextInfo, CLDeviceHandle>(Handle,
-                ComputeContextInfo.Devices, OpenCL110.GetContextInfo);
+                ComputeContextInfo.Devices, OpenCL110.GetContextInfoWrapper);
             var deviceHandles = new List<CLDeviceHandle>(arrayDevices);
             var devices = new List<IComputeDevice>();
             foreach (var platform in ComputePlatform.Platforms)

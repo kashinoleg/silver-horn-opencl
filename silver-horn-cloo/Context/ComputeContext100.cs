@@ -122,8 +122,7 @@ namespace SilverHorn.Cloo.Context
 
         internal ReadOnlyCollection<IComputeDevice> GetDevices()
         {
-            var arrayDevices = GetArrayInfo<CLContextHandle, ComputeContextInfo, CLDeviceHandle>(Handle,
-                ComputeContextInfo.Devices, OpenCL100.GetContextInfo);
+            var arrayDevices = GetArrayInfo<CLContextHandle, ComputeContextInfo, CLDeviceHandle>(Handle, ComputeContextInfo.Devices, OpenCL100.GetContextInfoWrapper);
             var deviceHandles = new List<CLDeviceHandle>(arrayDevices);
             var devices = new List<IComputeDevice>();
             foreach (var platform in ComputePlatform.Platforms)
@@ -156,7 +155,7 @@ namespace SilverHorn.Cloo.Context
                 if (Handle.IsValid)
                 {
                     logger.Info("Dispose " + this + " in Thread(" + Thread.CurrentThread.ManagedThreadId + ").", "Information");
-                    OpenCL100.ReleaseContext(Handle);
+                    OpenCL100.ReleaseContextWrapper(Handle);
                     Handle.Invalidate();
                 }
                 disposedValue = true;

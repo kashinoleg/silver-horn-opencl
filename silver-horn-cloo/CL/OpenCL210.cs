@@ -1,4 +1,5 @@
 ﻿using NLog;
+using SilverHorn.Cloo.CL;
 using SilverHorn.Cloo.Command;
 using SilverHorn.Cloo.Context;
 using SilverHorn.Cloo.Device;
@@ -6,334 +7,195 @@ using SilverHorn.Cloo.Kernel;
 using SilverHorn.Cloo.Sampler;
 using System;
 using System.Runtime.InteropServices;
-using System.Security;
 
 namespace Cloo.Bindings
 {
-    public class OpenCL210
+    public sealed class OpenCL210 : OpenCLBase
     {
-        #region Services
-        /// <summary>
-        /// Logger
-        /// </summary>
-        protected static readonly Logger logger = LogManager.GetCurrentClassLogger();
-        #endregion
-
-        #region Properties
-        /// <summary>
-        /// The name of the library that contains the available OpenCL function points.
-        /// </summary>
-        protected const string libName = "OpenCL.dll";
-        #endregion
-
         #region The OpenCL Runtime - Command Queues
-        /// <summary>
-        /// See the OpenCL specification.
-        /// </summary>
-        [DllImport(libName, EntryPoint = "clCreateCommandQueueWithPropeties")]
-        public extern static CLCommandQueueHandle CreateCommandQueueWithProperties(
-            CLContextHandle context,
-            CLDeviceHandle device,
-            [MarshalAs(UnmanagedType.LPArray)] ComputeCommandQueueFlags[] properties,
-            out ComputeErrorCode errcode_ret);
+        public static CLCommandQueueHandle CreateCommandQueueWithPropertiesWrapper(CLContextHandle context, CLDeviceHandle device, ComputeCommandQueueFlags[] properties)
+        {
+            var handle = CreateCommandQueueWithProperties(context, device, properties, out ComputeErrorCode errcode_ret);
+            ComputeException.ThrowOnError(errcode_ret);
+            return handle;
+        }
 
-        /// <summary>
-        /// See the OpenCL specification.
-        /// </summary>
-        [DllImport(libName, EntryPoint = "clSetDefaultDeviceCommandQueue")]
-        public extern static ComputeErrorCode SetDefaultDeviceCommandQueue(
-            CLContextHandle context,
-            CLDeviceHandle device,
-            CLCommandQueueHandle command_queue);
+        public static void SetDefaultDeviceCommandQueueWrapper(CLContextHandle context, CLDeviceHandle device, CLCommandQueueHandle command_queue)
+        {
+            ComputeException.ThrowOnError(SetDefaultDeviceCommandQueue(context, device, command_queue));
+        }
 
-        /// <summary>
-        /// See the OpenCL specification.
-        /// </summary>
-        [DllImport(libName, EntryPoint = "clRetainCommandQueue")]
-        public extern static ComputeErrorCode RetainCommandQueue(
-            CLCommandQueueHandle command_queue);
+        public static void RetainCommandQueueWrapper(CLCommandQueueHandle command_queue)
+        {
+            ComputeException.ThrowOnError(RetainCommandQueue(command_queue));
+        }
 
-        /// <summary>
-        /// See the OpenCL specification.
-        /// </summary>
-        [DllImport(libName, EntryPoint = "clReleaseCommandQueue")]
-        public extern static ComputeErrorCode
-        ReleaseCommandQueue(
-            CLCommandQueueHandle command_queue);
+        public static void ReleaseCommandQueueWrapper(CLCommandQueueHandle command_queue)
+        {
+            ComputeException.ThrowOnError(ReleaseCommandQueue(command_queue));
+        }
 
-        /// <summary>
-        /// See the OpenCL specification.
-        /// </summary>
-        [DllImport(libName, EntryPoint = "clGetCommandQueueInfo")]
-        public extern static ComputeErrorCode GetCommandQueueInfo(
-            CLCommandQueueHandle command_queue,
-            ComputeCommandQueueInfo param_name,
-            IntPtr param_value_size,
-            IntPtr param_value,
-            out IntPtr param_value_size_ret);
+        public static void GetCommandQueueInfoWrapper(CLCommandQueueHandle command_queue, ComputeCommandQueueInfo param_name, IntPtr param_value_size, IntPtr param_value, out IntPtr param_value_size_ret)
+        {
+            ComputeException.ThrowOnError(GetCommandQueueInfo(command_queue, param_name, param_value_size, param_value, out param_value_size_ret));
+        }
         #endregion
 
         #region The OpenCL Platform Layer - Contexts
-        /// <summary>
-        /// See the OpenCL specification.
-        /// </summary>
-        [DllImport(libName, EntryPoint = "clCreateContext")]
-        public extern static CLContextHandle CreateContext(
-            [MarshalAs(UnmanagedType.LPArray)] IntPtr[] properties,
-            Int32 num_devices,
-            [MarshalAs(UnmanagedType.LPArray)] CLDeviceHandle[] devices,
-            ComputeContextNotifier pfn_notify,
-            IntPtr user_data,
-            out ComputeErrorCode errcode_ret);
+        public static CLContextHandle CreateContextWrapper(IntPtr[] properties, int num_devices, CLDeviceHandle[] devices, ComputeContextNotifier pfn_notify, IntPtr user_data)
+        {
+            var context = CreateContext(properties, num_devices, devices, pfn_notify, user_data, out ComputeErrorCode errcode_ret);
+            ComputeException.ThrowOnError(errcode_ret);
+            return context;
+        }
 
-        /// <summary>
-        /// See the OpenCL specification.
-        /// </summary>
-        [DllImport(libName, EntryPoint = "clCreateContextFromType")]
-        public extern static CLContextHandle CreateContextFromType(
-            [MarshalAs(UnmanagedType.LPArray)] IntPtr[] properties,
-            ComputeDeviceTypes device_type,
-            ComputeContextNotifier pfn_notify,
-            IntPtr user_data,
-            out ComputeErrorCode errcode_ret);
+        public static CLContextHandle CreateContextFromTypeWrapper(IntPtr[] properties, ComputeDeviceTypes device_type, ComputeContextNotifier pfn_notify, IntPtr user_data)
+        {
+            var context = CreateContextFromType(properties, device_type, pfn_notify, user_data, out ComputeErrorCode errcode_ret);
+            ComputeException.ThrowOnError(errcode_ret);
+            return context;
+        }
 
-        /// <summary>
-        /// See the OpenCL specification.
-        /// </summary>
-        [DllImport(libName, EntryPoint = "clRetainContext")]
-        public extern static ComputeErrorCode RetainContext(
-            CLContextHandle context);
+        public static void RetainContextWrapper(CLContextHandle context)
+        {
+            ComputeException.ThrowOnError(RetainContext(context));
+        }
 
-        /// <summary>
-        /// See the OpenCL specification.
-        /// </summary>
-        [DllImport(libName, EntryPoint = "clReleaseContext")]
-        public extern static ComputeErrorCode ReleaseContext(
-            CLContextHandle context);
+        public static void ReleaseContextWrapper(CLContextHandle context)
+        {
+            ComputeException.ThrowOnError(ReleaseContext(context));
+        }
 
-        /// <summary>
-        /// See the OpenCL specification.
-        /// </summary>
-        [DllImport(libName, EntryPoint = "clGetContextInfo")]
-        public extern static ComputeErrorCode GetContextInfo(
-            CLContextHandle context,
-            ComputeContextInfo param_name,
-            IntPtr param_value_size,
-            IntPtr param_value,
-            out IntPtr param_value_size_ret);
+        public static void GetContextInfoWrapper(CLContextHandle context, ComputeContextInfo param_name, IntPtr param_value_size, IntPtr param_value, out IntPtr param_value_size_ret)
+        {
+            ComputeException.ThrowOnError(GetContextInfo(context, param_name, param_value_size, param_value, out param_value_size_ret));
+        }
 
-        /// <summary>
-        /// See the OpenCL specification.
-        /// </summary>
-        [DllImport(libName, EntryPoint = "clTerminateContextKHR")]
-        public extern static ComputeErrorCode TerminateContextKHR(
-            CLContextHandle context);
+        public static void TerminateContextKHRWrapper(CLContextHandle context)
+        {
+            ComputeException.ThrowOnError(TerminateContextKHR(context));
+        }
         #endregion
 
         #region Program Objects - Create Program Objects
-        /// <summary>
-        /// See the OpenCL specification.
-        /// </summary>
-        [DllImport(libName, EntryPoint = "clCreateProgramWithSource")]
-        public extern static CLProgramHandle CreateProgramWithSource(
-            CLContextHandle context,
-            Int32 count,
-            String[] strings,
-            [MarshalAs(UnmanagedType.LPArray)] IntPtr[] lengths,
-            out ComputeErrorCode errcode_ret);
+        public static CLProgramHandle CreateProgramWithSourceWrapper(CLContextHandle context, int count, string[] strings, IntPtr[] lengths)
+        {
+            var handle = CreateProgramWithSource(context, count, strings, lengths, out ComputeErrorCode errcode_ret);
+            ComputeException.ThrowOnError(errcode_ret);
+            return handle;
+        }
 
-        /// <summary>
-        /// See the OpenCL specification.
-        /// </summary>
-        [DllImport(libName, EntryPoint = "clCreateProgramWithIL")]
-        public extern static CLProgramHandle CreateProgramWithIL(
-            CLContextHandle context,
-            IntPtr il,
-            IntPtr length,
-            out ComputeErrorCode errcode_ret);
+        public static CLProgramHandle CreateProgramWithILWrapper(CLContextHandle context, IntPtr il, IntPtr length)
+        {
+            var handle = CreateProgramWithIL(context, il, length, out ComputeErrorCode errcode_ret);
+            ComputeException.ThrowOnError(errcode_ret);
+            return handle;
+        }
 
-        /// <summary>
-        /// See the OpenCL specification.
-        /// </summary>
-        [DllImport(libName, EntryPoint = "clCreateProgramWithBinary")]
-        public extern static CLProgramHandle CreateProgramWithBinary(
-            CLContextHandle context,
-            Int32 num_devices,
-            [MarshalAs(UnmanagedType.LPArray)] CLDeviceHandle[] device_list,
-            [MarshalAs(UnmanagedType.LPArray)] IntPtr[] lengths,
-            [MarshalAs(UnmanagedType.LPArray)] IntPtr[] binaries,
-            [MarshalAs(UnmanagedType.LPArray)] Int32[] binary_status,
-            out ComputeErrorCode errcode_ret);
+        public static CLProgramHandle CreateProgramWithBinaryWrapper(CLContextHandle context,
+            int num_devices, CLDeviceHandle[] device_list, IntPtr[] lengths, IntPtr[] binaries, int[] binary_status)
+        {
+            var handle = CreateProgramWithBinary(context, num_devices, device_list, lengths, binaries, binary_status, out ComputeErrorCode errcode_ret);
+            ComputeException.ThrowOnError(errcode_ret);
+            return handle;
+        }
 
-        /// <summary>
-        /// See the OpenCL specification.
-        /// </summary>
-        [DllImport(libName, EntryPoint = "clCreateProgramWithBuiltInKernels")]
-        public extern static CLProgramHandle CreateProgramWithBuiltInKernels(
-            CLContextHandle context,
-            Int32 num_devices,
-            [MarshalAs(UnmanagedType.LPArray)] CLDeviceHandle[] device_list,
-            String kernel_names,
-            [MarshalAs(UnmanagedType.LPArray)] IntPtr[] lengths,
-            out ComputeErrorCode errcode_ret);
+        public static CLProgramHandle CreateProgramWithBinaryWrapper(CLContextHandle context, int num_devices, CLDeviceHandle[] device_list, string kernel_names, IntPtr[] lengths)
+        {
+            var handle = CreateProgramWithBuiltInKernels(context, num_devices, device_list, kernel_names, lengths, out ComputeErrorCode errcode_ret);
+            ComputeException.ThrowOnError(errcode_ret);
+            return handle;
+        }
 
-        /// <summary>
-        /// See the OpenCL specification.
-        /// </summary>
-        [DllImport(libName, EntryPoint = "clRetainProgram")]
-        public extern static ComputeErrorCode RetainProgram(
-            CLProgramHandle program);
+        public static void RetainProgramWrapper(CLProgramHandle program)
+        {
+            ComputeException.ThrowOnError(RetainProgram(program));
+        }
 
-        /// <summary>
-        /// See the OpenCL specification.
-        /// </summary>
-        [DllImport(libName, EntryPoint = "clReleaseProgram")]
-        public extern static ComputeErrorCode ReleaseProgram(
-            CLProgramHandle program);
+        public static void ReleaseProgramWrapper(CLProgramHandle program)
+        {
+            ComputeException.ThrowOnError(ReleaseProgram(program));
+        }
         #endregion
 
         #region Program
-        /// <summary>
-        /// See the OpenCL specification.
-        /// </summary>
-        [DllImport(libName, EntryPoint = "clBuildProgram")]
-        public extern static ComputeErrorCode BuildProgram(
-            CLProgramHandle program,
-            Int32 num_devices,
-            [MarshalAs(UnmanagedType.LPArray)] CLDeviceHandle[] device_list,
-            String options,
-            ComputeProgramBuildNotifier pfn_notify,
-            IntPtr user_data);
+        public static void BuildProgramWrapper(CLProgramHandle program, int num_devices, CLDeviceHandle[] device_list, string options, ComputeProgramBuildNotifier pfn_notify, IntPtr user_data)
+        {
+            ComputeException.ThrowOnError(BuildProgram(program, num_devices, device_list, options, pfn_notify, user_data));
+        }
 
-        /// <summary>
-        /// See the OpenCL specification.
-        /// </summary>
-        [DllImport(libName, EntryPoint = "clCreateKernelsInProgram")]
-        public extern static ComputeErrorCode CreateKernelsInProgram(
-            CLProgramHandle program,
-            Int32 num_kernels,
-            [Out, MarshalAs(UnmanagedType.LPArray)] CLKernelHandle[] kernels,
-            out Int32 num_kernels_ret);
+        public static void CreateKernelsInProgramWrapper(CLProgramHandle program, Int32 num_kernels, CLKernelHandle[] kernels, out Int32 num_kernels_ret)
+        {
+            ComputeException.ThrowOnError(CreateKernelsInProgram(program, num_kernels, kernels, out num_kernels_ret));
+        }
 
-        /// <summary>
-        /// See the OpenCL specification.
-        /// </summary>
-        [DllImport(libName, EntryPoint = "clGetProgramBuildInfo")]
-        public extern static ComputeErrorCode GetProgramBuildInfo(
-            CLProgramHandle program,
-            CLDeviceHandle device,
-            ComputeProgramBuildInfo param_name,
-            IntPtr param_value_size,
-            IntPtr param_value,
-            out IntPtr param_value_size_ret);
+        public static void GetProgramBuildInfoWrapper(CLProgramHandle program, CLDeviceHandle device, ComputeProgramBuildInfo param_name, IntPtr param_value_size, IntPtr param_value, out IntPtr param_value_size_ret)
+        {
+            ComputeException.ThrowOnError(GetProgramBuildInfo(program, device, param_name, param_value_size, param_value, out param_value_size_ret));
+        }
 
-        /// <summary>
-        /// See the OpenCL specification.
-        /// </summary>
-        [DllImport(libName, EntryPoint = "clGetProgramInfo")]
-        public extern static ComputeErrorCode GetProgramInfo(
-            CLProgramHandle program,
-            ComputeProgramInfo param_name,
-            IntPtr param_value_size,
-            IntPtr param_value,
-            out IntPtr param_value_size_ret);
+        public static void GetProgramInfoWrapper(CLProgramHandle program, ComputeProgramInfo param_name, IntPtr param_value_size, IntPtr param_value, out IntPtr param_value_size_ret)
+        {
+            ComputeException.ThrowOnError(GetProgramInfo(program, param_name, param_value_size, param_value, out param_value_size_ret));
+        }
         #endregion
 
         #region Kernel
+        public static void GetKernelWorkGroupInfoWrapper(CLKernelHandle kernel, CLDeviceHandle device, ComputeKernelWorkGroupInfo param_name, IntPtr param_value_size, IntPtr param_value, out IntPtr param_value_size_ret)
+        {
+            ComputeException.ThrowOnError(GetKernelWorkGroupInfo(kernel, device, param_name, param_value_size, param_value, out param_value_size_ret));
+        }
 
-        /// <summary>
-        /// See the OpenCL specification.
-        /// </summary>
-        [DllImport(libName, EntryPoint = "clGetKernelWorkGroupInfo")]
-        public extern static ComputeErrorCode GetKernelWorkGroupInfo(
-            CLKernelHandle kernel,
-            CLDeviceHandle device,
-            ComputeKernelWorkGroupInfo param_name,
-            IntPtr param_value_size,
-            IntPtr param_value,
-            out IntPtr param_value_size_ret);
+        public static void SetKernelArgWrapper(CLKernelHandle kernel, int arg_index, IntPtr arg_size, IntPtr arg_value)
+        {
+            ComputeException.ThrowOnError(SetKernelArg(kernel, arg_index, arg_size, arg_value));
+        }
 
-        /// <summary>
-        /// See the OpenCL specification.
-        /// </summary>
-        [DllImport(libName, EntryPoint = "clSetKernelArg")]
-        public extern static ComputeErrorCode SetKernelArg(
-            CLKernelHandle kernel,
-            Int32 arg_index,
-            IntPtr arg_size,
-            IntPtr arg_value);
+        public static void RetainKernelWrapper(CLKernelHandle kernel)
+        {
+            ComputeException.ThrowOnError(RetainKernel(kernel));
+        }
 
-        /// <summary>
-        /// See the OpenCL specification.
-        /// </summary>
-        [DllImport(libName, EntryPoint = "clRetainKernel")]
-        public extern static ComputeErrorCode RetainKernel(
-            CLKernelHandle kernel);
+        public static void ReleaseKernelWrapper(CLKernelHandle kernel)
+        {
+            ComputeException.ThrowOnError(ReleaseKernel(kernel));
+        }
 
-        /// <summary>
-        /// See the OpenCL specification.
-        /// </summary>
-        [DllImport(libName, EntryPoint = "clReleaseKernel")]
-        public extern static ComputeErrorCode ReleaseKernel(
-            CLKernelHandle kernel);
+        public static void GetKernelInfoWrapper(CLKernelHandle kernel, ComputeKernelInfo param_name, IntPtr param_value_size, IntPtr param_value, out IntPtr param_value_size_ret)
+        {
+            ComputeException.ThrowOnError(GetKernelInfo(kernel, param_name, param_value_size, param_value, out param_value_size_ret));
+        }
 
-        /// <summary>
-        /// See the OpenCL specification.
-        /// </summary>
-        [DllImport(libName, EntryPoint = "clGetKernelInfo")]
-        public extern static ComputeErrorCode GetKernelInfo(
-            CLKernelHandle kernel,
-            ComputeKernelInfo param_name,
-            IntPtr param_value_size,
-            IntPtr param_value,
-            out IntPtr param_value_size_ret);
-
-        /// <summary>
-        /// See the OpenCL specification.
-        /// </summary>
-        [DllImport(libName, EntryPoint = "clCreateKernel")]
-        public extern static CLKernelHandle CreateKernel(
-            CLProgramHandle program,
-            String kernel_name,
-            out ComputeErrorCode errcode_ret);
+        public static CLKernelHandle CreateKernelWrapper(CLProgramHandle program, String kernel_nam)
+        {
+            var handle = CreateKernel(program, kernel_nam, out ComputeErrorCode errcode_ret);
+            ComputeException.ThrowOnError(errcode_ret);
+            return handle;
+        }
         #endregion
 
         #region Sampler
-        /// <summary>
-        /// See the OpenCL specification.
-        /// </summary>
-        [DllImport(libName, EntryPoint = "clCreateSampler")]
-        public extern static CLSamplerHandle CreateSampler(
-            CLContextHandle context,
-            [MarshalAs(UnmanagedType.Bool)] bool normalized_coords,
-            ComputeImageAddressing addressing_mode,
-            ComputeImageFiltering filter_mode,
-            out ComputeErrorCode errcode_ret);
+        public static CLSamplerHandle CreateSamplerWrapper(CLContextHandle context, bool normalized_coords, ComputeImageAddressing addressing_mode, ComputeImageFiltering filter_mode)
+        {
+            var handle = CreateSampler(context, normalized_coords, addressing_mode, filter_mode, out ComputeErrorCode errcode_ret);
+            ComputeException.ThrowOnError(errcode_ret);
+            return handle;
+        }
 
-        /// <summary>
-        /// See the OpenCL specification.
-        /// </summary>
-        [DllImport(libName, EntryPoint = "clRetainSampler")]
-        public extern static ComputeErrorCode RetainSampler(
-            CLSamplerHandle sample);
+        public static void RetainSamplerWrapper(CLSamplerHandle sample)
+        {
+            ComputeException.ThrowOnError(RetainSampler(sample));
+        }
 
-        /// <summary>
-        /// See the OpenCL specification.
-        /// </summary>
-        [DllImport(libName, EntryPoint = "clReleaseSampler")]
-        public extern static ComputeErrorCode ReleaseSampler(
-            CLSamplerHandle sample);
+        public static void ReleaseSamplerWrapper(CLSamplerHandle sample)
+        {
+            ComputeException.ThrowOnError(ReleaseSampler(sample));
+        }
 
-        /// <summary>
-        /// See the OpenCL specification.
-        /// </summary>
-        [DllImport(libName, EntryPoint = "clGetSamplerInfo")]
-        public extern static ComputeErrorCode GetSamplerInfo(
-            CLSamplerHandle sample,
-            ComputeSamplerInfo param_name,
-            IntPtr param_value_size,
-            IntPtr param_value,
-            out IntPtr param_value_size_ret);
+        public static void GetSamplerInfoWrapper(CLSamplerHandle sample, ComputeSamplerInfo param_name, IntPtr param_value_size, IntPtr param_value, out IntPtr param_value_size_ret)
+        {
+            ComputeException.ThrowOnError(GetSamplerInfo(sample, param_name, param_value_size, param_value, out param_value_size_ret));
+        }
         #endregion
 
 

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using Cloo.Bindings;
 
 namespace Cloo
@@ -24,10 +23,8 @@ namespace Cloo
             : base(buffer.Context, flags)
         {
             SysIntX2 region = new SysIntX2(offset * Marshal.SizeOf(typeof(T)), count * Marshal.SizeOf(typeof(T)));
-            ComputeErrorCode error;
-            CLMemoryHandle handle = CL11.CreateSubBuffer(Handle, flags, ComputeBufferCreateType.Region, ref region, out error);
+            CL11.CreateSubBuffer(Handle, flags, ComputeBufferCreateType.Region, ref region, out ComputeErrorCode error);
             ComputeException.ThrowOnError(error);
-
             Init();
         }
 

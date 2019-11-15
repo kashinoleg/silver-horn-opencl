@@ -5,7 +5,6 @@ using SilverHorn.Cloo.Device;
 using SilverHorn.Cloo.Event;
 using SilverHorn.Cloo.Kernel;
 using SilverHorn.Cloo.Platform;
-using SilverHorn.Cloo.Sampler;
 using System;
 using System.Runtime.InteropServices;
 using System.Security;
@@ -34,43 +33,64 @@ namespace Cloo.Bindings
         /// See the OpenCL specification.
         /// </summary>
         [DllImport(libName, EntryPoint = "clGetPlatformIDs")]
-        public extern static ComputeErrorCode GetPlatformIDs(
+        extern private static ComputeErrorCode GetPlatformIDs(
             Int32 num_entries,
             [Out, MarshalAs(UnmanagedType.LPArray)] CLPlatformHandle[] platforms,
             out Int32 num_platforms);
+
+        public static void GetPlatformIDsWrapper(Int32 num_entries, CLPlatformHandle[] platforms, out Int32 num_platforms)
+        {
+            ComputeException.ThrowOnError(GetPlatformIDs(num_entries, platforms, out num_platforms));
+        }
 
         /// <summary>
         /// See the OpenCL specification.
         /// </summary>
         [DllImport(libName, EntryPoint = "clGetPlatformInfo")]
-        public extern static ComputeErrorCode GetPlatformInfo(
+        extern private static ComputeErrorCode GetPlatformInfo(
             CLPlatformHandle platform,
             ComputePlatformInfo param_name,
             IntPtr param_value_size,
             IntPtr param_value,
             out IntPtr param_value_size_ret);
 
+        public static void GetPlatformInfoWrapper(CLPlatformHandle platform, ComputePlatformInfo param_name, IntPtr param_value_size, IntPtr param_value, out IntPtr param_value_size_ret)
+        {
+            ComputeException.ThrowOnError(GetPlatformInfo(platform, param_name, param_value_size, param_value, out param_value_size_ret));
+        }
+
         /// <summary>
         /// See the OpenCL specification.
         /// </summary>
         [DllImport(libName, EntryPoint = "clGetDeviceIDs")]
-        public extern static ComputeErrorCode GetDeviceIDs(
+        extern private static ComputeErrorCode GetDeviceIDs(
             CLPlatformHandle platform,
             ComputeDeviceTypes device_type,
             Int32 num_entries,
             [Out, MarshalAs(UnmanagedType.LPArray)] CLDeviceHandle[] devices,
             out Int32 num_devices);
 
+        public static void GetDeviceIDsWrapper(CLPlatformHandle platform, ComputeDeviceTypes device_type, Int32 num_entries, CLDeviceHandle[] devices, out Int32 num_devices)
+        {
+            ComputeException.ThrowOnError(GetDeviceIDs(platform, device_type, num_entries, devices, out num_devices));
+        }
+
         /// <summary>
         /// See the OpenCL specification.
         /// </summary>
         [DllImport(libName, EntryPoint = "clGetDeviceInfo")]
-        public extern static ComputeErrorCode GetDeviceInfo(
+        extern private static ComputeErrorCode GetDeviceInfo(
             CLDeviceHandle device,
             ComputeDeviceInfo param_name,
             IntPtr param_value_size,
             IntPtr param_value,
             out IntPtr param_value_size_ret);
+
+        public static void GetDeviceInfoWrapper(CLDeviceHandle device, ComputeDeviceInfo param_name, IntPtr param_value_size, IntPtr param_value, out IntPtr param_value_size_ret)
+        {
+            ComputeException.ThrowOnError(GetDeviceInfo(device, param_name, param_value_size, param_value, out param_value_size_ret));
+        }
+
 
         /// <summary>
         /// See the OpenCL specification.
@@ -143,25 +163,33 @@ namespace Cloo.Bindings
         /// See the OpenCL specification.
         /// </summary>
         [DllImport(libName, EntryPoint = "clGetMemObjectInfo")]
-        public extern static ComputeErrorCode GetMemObjectInfo(
+        extern private static ComputeErrorCode GetMemObjectInfo(
             CLMemoryHandle memobj,
             ComputeMemoryInfo param_name,
             IntPtr param_value_size,
             IntPtr param_value,
             out IntPtr param_value_size_ret);
 
+        public static void GetMemObjectInfoWrapper(CLMemoryHandle memobj, ComputeMemoryInfo param_name, IntPtr param_value_size, IntPtr param_value, out IntPtr param_value_size_ret)
+        {
+            ComputeException.ThrowOnError(GetMemObjectInfo(memobj, param_name, param_value_size, param_value, out param_value_size_ret));
+        }
+
         /// <summary>
         /// See the OpenCL specification.
         /// </summary>
         [DllImport(libName, EntryPoint = "clGetImageInfo")]
-        public extern static ComputeErrorCode GetImageInfo(
+        extern private static ComputeErrorCode GetImageInfo(
             CLMemoryHandle image,
             ComputeImageInfo param_name,
             IntPtr param_value_size,
             IntPtr param_value,
             out IntPtr param_value_size_ret);
 
-        
+        public static void GetImageInfoWrapper(CLMemoryHandle image, ComputeImageInfo param_name, IntPtr param_value_size, IntPtr param_value, out IntPtr param_value_size_ret)
+        {
+            ComputeException.ThrowOnError(GetImageInfo(image, param_name, param_value_size, param_value, out param_value_size_ret));
+        }
 
         /// <summary>
         /// See the OpenCL specification.
@@ -197,12 +225,18 @@ namespace Cloo.Bindings
         /// See the OpenCL specification.
         /// </summary>
         [DllImport(libName, EntryPoint = "clGetEventInfo")]
-        public extern static ComputeErrorCode GetEventInfo(
+        extern private static ComputeErrorCode GetEventInfo(
             CLEventHandle @event,
             ComputeEventInfo param_name,
             IntPtr param_value_size,
             IntPtr param_value,
             out IntPtr param_value_size_ret);
+
+        public static void GetEventInfoWrapper(CLEventHandle @event, ComputeEventInfo param_name, IntPtr param_value_size, IntPtr param_value, out IntPtr param_value_size_ret)
+        {
+            ComputeException.ThrowOnError(GetEventInfo(@event, param_name, param_value_size, param_value, out param_value_size_ret));
+        }
+
 
         /// <summary>
         /// See the OpenCL specification.
@@ -222,12 +256,17 @@ namespace Cloo.Bindings
         /// See the OpenCL specification.
         /// </summary>
         [DllImport(libName, EntryPoint = "clGetEventProfilingInfo")]
-        public extern static ComputeErrorCode GetEventProfilingInfo(
+        extern private static ComputeErrorCode GetEventProfilingInfo(
             CLEventHandle @event,
             ComputeCommandProfilingInfo param_name,
             IntPtr param_value_size,
             IntPtr param_value,
             out IntPtr param_value_size_ret);
+
+        public static void GetEventProfilingInfoWrapper(CLEventHandle @event, ComputeCommandProfilingInfo param_name, IntPtr param_value_size, IntPtr param_value, out IntPtr param_value_size_ret)
+        {
+            ComputeException.ThrowOnError(GetEventProfilingInfo(@event, param_name, param_value_size, param_value, out param_value_size_ret));
+        }
 
         /// <summary>
         /// See the OpenCL specification.

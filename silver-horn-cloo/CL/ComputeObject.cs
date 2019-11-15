@@ -92,17 +92,13 @@ namespace Cloo
         internal QueriedType[] GetArrayInfo<HandleType, InfoType, QueriedType>
             (HandleType handle, InfoType paramName, GetInfoDelegate<HandleType, InfoType> getInfoDelegate)
         {
-            ComputeErrorCode error;
             QueriedType[] buffer;
-            IntPtr bufferSizeRet;
-            error = getInfoDelegate(handle, paramName, IntPtr.Zero, IntPtr.Zero, out bufferSizeRet);
-            ComputeException.ThrowOnError(error);
+            getInfoDelegate(handle, paramName, IntPtr.Zero, IntPtr.Zero, out IntPtr bufferSizeRet);
             buffer = new QueriedType[bufferSizeRet.ToInt64() / Marshal.SizeOf(typeof(QueriedType))];
             GCHandle gcHandle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
             try
             {
-                error = getInfoDelegate(handle, paramName, bufferSizeRet, gcHandle.AddrOfPinnedObject(), out bufferSizeRet);
-                ComputeException.ThrowOnError(error);
+                getInfoDelegate(handle, paramName, bufferSizeRet, gcHandle.AddrOfPinnedObject(), out bufferSizeRet);
             }
             finally
             {
@@ -126,17 +122,12 @@ namespace Cloo
         protected QueriedType[] GetArrayInfo<MainHandleType, SecondHandleType, InfoType, QueriedType>
             (MainHandleType mainHandle, SecondHandleType secondHandle, InfoType paramName, GetInfoDelegateEx<MainHandleType, SecondHandleType, InfoType> getInfoDelegate)
         {
-            ComputeErrorCode error;
-            QueriedType[] buffer;
-            IntPtr bufferSizeRet;
-            error = getInfoDelegate(mainHandle, secondHandle, paramName, IntPtr.Zero, IntPtr.Zero, out bufferSizeRet);
-            ComputeException.ThrowOnError(error);
-            buffer = new QueriedType[bufferSizeRet.ToInt64() / Marshal.SizeOf(typeof(QueriedType))];
+            getInfoDelegate(mainHandle, secondHandle, paramName, IntPtr.Zero, IntPtr.Zero, out IntPtr bufferSizeRet);
+            QueriedType[] buffer = new QueriedType[bufferSizeRet.ToInt64() / Marshal.SizeOf(typeof(QueriedType))];
             GCHandle gcHandle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
             try
             {
-                error = getInfoDelegate(mainHandle, secondHandle, paramName, bufferSizeRet, gcHandle.AddrOfPinnedObject(), out bufferSizeRet);
-                ComputeException.ThrowOnError(error);
+                getInfoDelegate(mainHandle, secondHandle, paramName, bufferSizeRet, gcHandle.AddrOfPinnedObject(), out bufferSizeRet);
             }
             finally
             {
@@ -179,9 +170,7 @@ namespace Cloo
             GCHandle gcHandle = GCHandle.Alloc(result, GCHandleType.Pinned);
             try
             {
-                IntPtr sizeRet;
-                ComputeErrorCode error = getInfoDelegate(handle, paramName, (IntPtr)Marshal.SizeOf(result), gcHandle.AddrOfPinnedObject(), out sizeRet);
-                ComputeException.ThrowOnError(error);
+                getInfoDelegate(handle, paramName, (IntPtr)Marshal.SizeOf(result), gcHandle.AddrOfPinnedObject(), out IntPtr sizeRet);
             }
             finally
             {
@@ -211,9 +200,7 @@ namespace Cloo
             GCHandle gcHandle = GCHandle.Alloc(result, GCHandleType.Pinned);
             try
             {
-                IntPtr sizeRet;
-                ComputeErrorCode error = getInfoDelegate(mainHandle, secondHandle, paramName, new IntPtr(Marshal.SizeOf(result)), gcHandle.AddrOfPinnedObject(), out sizeRet);
-                ComputeException.ThrowOnError(error);
+                getInfoDelegate(mainHandle, secondHandle, paramName, new IntPtr(Marshal.SizeOf(result)), gcHandle.AddrOfPinnedObject(), out IntPtr sizeRet);
             }
             finally
             {
@@ -284,7 +271,7 @@ namespace Cloo
         /// <param name="paramValue"></param>
         /// <param name="paramValueSizeRet"></param>
         /// <returns></returns>
-        internal delegate ComputeErrorCode GetInfoDelegate<HandleType, InfoType>
+        internal delegate void GetInfoDelegate<HandleType, InfoType>
             (
                 HandleType objectHandle,
                 InfoType paramName,
@@ -306,7 +293,7 @@ namespace Cloo
         /// <param name="paramValue"></param>
         /// <param name="paramValueSizeRet"></param>
         /// <returns></returns>
-        protected delegate ComputeErrorCode GetInfoDelegateEx<MainHandleType, SecondHandleType, InfoType>
+        protected delegate void GetInfoDelegateEx<MainHandleType, SecondHandleType, InfoType>
             (
                 MainHandleType mainObjectHandle,
                 SecondHandleType secondaryObjectHandle,
@@ -315,7 +302,6 @@ namespace Cloo
                 IntPtr paramValue,
                 out IntPtr paramValueSizeRet
             );
-
         #endregion
     }
 }
